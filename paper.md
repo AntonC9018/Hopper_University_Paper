@@ -1,17 +1,22 @@
-<!-- TOC -->
 
+Table of contents
+<!-- TOC -->
 - [1. Abstract](#1-abstract)
 - [2. Introduction](#2-introduction)
-    - [2.1. Motivation](#21-motivation)
-        - [2.1.1. My part in the job](#211-my-part-in-the-job)
-    - [2.2. Game mechanics design](#22-game-mechanics-design)
-    - [2.3. A short history of development](#23-a-short-history-of-development)
-        - [2.3.1. Initial attempts](#231-initial-attempts)
-        - [2.3.2. Example illustrating why if-statements do not cut it.](#232-example-illustrating-why-if-statements-do-not-cut-it)
+  - [2.1. Motivation](#21-motivation)
+    - [2.1.1. My part in the job](#211-my-part-in-the-job)
+  - [2.2. Game mechanics design](#22-game-mechanics-design)
+  - [2.3. A short history of development](#23-a-short-history-of-development)
+    - [2.3.1. Initial attempts](#231-initial-attempts)
+    - [2.3.2. Corona & Lua: Stage 2](#232-corona--lua-stage-2)
+    - [2.3.3. C# rework](#233-c-rework)
+    - [2.3.4. Unity and Godot](#234-unity-and-godot)
+    - [2.3.5. Example illustrating why if-statements do not cut it.](#235-example-illustrating-why-if-statements-do-not-cut-it)
+- [3. References](#3-references)
 
 <!-- /TOC -->
 
-# 1. Abstract
+# 1. Abstract 
 
 Together with my colleague, we have created a Roguelike game, **Hopper**, based on the mechanics of *Crypt of the Necrodancer*.
 In the first section I explain why I initiated this project and what development path I took. The next few sections are more technical. There, I motivate and illustrate with concrete examples my design decisions of the system, explain how the game works internally. I present how I managed to escape boilerplate and code duplication via code generation with *Roslyn* and *T4*. Finally, I show how the same code generation tools can be used for integrating the project with the *Godot* game engine.
@@ -26,18 +31,18 @@ The project has always been planned to be an open-source game based on the same 
 
 I never plan this project to make profit. It is designed for personal sake as well as, perhaps, for the community that is going to hopefully pick it up eventually.
 
-The problems with Necrodancer that made me want to make a similar game are the following:
+The **problems with Necrodancer** that made me want to make a similar game are the following:
 1. Modding is virtually impossible. Here, mods can only change visuals. No new mechanics or new types of mobs can be added into the game.
 2. There is no Android support. I initially really wanted to play this on mobile.
 3. The code is not publicly available.
 
-So, my goals for the project became:
+So, **my goals for the project** became:
 1. Make a game with mechanics like in Necrodancer.
 2. Design a well-scalable system with many features and a slick API, to make developing mods easy.
 3. Keep the code open to the public with a permissive license and invite modders when the API is mature enough.
 4. Make it run on Android.
 
-Along the way:
+**Along the way**:
 1. Get experience in game development.
 2. Get experience in the domain of maintenance of complex systems.
 3. Get experience in working and communicating with the community, artists and other developers.
@@ -86,7 +91,7 @@ Over these 2 years, it has been scrapped and rewritten, completely or partially 
 Now it is hard to know what to do at the start, I would even dare say impossible.
 With complex systems and without completely defined requirements, you rarely get things right the first time.
 Code gets rewritten, ideas become more clear in your mind, new areas and possibilities get explored and abandoned.
-Writing a game is, likewise not a linear path.
+Writing a game is, likewise, not a linear path.
 
 Even though I knew the general idea I wanted to pursue with this project, as well as I had the base mechanics figured out, I did not know how to structure it correctly, in terms of code and system design.
 So, I had to try many different things to reach the more exciting stuff I have got today.
@@ -100,15 +105,115 @@ However, my understanding of how such games actually work was quite poor at the 
 
 Designing and implementing a simple game is entirely different from what I was going for.
 If you are designing a game that could have thousands of different effects, mechanics and creatures and possibly expanded by mods, you cannot account for every item with a bunch of if-statements, you actually need more involved abstract systems making use of *some* kind of polymorphism.
-I did not realize this before this project, but quickly understood it after this initial attempt.
+I did not realize this before this project, but quickly understood it after this initial attempt.[Dungeon-Hopper][1]
+I will expand on this more in a separate chapter.
 
-I will expand on this more in a separate chapter
+This initial attempt at coding the game made me understand that complex and scalable games are not a bunch of if statements.
+They require creativity and competence.
 
-### 2.3.2. Example illustrating why if-statements do not cut it. 
+The initial code was scrapped completely and rewritten in the second version, still on Corona.
+
+### 2.3.2. Corona & Lua: Stage 2
+
+Lua is a really simplistic language: there is no concept of types, modules or classes.
+Dynamic method dispatch, however, can be simulated via metatables (prototypical inheritance).
+There also are no arrays: both arrays and dictionaries are represented by the concept of tables.
+
+The biggest problem with Lua is its lack of types and, consequently, its lack of static analysis.
+One has to deal with simplest annoying bugs, like a misspelt variable name, on a regular basis.
+Bugs are really hard to track down.
+
+I got pretty far with Lua, having developed a lot of features.
+
+At that time I came up with the idea of using **chains** for implementing events.
+In short, chains in my interpretation are responsibility chains that do something with the `context` they are given, kind of like the stack of handler functions on backend that in sequence modify the `request` and `response` objects.
+At any point the propagation of the `context` may be stopped by a handler, to avoid the execution of the handlers down the line.
+Also, each of the handlers has an associated priotity, by which they stay sorted in the underlying data structure. 
+See more on chains, including implementation details in future sections.
+
+This idea proved essential to the way I ended up handling movement, attacking, taking damage etc.
+
+During this time, I also realised that, in order for the system to be really robust, I must use dynamic components. 
+More on this, likewise, in future chapters.
+
+This stage of the project is pretty well-documented, which is essential when you don't even have types in your language.
+I wrote a couple of articles explaining some of the mechanics and API's of the system, which you may find [here][2].
+Some of the ideas documented there translated almost intact into the new version of the code.
+
+
+### 2.3.3. C# rework
+
+Finally, I got sick of Lua not having types. 
+I decided to go ahead and rewrite the entirety of the project for C#.
+Why C#? 
+I did not care what game engine I will end up using, I was just focused on the logic part, i.e. the development of the system.
+I knew there are *Unity* and *Godot*, which both support C# as their scripting language.
+So the idea was to write the core code independent of the graphics.
+This concept is commonly called *MVC (Model-View-Controller)* or *MVVM (Model-View-ViewModel)*. 
+With this, it will be possible to create "visualizer scripts" for any game engine that supports C#.
+
+This idea is nothing new and it's actually what I was thinking of initially.
+However, before this project evolved into using C#, the idea of how the communication between the view and the model should be organized had been pretty vague to me.
+Before the transition from the Lua version, I had not even tried to code a robust enough system to handle that.
+I kind of slapped together a good enough for testing purposes prototype, and let it slide.
+
+So, the C# version was initially done solely in console.
+At the time, I did not even know how to write automated tests or rather had not bothered to learn how to do it.
+The tests were manual and based on inspection. 
+I had a script that would print out a bunch of information of how objects interacted in the game and I would skim throught that to see if a feature worked as expected.
+
+For this starter C# version I basically recoded all of the Lua code in C# and also enhanced some of the ideas.
+The code became more robust, but not robust enough.
+
+There were a lot of maintenance issues that I had that slowed down programming and made it annoying.
+In short, I used factories to build out my entity types as well as builder classes for their initial chains.
+Thing is, with factories, you have this tight coupling of the factory and the class it builds.
+So when I changed the entity, I had to go back and change the factory too.
+When I changed how the chain functions, I had to go back and see if the builder works right.
+
+I had the concept of *tinkers* and *retouchers* (both made up terms) which both existed just to help to add (remove) handlers to (from) chains.
+The sole difference between them is that retouchers are used for entity *types* (on factories) while tinkers are used for entity *instances*.
+They do the same thing, while only being different in the container they target. 
+The fact that they do the same thing means code duplication and maintenance issues.
+However, since they do the same thing, there is no point in telling them apart.
+
+I did kind of realise this, but I did not know how to fight against this at the time.
+It has been remedied only by code generation, lately.
+
+The other maintenance issue was *boilerplate* code.
+
+There is really no way around boilerplate code with plain C#.
+I know there is reflection, but it is unreliable and error-prone, as well as really slow.
+I did use reflection to get rid of boilerplate in some places, like adding together stat objects, which are just structs with a bunch of ints.
+
+Another tool I tried using to get rid of boilerplate were generic interfaces. 
+These work to a degree, but make the code too complicated.
+
+### 2.3.4. Unity and Godot
+
+A couple of months after switching to C#, the codebase got mature enough to try to make a view on Unity or Godot.
+
+Initially, I made a small demo for [Unity][4]. 
+It featured a generic controller, which worked with interfaces and so was later reused for the [demo Godot version][5] (not the current version).
+This time I designed a prototype for the controller that was a little more robust, but still lacked a lot of features and was too annoying to enjoy working with. 
+Its deficiencies were addressed in the new version, developed mainly by my colleague, who describes it at length [in his work][6]. 
+<!-- This is not yet true!! --> 
+The former hairiness was salvaged by means of code generation.
+
+Game engine features, as mentioned above, do not affect my work in a significant way, which is why the description of those will be omitted.
+My colleague, however, had to work more closely with the engine, so I encourage you to go see [his work][6] for more information on game engine details.
+My part of this job was to derive the essential to the game API, which was done independently of any game engine.
+For me, a game engine simply provided a sort of a visualisation of my code.
+This way of visualizing what the code does can sometimes be helpful to identify certain bugs. 
+The point is that humans understand visual input more intutively than console logs or the call stack and so somtimes the problem is more apparent when you see it pop up in action.
+
+
+### 2.3.5. Example illustrating why if-statements do not cut it. 
 
 Say you wanted to program a simple *Snake* game. 
 It has a well-defined limited set of features and mechanics that you do not plan to expand.
 Then it can be coded quickly with a bunch of if statements:
+
 ```C++
 // change direction
 if (direction == LEFT || direction == RIGHT)
@@ -143,3 +248,13 @@ else
 }
 ```
 
+
+
+# 3. References
+
+[1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper github page"
+[2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Dungeon-Hopper documentation"
+[3]: https://github.com/AntonC9018/hopper.cs "hopper.cs github page"
+[4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity demo github page"
+[5]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot demo github page"
+[6]: <citation_needed> "Colleague's work"
