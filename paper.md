@@ -6,7 +6,8 @@
         - [2.1.1. My part in the job](#211-my-part-in-the-job)
     - [2.2. Game mechanics design](#22-game-mechanics-design)
     - [2.3. A short history of development](#23-a-short-history-of-development)
-        - [2.3.1. Example.](#231-example)
+        - [2.3.1. Initial attempts](#231-initial-attempts)
+        - [2.3.2. Example illustrating why if-statements do not cut it.](#232-example-illustrating-why-if-statements-do-not-cut-it)
 
 <!-- /TOC -->
 
@@ -71,8 +72,8 @@ The fact that you have limited time to act really does differentiate it from oth
 While technically being turn-based, it succeeds to be fast-paced, thanks to this mechanic.
 While you have *some* time to consider your next action, you cannot carefully calculate everything, like you would in chess.
 
-Also, it is important to see the consequences of your actions and plan ahead a few turns to be safe, but given the fact that the time your given to think in between beats is so limited, reaction plays a big role too.
-This game teaches you to be able to draw the line at some point and take a decent action, which is not necessarily the best overall.
+Also, it is important to see the consequences of your actions and plan ahead a few turns to be safe, but given the fact that the time you are given to think in between beats is so limited, reaction plays a big role too.
+This game teaches you to be able to draw the line at some point and take a decent action, which is not going to necessarily be the best one overall.
 This is in a way similar to timed chess, where your time is a resource you have to manage and the clock ticking might make you nervous.
 The short spacing between beats likewise feels stressful at times, but it feels good to sometimes clutch out such intense moments, where you are able to ward off a horde of enemies e.g. with a well-casted magic spell or a deft weapon swing.
 
@@ -90,10 +91,55 @@ Writing a game is, likewise not a linear path.
 Even though I knew the general idea I wanted to pursue with this project, as well as I had the base mechanics figured out, I did not know how to structure it correctly, in terms of code and system design.
 So, I had to try many different things to reach the more exciting stuff I have got today.
 
+### 2.3.1. Initial attempts
+
 Initially, I tried to code the game in *Corona* game engine, in *Lua* programming language.
+It allows exporting on mobile and desktop.
+
 However, my understanding of how such games actually work was quite poor at the time.
 
-Basically, when you write a more or less scalable complex system, 
+Designing and implementing a simple game is entirely different from what I was going for.
+If you are designing a game that could have thousands of different effects, mechanics and creatures and possibly expanded by mods, you cannot account for every item with a bunch of if-statements, you actually need more involved abstract systems making use of *some* kind of polymorphism.
+I did not realize this before this project, but quickly understood it after this initial attempt.
 
-### 2.3.1. Example. 
+I will expand on this more in a separate chapter
+
+### 2.3.2. Example illustrating why if-statements do not cut it. 
+
+Say you wanted to program a simple *Snake* game. 
+It has a well-defined limited set of features and mechanics that you do not plan to expand.
+Then it can be coded quickly with a bunch of if statements:
+```C++
+// change direction
+if (direction == LEFT || direction == RIGHT)
+{
+    if (pressed_down) direction = DOWN;
+    else if (pressed_up) direction = UP;
+}
+else
+{
+    if (pressed_left) direction = LEFT;
+    else if (pressed_right) direction = RIGHT;
+}
+
+// move
+position += direction;
+
+// update state
+if (is_off_screen(position) || is_snake_at_position(position)) 
+{
+    game_over();
+} 
+else if (is_apple_at_position(position))
+{
+    score++;
+    destroy_apple();
+    create_apple(); // cannot be at `position` or either position of the snake
+}
+else
+{
+    delete_first_snake_position();
+    add_snake_position(position);
+}
+```
 
