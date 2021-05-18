@@ -27,7 +27,11 @@ Table of contents
   - [3.2. System design overview](#32-system-design-overview)
     - [3.2.1. How NOT to write code](#321-how-not-to-write-code)
     - [3.2.2. Separation and events is the key idea](#322-separation-and-events-is-the-key-idea)
-    - [3.2.3. My MVC misconceptions, I guess?](#323-my-mvc-misconceptions-i-guess)
+    - [3.2.3. A wrong turn?](#323-a-wrong-turn)
+      - [3.2.3.1. The idea of a History](#3231-the-idea-of-a-history)
+      - [3.2.3.2. What's the problem though?](#3232-whats-the-problem-though)
+      - [3.2.3.3. The Solution](#3233-the-solution)
+      - [3.2.3.4. Is it all?](#3234-is-it-all)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -508,10 +512,184 @@ If we wanted to animate sliding correctly, we need a way of changing this queue 
 So, we'll make the event queue a property of a player instance, not just of the player type, so that we could modify it at runtime.
 
 And now, that we have separated them, we can resolve the maintenance issues as well.
-Since the view part can be factored in a fully-fledged independent system, this problem can also be solved with a bit more thought.
+Since the view part can be factored in a fully-fledged independent system, this problem too can be solved with a bit more thought.
 
 
-### 3.2.3. My MVC misconceptions, I guess?
+### 3.2.3. A wrong turn?
+
+So, my initial idea was that the model should be separated from the view, but I did not know how to do it exactly.
+I did know of events (signals) and I did use it, but the realization that they can be used for communication between the view and the model has not come to me until lately.
+I just thought about this a little differently.
+I though about the view and the model as these two completely independent systems, the view being connected to the model with a tiny bridge.
+This can work, but it is not very scalable.
+Instead, the view is connected to the model all over the place, via events, while the model knows nothing about the view.
+
+#### 3.2.3.1. The idea of a History
+
+Initially, I imagined model and view being connected via the *history*.
+The model would push updates on what events happened in the world throught this history.
+For example, when the player is attacked, the `being attacked` update is saved on the history.
+
+The view would update its state and decide what animations to play after all of the events have happened.
+So I imagined it this way: there are a bunch of separated state machines in the player view, all responsible for the different events. 
+
+For example, there is a state machine for a dash. A dash means an attack immediately followed by a movement. 
+There is also a state machine for moving, which consists of just the moving update. 
+
+So, after a turn in the model has been processed and the history has been filled up, the view would get the history and try running all of the state machines on it. 
+So, if a player both attacked and then moved on the same turn, the view will receive the history with 2 updates: attacking and moving. 
+The state machines will then be tried. 
+The dash is attacking then moving, so this state machine would succeed. 
+The state machine for moving would also succeed, since the moving update is present.
+Out of these 2, the view will select the more complex one, that is, the dash, to display animations for.
+
+I even had a more intuitive term for this concept: sieves. 
+Each state machine is a sieve that gets clogged when you try to sieve the history through it. 
+When the history has been let through all of the sieves, the most complex clogged sieve is selected and the animations associated with that sieve are played.
+
+
+#### 3.2.3.2. What's the problem though?
+
+The problem comes when you need to pass data along with the updates.
+
+Ok, you could pass any data with the updates, but then there is no clear way of seeing which event this is, without casting the passed data to a known type. 
+This leads to ugly `if-else` like this, to figure out the correct type.
+This is definitely a code smell.
+
+```C#
+foreach (object update in history)
+{
+   if (update is AttackingUpdate attackingUpdate)
+   {
+       // do something with the data from `attackingUpdate`
+       // ...
+   }
+   else if (update is MovingEvent movingEvent)
+   {
+       // you get the idea
+   }
+}
+```
+
+Since the hole you are trying to push these updates from model to view is so narrow, you must convert updates to an analog of an `object` type, losing the actual type of the update in the process.
+This is known as type erasure.
+
+But wait, can't you use polymorphism instead of `if-else`'s to call the functions you need to process the data? 
+
+Well, since the model does not know anything about your view logic associated with the updates, but it does know the data in the updates, no, this is not possible.
+You could try maintaining a dictionary of handlers mapped to by the type of the update, like below.
+This is a stinky code smell and maintaining such code is extremely annoying.
+
+```C#
+void HandleAttack(object update)
+{
+    // First cast to the needed type
+    var attackingUpdate = (AttackingUpdate) update;
+    // Do something with the data ...
+}
+
+void HandleMove(object update)
+{
+    // First cast to the needed type
+    var movingUpdate = (MovingUpdate) update;
+    // Do something with the data ...
+}
+
+// Type is the type info of the given class.
+// Action<T> is a void function that takes in T as an argument.
+Dictionary<Type, Action<object>> typeErasedHandlers
+{
+    { typeof(AttackingUpdate), HandleAttack },
+    { typeof(MovingUpdate),    HandleMove   }
+};
+
+void SieveThroughHistory(History history)
+{
+    foreach (object update in history)
+    {
+        typeErasedHandlers[typeof(update)](update);
+    }
+}
+```
+
+#### 3.2.3.3. The Solution
+
+Fortunately, there is a better way of dealing with this.
+
+The idea is to allow multiple points of contact between the view and the model.
+This way, the history stage can be bypassed completely.
+The model does not have to push any "updates" to the history. 
+All it does is it dispatches the corresponding event with all of the data that it is currently dealing with, stored in a context.
+As a toy example (again, not real code):
+
+```C#
+class AttackingContext
+{
+    Player player;
+    Enemy attackedEnemy;
+    IntVector2 direction;
+}
+
+class Player
+{
+    // ...
+
+    EventQueue<AttackingContext> attackEventQueue;
+
+    void Attack(IntVector2 direction)
+    {
+        var enemy = Grid.GetEnemyAt(this.position + direction);
+       
+        if (enemy != null)
+        {
+            var context = new AttackingContext(
+                player        : this,
+                attackedEnemy : enemy,
+                direction     : direction);
+            
+            attackEventQueue.Dispatch(context);
+
+            enemy.TakeDamage(this.damage);
+        }
+    }
+}
+
+class PlayerView
+{
+    // ...
+
+    void AttackHandler(AttackingContext context)
+    {
+        // Do something with:
+        // context.player
+        // context.attackedEnemy 
+        // context.direction     
+    } 
+
+    void Setup(Player playerInstance)
+    {
+        playerInstance.attackEventQueue.AddHandler(AttackHandler);
+    }
+}
+
+```
+
+This idea may be obvious now that I have illustrated it, but it has not been obvious to me until recently.
+I had to go through all the miserable stages of the concept of history explained above to come to this revelation.
+
+So, with this design we have been able to separate the model and the view, while being able to pass data from the model to the view without involving type erasure and even without the model knowing anything about the view.
+
+#### 3.2.3.4. Is it all?
+
+There are still a few problems with this design.
+
+One of them mostly has to do with the inconvenience of certain things that come with using this design.
+I have been able to address these with code generation.
+
+Another problem is with ordering of handlers. 
+I was able to solve that problem by introducing priorities.
+
+I will be discussing both of these later in the work.
 
 
 # 4. References
