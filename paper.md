@@ -11,6 +11,9 @@ Table of contents
     - [2.3.2. Corona & Lua: Stage 2](#232-corona--lua-stage-2)
     - [2.3.3. C# rework](#233-c-rework)
     - [2.3.4. Unity and Godot](#234-unity-and-godot)
+    - [Code generation](#code-generation)
+      - [Reasons for code generation](#reasons-for-code-generation)
+      - [Tools in short](#tools-in-short)
     - [2.3.5. Example illustrating why if-statements do not cut it.](#235-example-illustrating-why-if-statements-do-not-cut-it)
 - [3. References](#3-references)
 
@@ -205,7 +208,32 @@ My colleague, however, had to work more closely with the engine, so I encourage 
 My part of this job was to derive the essential to the game API, which was done independently of any game engine.
 For me, a game engine simply provided a sort of a visualisation of my code.
 This way of visualizing what the code does can sometimes be helpful to identify certain bugs. 
-The point is that humans understand visual input more intutively than console logs or the call stack and so somtimes the problem is more apparent when you see it pop up in action.
+The point is that humans understand visual input more intutively than console logs or the call stack and so sometimes the problem is more apparent when you see it pop up in action.
+
+
+### Code generation
+
+Since april I've worked on code generation for eliminating boilerplate and for making the development process less cumbersome.
+
+#### Reasons for code generation
+
+Code generation is essential, because it encourages experimentation. When I see a pattern that cannot be easily exploited without code generation, I can quickly code a prototype module for my code generator that would exploit that idea. If it turns out to be useful, I just leave this new module in. If it does not turn out great, undoing it is as simple as, e.g. skipping a step in code generation. I would not have to go through dozens of files or roll back a git commit.
+
+Code generation prevents repeating this boilerplate code in dozens of files, while also providing any future code with out-of-the-box features. 
+It is easier to manage, since all that has to change is the rules of how the code is generated to automatically apply changes to all classes that used the feature.
+It is easier to expand on, because it as well takes just a few rule changes in the code generator and does not involve refactoring dozens of files.
+It provides automatic documentation. Just imagine keeping similar comments in dozens of files up to date.
+
+#### Tools in short
+
+I have been using `T4`, short for `Text Template Transformation Toolkit` for creating templates, along with `Roslyn` for source code analysis. I would mark classes in my source code with certain user-defined attributes to enable certain code to be generated when the code generator is run.
+
+My approach on code analysis is pretty simplistic. 
+It does not monitor the code live, connecting to a language server. 
+Instead, when the code generator is run, it deletes all of its previous output, then reads the source files and analyzes them, then just regenerates the code again. 
+Yes, it is slow, but it is also way easier to implement. 
+The slowest part of the process is reading in and analyzing the source code, so it could definitely be optimized with a language server.
+
 
 
 ### 2.3.5. Example illustrating why if-statements do not cut it. 
