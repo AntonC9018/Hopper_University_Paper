@@ -11,10 +11,11 @@ Table of contents
     - [2.3.2. Corona & Lua: Stage 2](#232-corona--lua-stage-2)
     - [2.3.3. C# rework](#233-c-rework)
     - [2.3.4. Unity and Godot](#234-unity-and-godot)
-    - [Code generation](#code-generation)
-      - [Reasons for code generation](#reasons-for-code-generation)
-      - [Tools in short](#tools-in-short)
-    - [2.3.5. Example illustrating why if-statements do not cut it.](#235-example-illustrating-why-if-statements-do-not-cut-it)
+    - [2.3.5. Code generation](#235-code-generation)
+      - [2.3.5.1. Reasons for code generation](#2351-reasons-for-code-generation)
+      - [2.3.5.2. Tools in short](#2352-tools-in-short)
+      - [2.3.5.3. My workflow](#2353-my-workflow)
+    - [2.3.6. Example illustrating why if-statements do not cut it.](#236-example-illustrating-why-if-statements-do-not-cut-it)
 - [3. References](#3-references)
 
 <!-- /TOC -->
@@ -102,13 +103,13 @@ So, I had to try many different things to reach the more exciting stuff I have g
 ### 2.3.1. Initial attempts
 
 Initially, I tried to code the game in *Corona* game engine, in *Lua* programming language.
-It allows exporting on mobile and desktop.
+It allows exporting on mobile and desktop. See the github repository [here][1].
 
 However, my understanding of how such games actually work was quite poor at the time.
 
-Designing and implementing a simple game is entirely different from what I was going for.
+Designing and implementing a simple game is entirely different from what I was faced with.
 If you are designing a game that could have thousands of different effects, mechanics and creatures and possibly expanded by mods, you cannot account for every item with a bunch of if-statements, you actually need more involved abstract systems making use of *some* kind of polymorphism.
-I did not realize this before this project, but quickly understood it after this initial attempt.[Dungeon-Hopper][1]
+I did not realize this before this project, but quickly understood it after this initial attempt.
 I will expand on this more in a separate chapter.
 
 This initial attempt at coding the game made me understand that complex and scalable games are not a bunch of if statements.
@@ -120,7 +121,7 @@ The initial code was scrapped completely and rewritten in the second version, st
 
 Lua is a really simplistic language: there is no concept of types, modules or classes.
 Dynamic method dispatch, however, can be simulated via metatables (prototypical inheritance).
-There also are no arrays: both arrays and dictionaries are represented by the concept of tables.
+There also are no arrays: both arrays and dictionaries are represented via so-called tables.
 
 The biggest problem with Lua is its lack of types and, consequently, its lack of static analysis.
 One has to deal with simplest annoying bugs, like a misspelt variable name, on a regular basis.
@@ -129,7 +130,7 @@ Bugs are really hard to track down.
 I got pretty far with Lua, having developed a lot of features.
 
 At that time I came up with the idea of using **chains** for implementing events.
-In short, chains in my interpretation are responsibility chains that do something with the `context` they are given, kind of like the stack of handler functions on backend that in sequence modify the `request` and `response` objects.
+In short, chains in my interpretation are responsibility chains which do something with the `context` they are given, kind of like the stack of handler functions on backend which in sequence modify the `request` and `response` objects.
 At any point the propagation of the `context` may be stopped by a handler, to avoid the execution of the handlers down the line.
 Also, each of the handlers has an associated priotity, by which they stay sorted in the underlying data structure. 
 See more on chains, including implementation details in future sections.
@@ -174,14 +175,13 @@ Thing is, with factories, you have this tight coupling of the factory and the cl
 So when I changed the entity, I had to go back and change the factory too.
 When I changed how the chain functions, I had to go back and see if the builder works right.
 
-I had the concept of *tinkers* and *retouchers* (both made up terms) which both existed just to help to add (remove) handlers to (from) chains.
+I had the concept of *tinkers* and *retouchers* (both made-up terms) which both existed just to help to add (remove) handlers to (from) chains.
 The sole difference between them is that retouchers are used for entity *types* (on factories) while tinkers are used for entity *instances*.
 They do the same thing, while only being different in the container they target. 
 The fact that they do the same thing means code duplication and maintenance issues.
 However, since they do the same thing, there is no point in telling them apart.
 
-I did kind of realise this, but I did not know how to fight against this at the time.
-It has been remedied only by code generation, lately.
+I did kind of realize this, but I did not know how to fight against this at the time.
 
 The other maintenance issue was *boilerplate* code.
 
@@ -191,6 +191,8 @@ I did use reflection to get rid of boilerplate in some places, like adding toget
 
 Another tool I tried using to get rid of boilerplate were generic interfaces. 
 These work to a degree, but make the code too complicated.
+
+All of the problems described above have been remedied only recently, by code generation.
 
 ### 2.3.4. Unity and Godot
 
@@ -211,20 +213,21 @@ This way of visualizing what the code does can sometimes be helpful to identify 
 The point is that humans understand visual input more intutively than console logs or the call stack and so sometimes the problem is more apparent when you see it pop up in action.
 
 
-### Code generation
+### 2.3.5. Code generation
 
 Since april I've worked on code generation for eliminating boilerplate and for making the development process less cumbersome.
 
-#### Reasons for code generation
+#### 2.3.5.1. Reasons for code generation
 
-Code generation is essential, because it encourages experimentation. When I see a pattern that cannot be easily exploited without code generation, I can quickly code a prototype module for my code generator that would exploit that idea. If it turns out to be useful, I just leave this new module in. If it does not turn out great, undoing it is as simple as, e.g. skipping a step in code generation. I would not have to go through dozens of files or roll back a git commit.
+Code generation is essential, because it encourages experimentation. When I see a pattern that cannot be easily exploited without code generation, I can quickly code a prototype module for my code generator that would exploit that idea. If it turns out to be useful, I just leave this new module in. If it does not turn out great, undoing it is as simple as e.g. skipping a step in code generation. I would not have to go through dozens of files or roll back a git commit.
 
 Code generation prevents repeating this boilerplate code in dozens of files, while also providing any future code with out-of-the-box features. 
 It is easier to manage, since all that has to change is the rules of how the code is generated to automatically apply changes to all classes that used the feature.
 It is easier to expand on, because it as well takes just a few rule changes in the code generator and does not involve refactoring dozens of files.
 It provides automatic documentation. Just imagine keeping similar comments in dozens of files up to date.
 
-#### Tools in short
+
+#### 2.3.5.2. Tools in short
 
 I have been using `T4`, short for `Text Template Transformation Toolkit` for creating templates, along with `Roslyn` for source code analysis. I would mark classes in my source code with certain user-defined attributes to enable certain code to be generated when the code generator is run.
 
@@ -235,8 +238,17 @@ Yes, it is slow, but it is also way easier to implement.
 The slowest part of the process is reading in and analyzing the source code, so it could definitely be optimized with a language server.
 
 
+#### 2.3.5.3. My workflow
 
-### 2.3.5. Example illustrating why if-statements do not cut it. 
+My process of turning repeating code into generated code is loosely as follows:
+1. When writing code, I see a pattern that could be exploited via code generation.
+2. If the pattern is not clear enough, I wait until another piece of code encounters a similar problem, until the problem is clear enough in my head to propose a generic solution.
+3. I try solving it without code generation, in simplest way possible (hopefully without generic interfaces).
+4. If I cannot come up with a simple generic solution, I enable code generation for the given idea.
+
+
+<!-- Incomplete! -->
+### 2.3.6. Example illustrating why if-statements do not cut it. 
 
 Say you wanted to program a simple *Snake* game. 
 It has a well-defined limited set of features and mechanics that you do not plan to expand.
