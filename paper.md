@@ -16,7 +16,10 @@ Table of contents
       - [2.3.5.2. Tools in short](#2352-tools-in-short)
       - [2.3.5.3. My workflow](#2353-my-workflow)
     - [2.3.6. Example illustrating why if-statements do not cut it.](#236-example-illustrating-why-if-statements-do-not-cut-it)
-- [3. References](#3-references)
+- [3. Overview of the system](#3-overview-of-the-system)
+  - [Game mechanics overview](#game-mechanics-overview)
+    - [Types of actions](#types-of-actions)
+- [4. References](#4-references)
 
 <!-- /TOC -->
 
@@ -289,8 +292,44 @@ else
 ```
 
 
+# 3. Overview of the system
 
-# 3. References
+
+## Game mechanics overview
+
+As has been mentioned, the game mechanics are based on those from Necrodancer.
+
+The game happens in a 2d grid world and it is turn based.
+You control a character positioned in one of the cells in the grid.
+Every turn, you may take an action, like move in on of the directions to an adjacent cell, attack an enemy on an adjacent cell, dig an obstacle or perform one of the special actions, like casting a spell.
+You may also skip your turn, without doing anything.
+
+After you have done your action, all of the enemies are given a chance to take an action, one by one.
+Which action is taken is determined by their AI (an algorithm for selecting the next action) and can in fact be anything from plain attack/move to, likewise, casting a spell.
+
+There are a few more things that take place after this, which we'll get into later.
+
+
+### Types of actions
+
+An important concept to address is that the player may only select between two types of actions:
+1. *Vector actions* (or `directed actions`, governed by directional inputs (arrow keys). These include attacking, moving and digging in a specified direction.
+2. *Special actions* (mostly `undirected actions`), like casting a spell or activating some item. 
+These actions are executed by pressing one of the designated keys, without requiring a simultaneous directional input (arrow key). 
+Those that do need a direction to work properly, like launching a fireball in a certain direction, may use the current orientation of the character, or set the direction by other means.
+
+The important thing to understand is that the player does not have control over what action will be done exactly in case of a vector action. 
+More precisely, all possible actions will be tried in order and the first that was able to be executed terminates the action execution process.
+
+For example, if player provided the input `up`, first the character would try to attack in the upward direction, then, if there was no enemy to attack, they would try digging the obstacle in the upward direction, then, if there was no obstacle, they would go ahead and try moving up a tile.
+
+This is opposed to the special actions, which are commonly mapped directly to certain effects or activated items. 
+For example, say, the player presses the `S` key, which is mapped to holding up the shield. 
+So pressing the `S` key will always execute the exact action it is mapped to (in general, but there are exceptions).
+
+As a result of this paradigm, the player can execute any available action at any given point pressing at most one key.
+
+# 4. References
 
 [1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper github page"
 [2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Dungeon-Hopper documentation"
