@@ -465,7 +465,7 @@ void AnimateMove(IntVector2 newPosition)
 }
 ```
 
-This is, obviously still not ideal, implementation-wise (callbacks and so on), but we have a bigger problem here. 
+This is still not ideal, implementation-wise (callbacks and so on), but we have a bigger problem here. 
 There is currently no way for these functions to communicate. 
 Calling `AnimateMove()` in `Move()` does not work, since that would mean that we just refactored the animation code in a function, but they are still tighly coupled. 
 Our goal was to separate the game logic from the view. How do we do it?
@@ -522,23 +522,22 @@ I did know of events (signals) and I did use it, but the realization that they c
 I just thought about this a little differently.
 I though about the view and the model as these two completely independent systems, the view being connected to the model with a tiny bridge.
 This can work, but it is not very scalable.
-Instead, the view is connected to the model all over the place, via events, while the model knows nothing about the view.
+Instead, the view should be connected to the model all over the place, via events, while the model knows nothing about the view.
 
 #### 3.2.3.1. The idea of a History
 
 Initially, I imagined model and view being connected via the *history*.
 The model would push updates on what events happened in the world throught this history.
 For example, when the player is attacked, the `being attacked` update is saved on the history.
-
 The view would update its state and decide what animations to play after all of the events have happened.
-So I imagined it this way: there are a bunch of separated state machines in the player view, all responsible for the different events. 
 
+So I imagined it this way: there are a bunch of separated state machines in the player view, all responsible for the different events. 
 For example, there is a state machine for a dash. A dash means an attack immediately followed by a movement. 
 There is also a state machine for moving, which consists of just the moving update. 
 
 So, after a turn in the model has been processed and the history has been filled up, the view would get the history and try running all of the state machines on it. 
-So, if a player both attacked and then moved on the same turn, the view will receive the history with 2 updates: attacking and moving. 
-The state machines will then be tried. 
+So, if a player both attacked and then moved on the same turn, the view will receive the history containing 2 updates: attacking and moving. 
+Each of the state machines will then be tried. 
 The dash is attacking then moving, so this state machine would succeed. 
 The state machine for moving would also succeed, since the moving update is present.
 Out of these 2, the view will select the more complex one, that is, the dash, to display animations for.
@@ -552,7 +551,7 @@ When the history has been let through all of the sieves, the most complex clogge
 
 The problem comes when you need to pass data along with the updates.
 
-Ok, you could pass any data with the updates, but then there is no clear way of seeing which event this is, without casting the passed data to a known type. 
+Ok, you *could* pass any data with the updates, but then there is no clear way of seeing which event this is, without casting the passed data to a known type. 
 This leads to ugly `if-else` like this, to figure out the correct type.
 This is definitely a code smell.
 
@@ -571,13 +570,16 @@ foreach (object update in history)
 }
 ```
 
-Since the hole you are trying to push these updates from model to view is so narrow, you must convert updates to an analog of an `object` type, losing the actual type of the update in the process.
+Since the hole you are trying to push these updates through from model to view is so narrow, you must convert updates to an analog of the `object` type, losing the actual type of the update in the process.
 This is known as type erasure.
 
 But wait, can't you use polymorphism instead of `if-else`'s to call the functions you need to process the data? 
 
-Well, since the model does not know anything about your view logic associated with the updates, but it does know the data in the updates, no, this is not possible.
-You could try maintaining a dictionary of handlers mapped to by the type of the update, like below.
+Well, since the model does not know anything about your view logic associated with the updates, but it does jsut know the data in the updates, no, this is not possible. 
+You cannot give the model a type with that data to instantiate (so that it has your polymorphic functions). 
+That is, you *could*, it's just not very convenient and there are simpler ways of achieving the same result.
+
+You *could* try maintaining a dictionary of handlers mapped to by the type of the update, like below.
 This is a stinky code smell and maintaining such code is extremely annoying.
 
 ```C#
@@ -618,7 +620,7 @@ Fortunately, there is a better way of dealing with this.
 
 The idea is to allow multiple points of contact between the view and the model.
 This way, the history stage can be bypassed completely.
-The model does not have to push any "updates" to the history. 
+The model does not have to *push* any "updates" to the history. 
 All it does is it dispatches the corresponding event with all of the data that it is currently dealing with, stored in a context.
 As a toy example (again, not real code):
 
@@ -675,7 +677,7 @@ class PlayerView
 ```
 
 This idea may be obvious now that I have illustrated it, but it has not been obvious to me until recently.
-I had to go through all the miserable stages of the concept of history explained above to come to this revelation.
+I had to go through all the misery of history explained above to come to this revelation.
 
 So, with this design we have been able to separate the model and the view, while being able to pass data from the model to the view without involving type erasure and even without the model knowing anything about the view.
 
