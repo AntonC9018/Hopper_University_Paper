@@ -23,6 +23,11 @@ Table of contents
     - [3.1.3. The items](#313-the-items)
     - [3.1.4. The enemies](#314-the-enemies)
     - [3.1.5. The time limit](#315-the-time-limit)
+    - [3.1.6. More ideas](#316-more-ideas)
+  - [3.2. System design overview](#32-system-design-overview)
+    - [3.2.1. How NOT to write code](#321-how-not-to-write-code)
+    - [3.2.2. Separation and events is the key idea](#322-separation-and-events-is-the-key-idea)
+    - [3.2.3. My MVC misconceptions, I guess?](#323-my-mvc-misconceptions-i-guess)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -383,6 +388,130 @@ I'd say it is *the* core mechanic borrowed from Necrodancer.
 However, this part is relatively independent of other game mechanics, like moving the player within the grid and the item system, and it's not the focus of this work.
 This work is mostly focused on my implementation of the other parts of the game: the action system, the item system etc.
 
+
+### 3.1.6. More ideas
+
+When the engine is done, more ideas would become easy to explore.
+
+I would like to try turning this game in a PVP arena, or a MOBA, keeping the base mechanics and the idea with doing actions to music in place. 
+I do not know how viable this would be, but it does seem pretty intriguing.
+
+
+## 3.2. System design overview
+
+I'm more or less concerned with just the engine, that is, how the logic is going to work, how items, actions, enemy AI are implemented and the tools for e.g. code generation.
+I'm also interested in allowing the extension existing content via mods.
+
+
+### 3.2.1. How NOT to write code
+
+One of the most important topics of game development is how to neatly show what is happening in the game on the screen, with animations, particles and the right sprites being shown.
+
+One way of doing this is to refer to the code that controls the *View*, that is, what you see on the screen, directly in the game logic code. For example, something like this (pseudocode for understanding, not actual code from the game):
+
+```C#
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+        SetAnimation(Animation.Hopping);
+        TranslateSprite(
+            to: this.position + direction, 
+            timeInMs: 500, 
+            callback: () => SetAnimation(Animation.Idle));
+        this.position += direction;
+    }
+}
+```
+
+However, this has some drawbacks:
+1. Your game logic code is now tightly coupled with the view. You mix together code that can potentially be separated, thus making it harder to read, understand and maintain.
+2. The code you wrote is very unstable. 
+Assume for a moment that the player, after having had moved to the new position, have triggered a trap that killed him. That should trigger the kill animation, but, instead, the idle animation set in the callback is playing. Obviously, this is a toy example, but you can already see that setting callbacks like that is no good. You need a more complex system for handling it.
+3. What if the player is sliding instead of hopping? Then, a different animation needs to be set, not `Animation.Hopping`, but `Animation.Sliding`. Would you add a check for sliding in the `Move()` function? But what if sliding came from a mod? Then your system would have had no idea of it. Clearly, such simple strategy is not going to work here.
+
+So, to sum up, the drawbacks are:
+1. Tight coupling.
+2. Maintenance issues.
+3. Inflexibility.
+
+
+### 3.2.2. Separation and events is the key idea
+
+I am going to illustrate how separation of components and events solve all of the issues outlined above.
+
+So, to address tight coupling, just imagine there were two functions, one responsible for moving, while the other for the animations.
+
+```C#
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+       this.position += direction; 
+    }
+}
+
+void AnimateMove(IntVector2 newPosition)
+{
+    SetAnimation(Animation.Hopping);
+    TranslateSprite(
+        to: newPosition, 
+        timeInMs: 500, 
+        callback: () => SetAnimation(Animation.Idle));
+}
+```
+
+This is, obviously still not ideal, implementation-wise (callbacks and so on), but we have a bigger problem here. 
+There is currently no way for these functions to communicate. 
+Calling `AnimateMove()` in `Move()` does not work, since that would mean that we just refactored the animation code in a function, but they are still tighly coupled. 
+Our goal was to separate the game logic from the view. How do we do it?
+Events (signals) to the rescue!
+
+The idea is to define a queue of handlers, code in which will be executed when the player moves.
+This queue may be static, configurable for particular types of entities.
+Still in pseudocode:
+
+```C#
+static EventQueue<Handler> moveEvent;
+
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+       moveEvent.Dispatch(this, this.position + direction);
+       this.position += direction;
+    }
+}
+
+void AnimateMove(IntVector2 newPosition)
+{
+    SetAnimation(Animation.Hopping);
+    TranslateSprite(
+        to: newPosition, 
+        timeInMs: 500, 
+        callback: () => SetAnimation(Animation.Idle));
+}
+
+void Setup()
+{
+    moveEvent.AddHandler(AnimateMove);
+}
+```
+
+Now, the `Move()` function knows nothing about the view. 
+It just dispatches an event every time the player moves.
+
+However, this still does not solve the problem with e.g. sliding. 
+The player does not slide by default. 
+Sliding is an effect applied to them at runtime.
+If we wanted to animate sliding correctly, we need a way of changing this queue at runtime.
+So, we'll make the event queue a property of a player instance, not just of the player type, so that we could modify it at runtime.
+
+And now, that we have separated them, we can resolve the maintenance issues as well.
+Since the view part can be factored in a fully-fledged independent system, this problem can also be solved with a bit more thought.
+
+
+### 3.2.3. My MVC misconceptions, I guess?
 
 
 # 4. References
