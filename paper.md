@@ -17,8 +17,12 @@ Table of contents
       - [2.3.5.3. My workflow](#2353-my-workflow)
     - [2.3.6. Example illustrating why if-statements do not cut it.](#236-example-illustrating-why-if-statements-do-not-cut-it)
 - [3. Overview of the system](#3-overview-of-the-system)
-  - [Game mechanics overview](#game-mechanics-overview)
-    - [Types of actions](#types-of-actions)
+  - [3.1. Game mechanics overview](#31-game-mechanics-overview)
+    - [3.1.1. Types of actions](#311-types-of-actions)
+    - [3.1.2. The goal](#312-the-goal)
+    - [3.1.3. The items](#313-the-items)
+    - [3.1.4. The enemies](#314-the-enemies)
+    - [3.1.5. The time limit](#315-the-time-limit)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -294,23 +298,22 @@ else
 
 # 3. Overview of the system
 
-
-## Game mechanics overview
+## 3.1. Game mechanics overview
 
 As has been mentioned, the game mechanics are based on those from Necrodancer.
 
-The game happens in a 2d grid world and it is turn based.
+The game takes place in a 2d grid world and it is turn based.
 You control a character positioned in one of the cells in the grid.
 Every turn, you may take an action, like move in on of the directions to an adjacent cell, attack an enemy on an adjacent cell, dig an obstacle or perform one of the special actions, like casting a spell.
 You may also skip your turn, without doing anything.
 
-After you have done your action, all of the enemies are given a chance to take an action, one by one.
+After you have done your action, all of the enemies are given the chance to take an action, one by one.
 Which action is taken is determined by their AI (an algorithm for selecting the next action) and can in fact be anything from plain attack/move to, likewise, casting a spell.
 
 There are a few more things that take place after this, which we'll get into later.
 
 
-### Types of actions
+### 3.1.1. Types of actions
 
 An important concept to address is that the player may only select between two types of actions:
 1. *Vector actions* (or `directed actions`, governed by directional inputs (arrow keys). These include attacking, moving and digging in a specified direction.
@@ -328,6 +331,59 @@ For example, say, the player presses the `S` key, which is mapped to holding up 
 So pressing the `S` key will always execute the exact action it is mapped to (in general, but there are exceptions).
 
 As a result of this paradigm, the player can execute any available action at any given point pressing at most one key.
+
+
+### 3.1.2. The goal
+
+The player is faced with the problem of completing a randomly generated level.
+The levels consists of a few connected rooms, each room containing enemies to fight.
+There is one final room with a door (a trapdoor, a staircase or a doorway) to the next level.
+Once the player is able to beat a few such levels, they are faced with a boss.
+Beating the boss either lets the player procceed to the next level, or results in an overall victory.
+
+The levels get progressively more difficult. In particular, monsters get more health, new and more complicated monster variants appear, the number of floor hazards like spikes or ponds increase, etc.
+At the same time, player may get items while clearing the floor, which grant new passive or active abilities, increase stats. So the player gets stronger while progressing as well.
+
+
+### 3.1.3. The items
+
+The inventory of the player has a few item slots, each either associated a role, like weapon, spell and shovel, or an armor part, like boots or the helmet. 
+Those slots which are activated are mapped to a an input, so providing that input would also activate the item in that slot. 
+
+The player may pick up items by stepping on them, thereby they are placed automatically in the slot assigned to them. If there is already an item in that slot, that item is replaced with the one just picked up.
+
+Some items may not have an associated slot. 
+Such items as a rule just boost player's stats or slightly change a specific behavior.
+For example, there may be an item that does damage to all enemies around the enemy hit by the player.
+
+Assume, for simplicity, there may not be two copies of the same item at the same time equipped by the player.
+
+
+### 3.1.4. The enemies
+
+Each enemy has a clearly defined behavior. 
+They select actions according to a well-understood strategy.
+
+For example, a simple enemy may have the following strategy: skip an action, then attack or move in the direction of player.
+
+The enemies must be predictable for the player to be able to quickly evaluate a given situation and be certain in one's actions.
+Ideally, nothing unexpected should ever happen.
+
+Likewise, every enemy must have a way to beat it, some simple pattern of moves for the player to follow to always come up ahead.
+The joy of gameplay is in learning the enemy move set, coming up with such patterns and strategies of beating them, and evalualing the situation quickly, coming up with a good action on the fly, in case the enemies come in packs. 
+
+
+### 3.1.5. The time limit
+
+As has been mentioned, the most intriguing idea is that there is a time limit for every action.
+More specifically, the actions must be done to the beat of the music (with some leeway).
+
+This is an essential detail in the design of the game. 
+I'd say it is *the* core mechanic borrowed from Necrodancer.
+However, this part is relatively independent of other game mechanics, like moving the player within the grid and the item system, and it's not the focus of this work.
+This work is mostly focused on my implementation of the other parts of the game: the action system, the item system etc.
+
+
 
 # 4. References
 
