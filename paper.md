@@ -15,7 +15,6 @@ Table of contents
       - [2.3.5.1. Reasons for code generation](#2351-reasons-for-code-generation)
       - [2.3.5.2. Tools in short](#2352-tools-in-short)
       - [2.3.5.3. My workflow](#2353-my-workflow)
-    - [2.3.6. Example illustrating why if-statements do not cut it.](#236-example-illustrating-why-if-statements-do-not-cut-it)
 - [3. Overview of the system](#3-overview-of-the-system)
   - [3.1. Game mechanics overview](#31-game-mechanics-overview)
     - [3.1.1. Types of actions](#311-types-of-actions)
@@ -32,9 +31,10 @@ Table of contents
       - [3.2.3.2. What's the problem though?](#3232-whats-the-problem-though)
       - [3.2.3.3. The Solution](#3233-the-solution)
       - [3.2.3.4. Is it all?](#3234-is-it-all)
-    - [ECS (Entity-Component-System)](#ecs-entity-component-system)
-      - [Introduction](#introduction)
-      - [Why not OOP?](#why-not-oop)
+    - [3.2.4. ECS (Entity-Component-System)](#324-ecs-entity-component-system)
+      - [3.2.4.1. Introduction](#3241-introduction)
+      - [3.2.4.2. Why not OOP?](#3242-why-not-oop)
+      - [3.2.4.3. My ECS](#3243-my-ecs)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -264,48 +264,6 @@ My process of turning repeating code into generated code is loosely as follows:
 2. If the pattern is not clear enough, I wait until another piece of code encounters a similar problem, until the problem is clear enough in my head to propose a generic solution.
 3. I try solving it without code generation, in simplest way possible (hopefully without generic interfaces).
 4. If I cannot come up with a simple generic solution, I enable code generation for the given idea.
-
-
-<!-- Incomplete! -->
-### 2.3.6. Example illustrating why if-statements do not cut it. 
-
-Say you wanted to program a simple *Snake* game. 
-It has a well-defined limited set of features and mechanics that you do not plan to expand.
-Then it can be coded quickly with a bunch of if statements:
-
-```C++
-// change direction
-if (direction == LEFT || direction == RIGHT)
-{
-    if (pressed_down) direction = DOWN;
-    else if (pressed_up) direction = UP;
-}
-else
-{
-    if (pressed_left) direction = LEFT;
-    else if (pressed_right) direction = RIGHT;
-}
-
-// move
-position += direction;
-
-// update state
-if (is_off_screen(position) || is_snake_at_position(position)) 
-{
-    game_over();
-} 
-else if (is_apple_at_position(position))
-{
-    score++;
-    destroy_apple();
-    create_apple(); // cannot be at `position` or either position of the snake
-}
-else
-{
-    delete_first_snake_position();
-    add_snake_position(position);
-}
-```
 
 
 # 3. Overview of the system
@@ -697,13 +655,13 @@ I was able to solve that problem by introducing priorities.
 I will be discussing both of these later in the work.
 
 
-### ECS (Entity-Component-System)
+### 3.2.4. ECS (Entity-Component-System)
 
 A lot has been said about ECS's.
 However, I strongly believe that you cannot understand them completely unless you rediscover them yourself.
 The moment when you see an actual problem and attempt to solve it with different methods, including ECS, that's when the actual understanding is born.
 
-#### Introduction
+#### 3.2.4.1. Introduction
 
 ECS is a way of viewing the space of your program in a different way. 
 
@@ -719,7 +677,7 @@ They operate on individual *components* of entities, thereby enabling certain be
 The idea behind ECS's is, essentially, flexible, dynamic entities.
 
 
-#### Why not OOP?
+#### 3.2.4.2. Why not OOP?
 
 If you ever tried using OOP for representing types of entities in a dynamic environment, you know it is *not* going to work.
 1. One cannot apply inheritance and hierarchies properly.
@@ -763,6 +721,19 @@ You may either do as above: destroy the caterpillar and spawn a butterfly, or yo
 In this sense, the latter is more flexible.
 
 
+#### 3.2.4.3. My ECS
+
+I have a little bit of a special perspective on ECS, currently.
+- The notion of a *system* is pretty vague in my code.
+- There is a distinction between plain data *components* and *behaviors*.
+- In my code, behaviors are the ones defining *events* (*chains* are used, more on them later). 
+So, behaviors in this case are a fusion of a component and a system.
+As has been described above, events prove essential in binding together the view and the model.
+- There is a concept of a type. 
+A type is essentially a template by which the entities are constructed on instantiation.
+Types are currently modeled with another entity (a *subject*) that is cloned on instantiation to create a new instance of that type.
+The instance then becomes independent of the subject and may change at runtime in any way, without affecting the subject.
+Types therefore can be augmented with components at type contruction time, just like entities at runtime. 
 
 # 4. References
 
