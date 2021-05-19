@@ -34,7 +34,11 @@ Table of contents
     - [3.2.4. ECS (Entity-Component-System)](#324-ecs-entity-component-system)
       - [3.2.4.1. Introduction](#3241-introduction)
       - [3.2.4.2. Why not OOP?](#3242-why-not-oop)
+      - [Compression](#compression)
       - [3.2.4.3. My ECS](#3243-my-ecs)
+- [Technical topics](#technical-topics)
+  - [The grid](#the-grid)
+    - [Cells](#cells)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -721,6 +725,16 @@ You may either do as above: destroy the caterpillar and spawn a butterfly, or yo
 In this sense, the latter is more flexible.
 
 
+#### Compression
+
+Another idea is to give every entity the entire range of possible properties and abilities and just not let them use most of them. 
+This way, it is easy to enable some of the abilities later: you just have to e.g. set some flag that indicates whether you entity can use that ability.
+
+There are two problems with this:
+1. The more components or properties you have in your game, the more bloated your entities become, the more space they take. Not just one entity, but all of them at once.
+2. It cannot be extended by mods, which is a no-no in my case. One of my project goals is to allow modding.
+
+
 #### 3.2.4.3. My ECS
 
 I have a little bit of a special perspective on ECS, currently.
@@ -735,6 +749,56 @@ Types are currently modeled with another entity (a *subject*) that is cloned on 
 The instance then becomes independent of the subject and may change at runtime in any way, without affecting the subject.
 Types therefore can be augmented with components at type construction time, just like entities at runtime. 
 
+
+# Technical topics
+
+In this section, I present some of the elements of the game. 
+In particular, I explain their motivation and the way they have been implemented, with concrete code examples from the source.
+
+
+## The grid
+
+As has already been mentioned, the world is represented as a 2d grid with entities.
+Now, since the query operations of finding an entity at a specific cell, seeing if there is a block at a specific cell are so common, it is beneficial to store the entites (more explicitly, their *transforms*) by their current coordinates, in a literal 2d array. This is, in fact, the way I decided to model it ([see e.g. the constructor][7]. 
+
+
+### Cells
+
+Every cell is assumed to have different layers, where entities on each layer have slightly different properties. 
+For example, generally, a spiked trap, which damages the player when they step on it, cannot be attacked by players, but can be exploded by bombs. 
+This is because the layer in the cell that the trap is located at is the `trap` layer, while the player or enemies can only target the `real` layer with their normal attacks.
+Anyway, this is how I decided to model this idea.
+
+Before the rework, I used to have a slot for each of the layers in each cell, but that was not good, at least because most of the layers were empty most of the time, since there was nothing at those positions.
+See, for example, [the former Cell class, in lua][8].
+
+This had another drawback: there can only be one entity in that layer at a time. 
+This makes entities that can go through other entities of the same layer either impossible to implement, or just difficult to think about.
+
+I since realized I could store the entities in a list, and then retrive the entity from a needed layer by iterating through that list. 
+Linear search is in fact acceptable in this case, because a cell usually won't have more than 1-2 entities.
+Cases when there are more entities are rare and can be basically neglected.
+
+The current implementation of a cell involves inheriting from `List<Transform>`. 
+See [the current implementation][9].
+I personally see nothing bad in this approach, although [a lot of bad things has been set about this][10].
+People often bring up *composition over inheritance*, how composition is more flexible, but this isn't really a case of that. 
+This is more about avoiding boilerplate by not writing out the implementation of `IList<Transform>`, forwarding all calls to a private member of type `List<Transform>`.
+This, at the same time, makes the code more erroneous, I know, by allowing people to cast a cell to `List<Transform>` and then using the add member of that, instead of the one shadowing the `Add()` method inherited from list, which also does some debug asserts.
+This way, I allow other code to do more with the cell, maybe even something they are not supposed to do.
+
+I, personally, do not really care what people say. 
+I'm going to use whatever feels OK for me.
+Implementing an interface by writing out forwarding methods to a member list does not feel good.
+At the same time, I have not yet fully develop my style of coding in C#, and I do not personally agree with some of the suggestions of people.
+Maybe when I grow professionally, I will understand more.
+
+To be noted though, that static tiles are not even considered entities and are therefore not stored in the grid. 
+The same applies to particle effects, which have no inflence on game mechanics.
+The model is only responsible for things that have to do with game logic.
+
+
+
 # 4. References
 
 [1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper github page"
@@ -743,3 +807,7 @@ Types therefore can be augmented with components at type construction time, just
 [4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity demo github page"
 [5]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot demo github page"
 [6]: <citation_needed> "Colleague's work"
+[7]: https://github.com/AntonC9018/hopper.cs/blob/mega_refactoring!/Core/World/Grid/Grid.cs#L30 "GridManager's constructor"
+[8]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "The former Cell class in lua"
+[9]: https://github.com/AntonC9018/hopper.cs/blob/mega_refactoring!/Core/World/Grid/Cell.cs#L8 "Cell's current implementation"
+[10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "inheriting from list in C#"
