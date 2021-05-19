@@ -32,6 +32,9 @@ Table of contents
       - [3.2.3.2. What's the problem though?](#3232-whats-the-problem-though)
       - [3.2.3.3. The Solution](#3233-the-solution)
       - [3.2.3.4. Is it all?](#3234-is-it-all)
+    - [ECS (Entity-Component-System)](#ecs-entity-component-system)
+      - [Introduction](#introduction)
+      - [Why not OOP?](#why-not-oop)
 - [4. References](#4-references)
 
 <!-- /TOC -->
@@ -692,6 +695,73 @@ Another problem is with ordering of handlers.
 I was able to solve that problem by introducing priorities.
 
 I will be discussing both of these later in the work.
+
+
+### ECS (Entity-Component-System)
+
+A lot has been said about ECS's.
+However, I strongly believe that you cannot understand them completely unless you rediscover them yourself.
+The moment when you see an actual problem and attempt to solve it with different methods, including ECS, that's when the actual understanding is born.
+
+#### Introduction
+
+ECS is a way of viewing the space of your program in a different way. 
+
+ECS states that there is a world and any object in that world is an *entity*.
+All entities start off as just an empty object with an identifier.
+It is a skeleton, to which you apply *components* to enable certain behavior or property.
+Components usually just contain data.
+
+All the game mechanics are just interactions between objects in the world.
+These are conceptualized as *systems*.
+They operate on individual *components* of entities, thereby enabling certain behavior.
+
+The idea behind ECS's is, essentially, flexible, dynamic entities.
+
+
+#### Why not OOP?
+
+If you ever tried using OOP for representing types of entities in a dynamic environment, you know it is *not* going to work.
+1. One cannot apply inheritance and hierarchies properly.
+2. Static types are too rigid.
+
+So, imagine for a second that you have a `Player` class. 
+A player can do many things, including moving, attacking and digging.
+
+Now, you create another class, `Enemy`. 
+You notice that the enemy can move and attack, but it has a different control scheme: the player is controlled by user input, while the enemy by an AI.
+
+So you might be tempted to factor out the common things, namely, attacking and moving, in a base class.
+The `Player` class will then inherit from this base class, adding the ability to dig, as well as their own input scheme, and so will the `Enemy`, adding their AI algorithm.
+
+But then a new type of `Enemy` comes along: it can attack, move and dig, while also having an AI.
+Where in your hierarchy will you put this new class? 
+Should it inherit from `Enemy`? 
+But then it will have to add the digging, which is already implemented in the `Player` class. 
+Should you factor the digging in another base class, like `DiggingMovingAttackingBase`? 
+No, because then you cannot inherit the AI from the `Enemy` class. 
+Should you instead inherit the `Enemy` class from this new base class? 
+Again, no, because `Enemy` cannot dig by design. 
+
+So, with even this simple example, the typical OOP inheritance idea breaks down.
+Now, imagine the same scenario but amplified 100 times: there are hundreds of properties and behaviors any entity could have.
+This is impossile to model with a hierarchy.
+
+Se second point is that the entites, if they are modeled as instances of static types, cannot alter their behavior at runtime.
+In a real game, the player may start of not having the ability to dig, but once thay acquire a pickaxe, they may learn this new ability.
+However, you cannot dynamically modify the `Player` type to become able to dig.
+Making it able to dig off the start likewise does not make sense, because it learned to do it *eventually*.
+
+Another example: you have a two stage monster, say, an angry butterfly that initially start as an innocent caterpillar, so it cannot even attack, but then it transforms into an actual buttefly, gaining the ability to fly and attack the player.
+
+With OOP there is essentially just one way to model this.
+You would have two classes, one modeling the caterpillar state, and another class, modeling the butterfly state.
+To transform the caterpillar into a butterfly, you would destroy the caterpillar and spawn a new butterfly.
+
+With dynamic types you have 2 possibilities.
+You may either do as above: destroy the caterpillar and spawn a butterfly, or you may morph the caterpillar into a butterfly by giving it the `Flying` and the `Attacking` behaviors.
+In this sense, the latter is more flexible.
+
 
 
 # 4. References
