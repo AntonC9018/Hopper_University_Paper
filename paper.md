@@ -294,7 +294,7 @@ Those that do need a direction to work properly, like launching a fireball in a 
 The important thing to understand is that the player does not have control over what action will be done exactly in case of a vector action. 
 More precisely, all possible actions will be tried in order and the first that was able to be executed terminates the action execution process.
 
-For example, if player provided the input `up`, first the character would try to attack in the upward direction, then, if there was no enemy to attack, they would try digging the obstacle in the upward direction, then, if there was no obstacle, they would go ahead and try moving up a tile.
+For example, if the player provided the input `up`, first the character would try to attack in the upward direction, then, if there was no enemy to attack, they would try digging the obstacle in the upward direction, then, if there was no obstacle, they would go ahead and try moving up a tile.
 
 This is opposed to the special actions, which are commonly mapped directly to certain effects or activated items. 
 For example, say, the player presses the `S` key, which is mapped to holding up the shield. 
@@ -306,7 +306,7 @@ As a result of this paradigm, the player can execute any available action at any
 ### 3.1.2. The goal
 
 The player is faced with the problem of completing a randomly generated level.
-The levels consists of a few connected rooms, each room containing enemies to fight.
+The levels consist of a few connected rooms, each room containing enemies to fight.
 There is one final room with a door (a trapdoor, a staircase or a doorway) to the next level.
 Once the player is able to beat a few such levels, they are faced with a boss.
 Beating the boss either lets the player procceed to the next level, or results in an overall victory.
@@ -365,14 +365,14 @@ I do not know how viable this would be, but it does seem pretty intriguing.
 ## 3.2. System design overview
 
 I'm more or less concerned with just the engine, that is, how the logic is going to work, how items, actions, enemy AI are implemented and the tools for e.g. code generation.
-I'm also interested in allowing the extension existing content via mods.
+I'm also interested in allowing the extension of existing content via mods.
 
 
 ### 3.2.1. How NOT to write code
 
 One of the most important topics of game development is how to neatly show what is happening in the game on the screen, with animations, particles and the right sprites being shown.
 
-One way of doing this is to refer to the code that controls the *View*, that is, what you see on the screen, directly in the game logic code. For example, something like this (pseudocode for understanding, not actual code from the game):
+One way of doing this is to refer to the code that controls the *View*, that is, what you see on the screen, directly in the game logic code (the *Model*). For example, something like this (pseudocode for understanding, not actual code from the game):
 
 ```C#
 void Move(IntVector2 direction)
@@ -479,11 +479,11 @@ Since the view part can be factored in a fully-fledged independent system, this 
 ### 3.2.3. A wrong turn?
 
 So, my initial idea was that the model should be separated from the view, but I did not know how to do it exactly.
-I did know of events (signals) and I did use it, but the realization that they can be used for communication between the view and the model has not come to me until lately.
+I did know of events (signals) and I did use them, but the realization that they can be used for communication between the view and the model has not come to me until lately.
 I just thought about this a little differently.
 I though about the view and the model as these two completely independent systems, the view being connected to the model with a tiny bridge.
 This can work, but it is not very scalable.
-Instead, the view should be connected to the model all over the place, via events, while the model knows nothing about the view.
+Instead, the view should be connected to the model at a multitude of points of contact, via events, with the model knowing nothing about the view.
 
 #### 3.2.3.1. The idea of a History
 
@@ -536,7 +536,7 @@ This is known as type erasure.
 
 But wait, can't you use polymorphism instead of `if-else`'s to call the functions you need to process the data? 
 
-Well, since the model does not know anything about your view logic associated with the updates, but it does jsut know the data in the updates, no, this is not possible. 
+Well, since the model does not know anything about your view logic associated with the updates, but it does just know the data in the updates, no, this is not possible. 
 You cannot give the model a type with that data to instantiate (so that it has your polymorphic functions). 
 That is, you *could*, it's just not very convenient and there are simpler ways of achieving the same result.
 
@@ -733,7 +733,7 @@ As has been described above, events prove essential in binding together the view
 A type is essentially a template by which the entities are constructed on instantiation.
 Types are currently modeled with another entity (a *subject*) that is cloned on instantiation to create a new instance of that type.
 The instance then becomes independent of the subject and may change at runtime in any way, without affecting the subject.
-Types therefore can be augmented with components at type contruction time, just like entities at runtime. 
+Types therefore can be augmented with components at type construction time, just like entities at runtime. 
 
 # 4. References
 
