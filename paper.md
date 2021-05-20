@@ -34,12 +34,15 @@ Table of contents
     - [3.2.4. ECS (Entity-Component-System)](#324-ecs-entity-component-system)
       - [3.2.4.1. Introduction](#3241-introduction)
       - [3.2.4.2. Why not OOP?](#3242-why-not-oop)
-      - [Compression](#compression)
-      - [3.2.4.3. My ECS](#3243-my-ecs)
-- [Technical topics](#technical-topics)
-  - [The grid](#the-grid)
-    - [Cells](#cells)
-- [4. References](#4-references)
+      - [3.2.4.3. Compression](#3243-compression)
+      - [3.2.4.4. My ECS](#3244-my-ecs)
+- [4. Technical topics](#4-technical-topics)
+  - [4.1. The grid](#41-the-grid)
+    - [4.1.1. Cells](#411-cells)
+    - [4.1.2. Components having to do with position and movement](#412-components-having-to-do-with-position-and-movement)
+      - [4.1.2.1. Transform](#4121-transform)
+      - [4.1.2.2. Displaceable](#4122-displaceable)
+- [5. References](#5-references)
 
 <!-- /TOC -->
 
@@ -725,7 +728,7 @@ You may either do as above: destroy the caterpillar and spawn a butterfly, or yo
 In this sense, the latter is more flexible.
 
 
-#### Compression
+#### 3.2.4.3. Compression
 
 Another idea is to give every entity the entire range of possible properties and abilities and just not let them use most of them. 
 This way, it is easy to enable some of the abilities later: you just have to e.g. set some flag that indicates whether you entity can use that ability.
@@ -735,7 +738,7 @@ There are two problems with this:
 2. It cannot be extended by mods, which is a no-no in my case. One of my project goals is to allow modding.
 
 
-#### 3.2.4.3. My ECS
+#### 3.2.4.4. My ECS
 
 I have a little bit of a special perspective on ECS, currently.
 - The notion of a *system* is pretty vague in my code.
@@ -749,20 +752,34 @@ Types are currently modeled with another entity (a *subject*) that is cloned on 
 The instance then becomes independent of the subject and may change at runtime in any way, without affecting the subject.
 Types therefore can be augmented with components at type construction time, just like entities at runtime. 
 
+I'm a little bit worried about the performance of my ECS. 
+The thing is, it is what's called a "fake" ECS.
+ECS's generally put a lot of focus on storing the different components in some central linear place in memory to be able to feed those components into systems sequentially (sequential iteration is way faster).
+Manual memory management also improves performance, saving a lot of work for the GC (garbage collector).
 
-# Technical topics
+I am doing it the "I don't care" way, that is, just allocate all components on the heap with the `new` operator.
+This is, in fact, both the expected and the easy way of doing this in C#, but it's not performant at all.
+
+Doing an ECS in the right way in C# is a very hard feat to accomplish.
+Structs and arrays of structs are the only way of storing data directly in memory and not somewhere on the heap.
+C# lacks tools of doing manual memory management, like the ones found in C++, because you're just not assumed to care about memory management when doing C#.
+I even once considered migrating the project into C++, but C++ has its own faults, e.g. the fact that modding is going to be a lot more challenging to implement, so in the end I settled with a fake ECS instead.
+
+
+
+# 4. Technical topics
 
 In this section, I present some of the elements of the game. 
 In particular, I explain their motivation and the way they have been implemented, with concrete code examples from the source.
 
 
-## The grid
+## 4.1. The grid
 
 As has already been mentioned, the world is represented as a 2d grid with entities.
 Now, since the query operations of finding an entity at a specific cell, seeing if there is a block at a specific cell are so common, it is beneficial to store the entites (more explicitly, their *transforms*) by their current coordinates, in a literal 2d array. This is, in fact, the way I decided to model it ([see e.g. the constructor][7]. 
 
 
-### Cells
+### 4.1.1. Cells
 
 Every cell is assumed to have different layers, where entities on each layer have slightly different properties. 
 For example, generally, a spiked trap, which damages the player when they step on it, cannot be attacked by players, but can be exploded by bombs. 
@@ -775,9 +792,11 @@ See, for example, [the former Cell class, in lua][8].
 This had another drawback: there can only be one entity in that layer at a time. 
 This makes entities that can go through other entities of the same layer either impossible to implement, or just difficult to think about.
 
-I since realized I could store the entities in a list, and then retrive the entity from a needed layer by iterating through that list. 
+I since realized I could store the entities in a list, and then retrieve the entity from a needed layer by iterating through that list. 
 Linear search is in fact acceptable in this case, because a cell usually won't have more than 1-2 entities.
 Cases when there are more entities are rare and can be basically neglected.
+
+Another small benefit of this approach is that an entity can change its layer at runtime without needing to update where it is stored in the cell.
 
 The current implementation of a cell involves inheriting from `List<Transform>`. 
 See [the current implementation][9].
@@ -788,18 +807,97 @@ This, at the same time, makes the code more erroneous, I know, by allowing peopl
 This way, I allow other code to do more with the cell, maybe even something they are not supposed to do.
 
 I, personally, do not really care what people say. 
-I'm going to use whatever feels OK for me.
+I'm going to use whatever feels OK to me.
 Implementing an interface by writing out forwarding methods to a member list does not feel good.
-At the same time, I have not yet fully develop my style of coding in C#, and I do not personally agree with some of the suggestions of people.
-Maybe when I grow professionally, I will understand more.
+At the same time, I have not yet fully developed my style of coding in C#, and I do not personally agree with some of the suggestions people make.
+Perhaps when I grow professionally, I will understand more.
+
+Also, a quick and simple test indicated that inheriting from `List` actually makes the code about 1.5 times faster than keeping the list a member field.
 
 To be noted though, that static tiles are not even considered entities and are therefore not stored in the grid. 
 The same applies to particle effects, which have no inflence on game mechanics.
 The model is only responsible for things that have to do with game logic.
 
 
+### 4.1.2. Components having to do with position and movement
 
-# 4. References
+Obviously, being able to occupy a certain position in the world and being able to change one's position at runtime are essential for the game. 
+
+These abilities are modeled with via the following specialized components: 
+- `Transform`, providing a *position in the world*,
+- `Displaceable`, providing the ability *to change one's position in the world*,
+- `Moving`, providing the ability to *move voluntarily*,
+- `Pushable`, providing the ability to *be moved involuntarily*.
+
+
+#### 4.1.2.1. Transform
+
+Entities that can be positioned in the world must have the [`Transform` component][11]. 
+It contains information about the current position in the world, the current orientation (where the character is looking) and what layer the given entity is part of.
+Every transform also stores a reference to the entity, so that one could get it by querying the grid.
+
+Currently, there is a concept of being `directed`, which will be covered later.
+It is modeled with an optional `tag` (a component without data), however, it could be beneficial to store it as a flag in the `Transform` component. 
+This way, new flags could be introduced, like `sized`, an entity that takes more that one cell at once.
+Currently, any entity takes up just one position at a time.
+
+The `Transform` is a component containing some helper methods for interacting with the grid.
+This component is tightly coupled with the grid.
+The methods are defined as instance methods of the transform simply for convenience sake.
+They may as well have been defined as extension methods, or as methods on `Grid` (most of them have their analogues on the `Grid`).
+
+The `Transform` currently works with the global grid, that is, it assumes that there is *just one world existing at once*.
+This was done primarily for convenience: before the latest rework, the transforms used to have a reference to the world they are currently in.
+However, I have changed this mostly because almost every function requires a reference to the world and so it was very annoying having to pass it around in the program.
+
+When I add the possibility of multiple worlds existing at once, I will have to patch it somehow.
+However, the change should not be too hard, given the fact that the logic code is single-threaded, which means I could change the global world instance when the world currently being processed changes.
+
+If you look at the code closer, you might notice how some of the fields have been decorated with attributes.
+This has to do with the code generator.
+In short, the `Inject` attribute is used to generate a constructor and a copy constructor for this component, eliminating much of the boilerplate.
+
+You may also notice the methods `Grid.TriggerLeave()` and `Grid.TriggerEnter()` being called.
+How exactly these work will be pointed out later.
+
+
+#### 4.1.2.2. Displaceable
+
+Changing one's position in a certain direction, either voluntarily or involuntarily, is conceptualized as *displacing*. 
+Teleporting *to* a different position is not considered displacing.
+
+`Displaceable` is a *behavior*, which can be added to an entity to make it able to displace. [Source code][12].
+In this class you can approximately see the way most behaviors are implemented.
+
+[Here][13], we define a few chains (basically events).
+The code generator picks up on them, initializing them in the autogenerated constructor as well as copying them in the autogenerated copy constructor.
+
+If external code wanted to add handlers to these chains on an entity instance (or type, since it is implemented via a "subject" instance), they would use the `Export` attribute. 
+Applying it would autogenerate the code to allocate a unique priority number to that handler function and, optionally, to generate a wrapper that may be used to make the process of getting the necessary chain from the entity and hooking up the handler easier. 
+
+[Here][14] is an example of such attribute being applied to expose a handler function to the code generator.
+
+The different chains defined in the `Displaceable` behavior are executed at different times in the process of displacing:
+- `Check` is done before the movement, checking whether it should be done at all. 
+  If the check chain has been passed through without stop, the action of displacing is considered successful, even though the entity may actually not move in the process. This is by design. 
+- `BeforeRemove` is the second check to see if the displacement should be applied. 
+  The difference between `BeforeRemove` and `Check` is that, even if `BeforeRemove` fails, that is, a handler stops the propagation of the context to other handlers, the move is considered successfull, even though it will not be executed.
+  This difference is needed mainly for the acting system, explained later.
+  But the key idea is that the `Check` chains are primarly used for checking *whether another action should be tried*.
+  See, if the displacement fails at `Check`, e.g. *attacking will be tried*, but if it fails later at `BeforeRemove`, the action of moving will succeed and *no subsequent action will be tried*.
+- `BeforeReset` is passed after the entity has been removed from the grid, but before it has been brought back (*reset*) in the grid. 
+  As you may notice, it is passed directly, without propagation checking, so all handlers in that chain are guaranteed to be executed once `_BeforeResetChain.Pass(ctx);` is run.
+- `After` is passed after the entity has been reset in the grid.
+
+This many chains are needed to be able to alter the behavior of displacing in a very precise way.
+For example, the particular function by [the link][14] makes it so that when the entity is about to displace, its orientation will be changed to that direction. 
+But you may imagine there being crazy complex ideas implemented with the help of chains.
+For example, [*sliding* uses the `After` chain][15] to stop sliding when the entity hits a wall or goes off a slippery surface.
+
+I call the idea of applying some little detail to the algorithm of e.g. displacement, *retouching*, just like adding effects and details in Photoshop.
+
+
+# 5. References
 
 [1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper github page"
 [2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Dungeon-Hopper documentation"
@@ -807,7 +905,12 @@ The model is only responsible for things that have to do with game logic.
 [4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity demo github page"
 [5]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot demo github page"
 [6]: <citation_needed> "Colleague's work"
-[7]: https://github.com/AntonC9018/hopper.cs/blob/mega_refactoring!/Core/World/Grid/Grid.cs#L30 "GridManager's constructor"
+[7]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Grid.cs#L30 "GridManager's constructor"
 [8]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "The former Cell class in lua"
-[9]: https://github.com/AntonC9018/hopper.cs/blob/mega_refactoring!/Core/World/Grid/Cell.cs#L8 "Cell's current implementation"
+[9]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Cell.cs#L8 "Cell's current implementation"
 [10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "inheriting from list in C#"
+[11]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/TransformComponent.cs#L16 "Transform"
+[12]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/Components/Basic/Displaceable.cs "Displaceable"
+[13]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/Components/Basic/Displaceable.cs#L61 "Displaceable: chain declarations"
+[14]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Retouchers/Reorient.cs#L12 "Export attribute example"
+[15]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L58 "Sliding example"
