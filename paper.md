@@ -737,18 +737,20 @@ There are two problems with this:
 1. The more components or properties you have in your game, the more bloated your entities become, the more space they take. Not just one entity, but all of them at once.
 2. It cannot be extended by mods, which is a no-no in my case. One of my project goals is to allow modding.
 
+So, storing components in contrast to every entity having every property naturally leads to more *sparse* entities, in other words, to the idea of *compression*.
+
 
 #### 3.2.4.4. My ECS
 
 I have a little bit of a special perspective on ECS, currently.
 - The notion of a *system* is pretty vague in my code.
-- There is a distinction between plain data *components* and *behaviors*.
+- There is a distinction between *data components* (or simply *components*) and *behaviors*.
 - In my code, behaviors are the ones defining *events* (*chains* are used, more on them later). 
 So, behaviors in this case are a fusion of a component and a system.
 As has been described above, events prove essential in binding together the view and the model.
 - There is a concept of a type. 
 A type is essentially a template by which the entities are constructed on instantiation.
-Types are currently modeled with another entity (a *subject*) that is cloned on instantiation to create a new instance of that type.
+Types are currently modeled with another entity (a *subject*), which is cloned on instantiation to create a new instance of that type.
 The instance then becomes independent of the subject and may change at runtime in any way, without affecting the subject.
 Types therefore can be augmented with components at type construction time, just like entities at runtime. 
 
@@ -823,7 +825,7 @@ The model is only responsible for things that have to do with game logic.
 
 Obviously, being able to occupy a certain position in the world and being able to change one's position at runtime are essential for the game. 
 
-These abilities are modeled with via the following specialized components: 
+These abilities are modeled via the following specialized components: 
 - `Transform`, providing a *position in the world*,
 - `Displaceable`, providing the ability *to change one's position in the world*,
 - `Moving`, providing the ability to *move voluntarily*,
@@ -838,7 +840,7 @@ Every transform also stores a reference to the entity, so that one could get it 
 
 Currently, there is a concept of being `directed`, which will be covered later.
 It is modeled with an optional `tag` (a component without data), however, it could be beneficial to store it as a flag in the `Transform` component. 
-This way, new flags could be introduced, like `sized`, an entity that takes more that one cell at once.
+This way, new flags could be introduced, like `sized`, an entity that takes up more that one cell at once.
 Currently, any entity takes up just one position at a time.
 
 The `Transform` is a component containing some helper methods for interacting with the grid.
@@ -855,16 +857,16 @@ However, the change should not be too hard, given the fact that the logic code i
 
 If you look at the code closer, you might notice how some of the fields have been decorated with attributes.
 This has to do with the code generator.
-In short, the `Inject` attribute is used to generate a constructor and a copy constructor for this component, eliminating much of the boilerplate.
+In short, the `Inject` attribute is used to generate a constructor and a copy constructor for this component, which would require to pass them a value for this field as a parameter.
 
 You may also notice the methods `Grid.TriggerLeave()` and `Grid.TriggerEnter()` being called.
-How exactly these work will be pointed out later.
+How these work exactly will be pointed out later.
 
 
 #### 4.1.2.2. Displaceable
 
 Changing one's position in a certain direction, either voluntarily or involuntarily, is conceptualized as *displacing*. 
-Teleporting *to* a different position is not considered displacing.
+Teleporting *to* a different position is *not* considered displacing.
 
 `Displaceable` is a *behavior*, which can be added to an entity to make it able to displace. [Source code][12].
 In this class you can approximately see the way most behaviors are implemented.
@@ -881,7 +883,7 @@ The different chains defined in the `Displaceable` behavior are executed at diff
 - `Check` is done before the movement, checking whether it should be done at all. 
   If the check chain has been passed through without stop, the action of displacing is considered successful, even though the entity may actually not move in the process. This is by design. 
 - `BeforeRemove` is the second check to see if the displacement should be applied. 
-  The difference between `BeforeRemove` and `Check` is that, even if `BeforeRemove` fails, that is, a handler stops the propagation of the context to other handlers, the move is considered successfull, even though it will not be executed.
+  The difference between `BeforeRemove` and `Check` is that, even if `BeforeRemove` fails, that is, a handler stops the propagation of the context to other handlers, the move is to be considered successfull, even though it will not be executed.
   This difference is needed mainly for the acting system, explained later.
   But the key idea is that the `Check` chains are primarly used for checking *whether another action should be tried*.
   See, if the displacement fails at `Check`, e.g. *attacking will be tried*, but if it fails later at `BeforeRemove`, the action of moving will succeed and *no subsequent action will be tried*.
@@ -892,7 +894,7 @@ The different chains defined in the `Displaceable` behavior are executed at diff
 This many chains are needed to be able to alter the behavior of displacing in a very precise way.
 For example, the particular function by [the link][14] makes it so that when the entity is about to displace, its orientation will be changed to that direction. 
 But you may imagine there being crazy complex ideas implemented with the help of chains.
-For example, [*sliding* uses the `After` chain][15] to stop sliding when the entity hits a wall or goes off a slippery surface.
+For example, [*sliding* uses the `After` chain][15] to stop sliding when the entity hits a wall or gets off a slippery surface.
 
 I call the idea of applying some little detail to the algorithm of e.g. displacement, *retouching*, just like adding effects and details in Photoshop.
 
