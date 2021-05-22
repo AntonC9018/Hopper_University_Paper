@@ -42,6 +42,11 @@ Table of contents
     - [4.1.2. Components having to do with position and movement](#412-components-having-to-do-with-position-and-movement)
       - [4.1.2.1. Transform](#4121-transform)
       - [4.1.2.2. Displaceable](#4122-displaceable)
+      - [4.1.2.3. Moving](#4123-moving)
+      - [4.1.2.4. Pushable](#4124-pushable)
+    - [4.1.3. Block](#413-block)
+      - [4.1.3.1. Directed entities](#4131-directed-entities)
+    - [4.1.4. Enter and Leave events](#414-enter-and-leave-events)
 - [5. References](#5-references)
 
 <!-- /TOC -->
@@ -868,6 +873,9 @@ How these work exactly will be pointed out later.
 Changing one's position in a certain direction, either voluntarily or involuntarily, is conceptualized as *displacing*. 
 Teleporting *to* a different position is *not* considered displacing.
 
+This behavior allows displacement unless the place the entity is trying to move into is blocked.
+Which layer is to be considered a blocking layer is stored as an injected field on this behavior and so may be changed at runtime for a particular entity if needed.
+
 `Displaceable` is a *behavior*, which can be added to an entity to make it able to displace. [Source code][12].
 In this class you can approximately see the way most behaviors are implemented.
 
@@ -899,6 +907,94 @@ For example, [*sliding* uses the `After` chain][15] to stop sliding when the ent
 I call the idea of applying some little detail to the algorithm of e.g. displacement, *retouching*, just like adding effects and details in Photoshop.
 
 
+#### 4.1.2.3. Moving
+
+`Moving` is the behavior responsible for voluntary displacement.
+
+`Moving` behavior is a *directed activateable behavior*, which means it has an `Activate()` function that takes in a direction and returns a boolean, indicating whether the activation succeeded.
+Such behaviors can be activated by the *action system*.
+`Moving` uses the `Displaceable` behavior to actually do the displacement.
+
+`Moving` is an example of a behavior making use of *autoactivation*.
+*Autoactivation* is a feature provided by the code generator that lets it automatically generate the `Activate()` function, along with 2 chains: `Check` and `Do`. 
+The purpose of `Check` chain is to *check* whether to *do* (traverse) the `Do` chain. 
+The `Do` chain then will contain handlers that do whatever moving in this case is assumed to do.
+Here we also see the use of the `DefaultPreset()` function that would set up these chains initially by applying the necessary handlers.
+
+This is a common pattern in behaviors, but it's most useful for *prototyping*.
+The `Check` and `Do` strategy works well for most behaviors in the beggining, but eventually you often realize you need more control, e.g. a chain like `Before` or `After`.
+Then you would define all you need for your particular behavior, leaving autoactivation behind.
+
+As an example, the `Displaceable` behavior started off as an autoactivated behavior.
+
+[See the source code.][16]
+
+
+#### 4.1.2.4. Pushable
+
+`Pushable` is likewise an *autoactivated* behavior, but it's *not directed activateable*, because it cannot be done voluntarily.
+
+`Pushable` is currently not a very mature piece of code, so I can't explain much here.
+
+[See the source code.][17]
+
+
+
+### 4.1.3. Block
+
+The idea of an entity not being able to move into a cell is conceptualized as that cell being *blocked* by another entity.
+Typically, this entity would be either from the *real* layer (enemies and the player) or from the *wall* layer.
+
+As noted, blocking the movement is implemented in the `Displaceable`.
+Blocks also have an impact on the *targeting system*, explained later.
+
+#### 4.1.3.1. Directed entities
+
+An entity being directed means they occupy just a part of the cell they are in. 
+Such directed entities serving as directed blocks are often called *barriers*.
+
+This idea has been inspired by such barrier blocks from **Cadence of Hyrule**.
+[One of the tests][18] explains the idea of directed blocks with ASCII art more clearly than any text would.
+
+This introduces more complexity in the process of detecting whether a particular cell is blocked.
+
+Normally, for non-directed blocks, you just need to check one cell to know whether it is blocked or not.
+If the cell contains an entity from your block layer, it is, if it does not, it isn't.
+With directed blocks it's a bit more subtle.
+
+If the entity from the block layer happens to be directed, you must check if it is on the correct side of the cell (which side it is on is indicated by its orientation).
+The correct side of the cell being the side your character is going to enter it from.
+If the potential blocking entity is on any other side of the cell, it should not block the movement.
+
+But it's not all! You must also check whether the cell that the character starts their movement from contains a directional block on the side of the cell from which the character is going to leave it. 
+
+I have implemented all of this as the [`HasBlock()` function][19] in the `Grid`. 
+Since we need to know the side the character is going to leave from, it takes as input the direction alongside the actual coordinates of the cell of interest. 
+
+
+### 4.1.4. Enter and Leave events
+
+The grid also [defines 4 utility structures][20]:
+- the `Enter` and `Leave` normal `TriggerGrids`;
+- the `Enter` and `Leave` filtering `TriggerGrids`.
+
+These have not been battle-tested yet, but they have been given a try in the implementation of the *sliding, bouncing, pinning* effects and in *projectiles*.
+
+Basically, these grids lets you subscribe a handler function that will be executed upon any entity entering (or leaving) that cell.
+The difference between normal `TriggerGrid` and the filtering one is that in the normal grid, your handler function *will be removed at the end of the current turn*, which essentially means your handler will persist only until all of the current entities have done their moves.
+In contrast, handlers added to the filtering grid decide whether to keep or to remove themselves by returning true or false.
+For an example, see e.g. [the `Leave` handler of bouncing][21].
+
+Note that this API is not complete and might change in the future. 
+I just explored an idea that seemed useful.
+
+For example, [this handler][21] captures the entity as the first argument.
+Capturing should ideally be replaced with a lookup based on id of the entity to allow the entities to be garbage collected immediately. 
+However, doing that manually each time would be annoying.
+Again, I may use the code generator for this purpose in the future.
+
+
+
 # 5. References
 
 [1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper github page"
@@ -910,9 +1006,15 @@ I call the idea of applying some little detail to the algorithm of e.g. displace
 [7]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Grid.cs#L30 "GridManager's constructor"
 [8]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "The former Cell class in lua"
 [9]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Cell.cs#L8 "Cell's current implementation"
-[10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "inheriting from list in C#"
+[10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "Inheriting from list in C#"
 [11]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/TransformComponent.cs#L16 "Transform"
-[12]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/Components/Basic/Displaceable.cs "Displaceable"
-[13]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/Components/Basic/Displaceable.cs#L61 "Displaceable: chain declarations"
+[12]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs "Displaceable"
+[13]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs#L59 "Displaceable: chain declarations"
 [14]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Retouchers/Reorient.cs#L12 "Export attribute example"
 [15]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L58 "Sliding example"
+[16]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Moving.cs "Moving"
+[17]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Pushable.cs "Pushable"
+[18]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/.Tests/Core_Tests/GridTests.cs#L169-L195 "ASCII art directed block"
+[19]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/World/Grid/Grid.cs#L189 "Grid.HasBlock()"
+[20]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/Core/World/Grid/Grid.cs#L16-L19 "Trigger Grids"
+[21]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/TestContent/Mechanics/Bouncing/Bouncing.cs#L52 "Example of a filtering handler"
