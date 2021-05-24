@@ -65,11 +65,19 @@ Table of contents
     - [4.3.6. Entity wrappers](#436-entity-wrappers)
     - [4.3.7. Loading entity types from JSON at runtime](#437-loading-entity-types-from-json-at-runtime)
   - [4.4. Acting and the Game Loop](#44-acting-and-the-game-loop)
-  - [4.5. Targeting?](#45-targeting)
-  - [4.6. Items?](#46-items)
-  - [4.7. Pools and Loot tables?](#47-pools-and-loot-tables)
-  - [4.8. World generation](#48-world-generation)
-  - [4.9. Code generation](#49-code-generation)
+    - [4.4.1. How and when the acting happens](#441-how-and-when-the-acting-happens)
+    - [4.4.2. The Game Loop](#442-the-game-loop)
+    - [4.4.3. Acting](#443-acting)
+    - [4.4.4. The enemy AI](#444-the-enemy-ai)
+      - [4.4.4.1. Sequence](#4441-sequence)
+      - [4.4.4.2. Movs](#4442-movs)
+      - [4.4.4.3. The Enemy Algo](#4443-the-enemy-algo)
+  - [4.5. Registry](#45-registry)
+  - [4.6. Targeting?](#46-targeting)
+  - [4.7. Items?](#47-items)
+  - [4.8. Pools and Loot tables?](#48-pools-and-loot-tables)
+  - [4.9. World generation](#49-world-generation)
+  - [4.10. Code generation](#410-code-generation)
 - [5. References](#5-references)
 
 <!-- /TOC -->
@@ -1331,18 +1339,181 @@ Runtime entity types can prove useful in prototyping new types while in game.
 
 ## 4.4. Acting and the Game Loop
 
+The *acting system* is the system whose purpose is to allow entities to interact with other entities in the world.
+
+### 4.4.1. How and when the acting happens
+
+Currently, both the *acting system* and *ticking of entities* is built directly into the world.
+I call the subsystem of the world responsible for acting and ticking, the `WorldStateManager` (a temporary name).
+See [the source code][30].
+
+It works by keeping track of all acting and ticking behaviors currently in game. 
+The acting behaviors are stored a multidimensional array, by the *order*. 
+The order specifies when the given acting behavior will be called, among others.
+So, the entities with lower order will be activated first, and then will be the ones with the higher order.
+Currently [there are 4 orders][31], acting behaviors of which are activated one after the other.
+
+Things are done in this way to model what needs to happen in the game. 
+Namely, the enemies' actions are executed after the player's actions, after which the turn goes to the environment.
+
+Ticking behaviors are activated one after the other, without a clearly defined order.
+
+What exactly happens when the acting behavior of an entity is activated will be examined later.
 
 
+### 4.4.2. The Game Loop
 
-## 4.5. Targeting?
+The *game loop* represents the sequence of steps that happen during a turn.
+It includes the activation of all of the acting behaviors in order, followed by the activation of all of the ticking behaviors.
+See [the code][32].
 
-## 4.6. Items?
+The API is not complete. The newly introduced *global chains* will be used to implement signals for when the game loop begins and ends. 
+*Global chains* will be discussed later. 
 
-## 4.7. Pools and Loot tables?
 
-## 4.8. World generation
+### 4.4.3. Acting
 
-## 4.9. Code generation
+The acting system is pretty complex.
+
+Its 2 distinct steps are:
+1. Calculating the next action, modeled by a `CalculateAction` strategy (a function);
+2. Executing the next action, modeled by an `ExecuteAction` strategy (also just a function).
+
+These steps are executed separately by the `WorldStateManager` and before any of the entities actually *take* an action.
+So, the actions that all the entities are going to take, depend solely on the initial state of the world at the start of the game loop.
+Note, however, that this only affects specific *types* of actions. 
+
+So, for example, if an enemy decides to attack, it won't be able to change its mind after the player has e.g. moved to a new spot. 
+It can change the direction that the attack is going to be done into. 
+It may also select a composite action, that is, first trying the attack, then the move, if the attack has failed.
+
+Both of these steps involve calling a strategy function, so what will actually be done is decided by that function.
+
+The `CalculateAction` function may use the AI to select the next move, or select the action from user input, or return the same action every time.
+It is injected when instantiating the acting behavior.
+
+The `ExecuteAction` is a little more tricky.
+For predetermined actions, where the direction that the action must be done into is known in advance, like with user input, the action could be set to simply execute in that direction.
+The complexity comes when we consider the enemy AI.
+
+
+### 4.4.4. The enemy AI
+
+There are 3 aspects of this to discuss:
+1. The action selection algorithm (`Sequence`);
+2. The action execution algorithm (`EnemyAlgo`);
+3. The direction selection algorithm (`Movs`).
+
+
+#### 4.4.4.1. Sequence
+
+The action selection algorithm for enemies is represented by a `Sequence` object.
+A sequence object is essentially a list of steps and a counter which shows the current step.
+The steps themselves are stateless, simply defining the rules of transitioning to other steps in the sequence.
+
+Every time the action needs to be calculated, the sequence just returns the action associated with the current step.
+When that action has been executed, the current step in the sequence is adjusted depending on the outcome of the action.
+See [the source code for `Sequence`][33]. 
+
+Here is [a simple example of a sequence][34]. Let's go over it.
+
+So, this sequence represents the AI of a simple skeleton (zombie). 
+The idea is to have the enemy move or attack the player every second turn.
+So it would attack in one turn, skip the other, attack, skip, etc.
+
+We specify an action for the first step of the algorithm as the composition of attacking and moving by writing `action = Compose(Attacking.Action, Moving.Action)`. 
+This means first the action of attacking will be tried and, if it does not succeed, moving will be tried.
+
+On the line `movs = Movs.Basic` we say that the direction will be selected according to the `Basic` movs algorithm.
+This means attacking or moving in an orthogonal direction towards the player.
+
+The second step in the sequence represents doing nothing.
+
+When the second step finishes, the sequence loops over to the first step and so repeats.
+
+Here is [a more involved example][35].
+
+
+#### 4.4.4.2. Movs
+
+I call the algorithm for selecting a direction for the action a `Movs` algorithm.
+
+In this [basic example of a sequence][34] the `Basic` algorithm has been used.
+This algorithm returns the directions that get you closer to the player.
+For example, if the player were directly upwards of the enemy, only the upward direction would be returned by the algorithm.
+However, if the player were up and to the left of the enemy, the directions up and left would be returned.
+The direction that is most lined up with the current orientation is returned first.
+So, for the above example, if the enemy looked up, then the order of directions returned would be up and left, however, if it looked e.g. down, the order would be first left and then up. 
+
+I use math to figure out which directions to return.
+For first, notice, that only the directions that the difference vector between the player and the enemy can be decomposed into projections onto the x-axis and onto the y-axis.
+If one of the projections is zero, meaning there is just one plausible direction that gets us closer to the player (in the example above it was upwards), we just return the other projection, which is in fact that plausible direction.
+Otherwise we first return that projection, which is closer aligned with the current orientation of the enemy, then return the other.
+The "alignment" factor can be defined mathematically as the dot product between the orientation vector and the given projected vector. See the `Basic` function in [the source code][36].
+
+There are more predefined `Movs` algorithms. See [the source code][36].
+
+The movs algorithms are not complete because of *factions*.
+They currently assume the targeted faction is of the player faction, that is, any entity that uses the movs functions are assumed to be targeting the player.
+
+Also, since the players are not currently cached in any way, any invocation of the movs algorithm involves searching through all the entities in the registry, which is really slow.
+I will eventually start using some sort of caching system, which I have not designed yet.
+This system should be similar to the idea of *indices* on database tables.
+
+To be noted: the game *does not assume there is only one player*. 
+This is done to allow multiplayer in the future.
+The fact that there may be more than one player makes the enemies search for the closest player, instead of grabbing the first one in the registry.
+
+
+#### 4.4.4.3. The Enemy Algo
+
+The enemy action execution algorithm, or simply the *enemy algo*, was designed based on the following requirements:
+1. The selected action must be executed successfully once;
+2. The directions that the action must be tried in are defined by the movs algorithm;
+3. If there is an entity blocking one of the actions, that entity should do their action first.
+
+Like has been explained in the section on actions, they are considered to have been successful if the check has been passed successfully.
+So, the enemies would try the action until one of the checks passes, and then they stop.
+
+For example, if the action is attacking, first, the targets will be selected, and then, if the targets are empty, the action will fail.
+If the list of targets has not been empty, the action of attacking will succeed.
+
+If an action fails, so does the specified direction that has been associated with that action. 
+In this case, the next available action will be tried.
+If an action succeeds, the action execution algorithm stops.
+
+Now, what happens if an action fails because another enemy prevented it from succeeding? 
+Does the enemy end up not having executed its action even if it would have been possible?
+(See a [description of this issue][37] on Zakru's opencrypt, a project similar to mine, but which has been abandoned).
+
+Well, my solution to this problem is to make that entity act first, if it hasn't already.
+So, when we decide that e.g. another enemy is blocking our path, we make that entity act.
+After it has acted, we try our action again.
+
+The problem associated with this approach is that the enemy that we're trying to make act might itself be waiting on some other enemy to act, and it eventually loops back on the first entity, creating an infinite cycle.
+This is solved trivially by adding a flag to the acting behavior, indicating if it is being activated.
+So, before we make the other enemy move, we check for that flag to be off.
+
+While we're add it, we should add another flag indicating that the given entity has finished acting this turn.
+If either this flag or the flag indicating acting in process are set, se do not make that enemy move.
+
+The other, bigger problem, is how to figure out what entity is blocking our action.
+Right now, I've opted for a simple heuristic approach: the entity offset by the current direction is prompted to act.
+In general, though, this entity is not going to be the one hindering us from doing our action.
+
+See [the current implementation][38].
+
+## 4.5. Registry
+
+## 4.6. Targeting?
+
+## 4.7. Items?
+
+## 4.8. Pools and Loot tables?
+
+## 4.9. World generation
+
+## 4.10. Code generation
 
 
 # 5. References
@@ -1376,3 +1547,12 @@ Runtime entity types can prove useful in prototyping new types while in game.
 [27]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/Entity.cs "Entity class"
 [28]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/TestContent/EntityTypes/Skeleton.cs "Skeleton entity type example"
 [29]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/EntityFactory.cs "EntityFactory implementation"
+[30]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs "WorldStateManager"
+[31]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Order.cs "Orders"
+[32]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs#L38 "Loop"
+[33]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Sequence/Sequence.cs "Sequence"
+[34]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Skeleton.cs#L19-L24 "Sequence simple example"
+[35]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Knipper.cs#L22-L53 "Knipper more involved example"
+[36]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Movs/Basic.cs "Predefined movs algorithms"
+[37]: https://github.com/Zakru/opencrypt/issues/1#issue-457013204 "Zacru's opencrypt issue on enemy movement"
+[38]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Algos/Enemy.cs "Enemy Algo"
