@@ -63,12 +63,13 @@ Table of contents
       - [4.3.4.2. Implementation](#4342-implementation)
     - [4.3.5. Entity factory](#435-entity-factory)
     - [4.3.6. Entity wrappers](#436-entity-wrappers)
-  - [Acting and the game loop?](#acting-and-the-game-loop)
-  - [Targeting?](#targeting)
-  - [Items?](#items)
-  - [Pools and Loot tables?](#pools-and-loot-tables)
-  - [World generation](#world-generation)
-  - [Code generation](#code-generation)
+    - [4.3.7. Loading entity types from JSON at runtime](#437-loading-entity-types-from-json-at-runtime)
+  - [4.4. Acting and the Game Loop](#44-acting-and-the-game-loop)
+  - [4.5. Targeting?](#45-targeting)
+  - [4.6. Items?](#46-items)
+  - [4.7. Pools and Loot tables?](#47-pools-and-loot-tables)
+  - [4.8. World generation](#48-world-generation)
+  - [4.9. Code generation](#49-code-generation)
 - [5. References](#5-references)
 
 <!-- /TOC -->
@@ -1315,17 +1316,33 @@ However, having such representation will be essential for metacompiling json int
 So, this is definitely a problem worth solving eventually.
 
 
-## Acting and the game loop?
+### 4.3.7. Loading entity types from JSON at runtime
 
-## Targeting?
+As has been mentioned, defining types with JSON files has not been implemented yet, but it is a planned feature.
 
-## Items?
+The code generator is going to metacompile these JSON files with descriptions of entity types into actual C# static classes, which would then produce functional entity factories when run.
+But it should also be possible to load entity types directly from JSON at runtime, immediately converting it into a functional entity factory.
 
-## Pools and Loot tables?
+In order to not redefine the same logic both in the runtime entity factory generator and in the metacompiler, a shared piece of logic can be used that would parse JSON files and generate an intermediate representation of the entity types. 
+Then, this intermediate representation will either be used directly to generate a factory at runtime, or to generate static classes in the code generator.
 
-## World generation
+Runtime entity types can prove useful in prototyping new types while in game.
 
-## Code generation
+
+## 4.4. Acting and the Game Loop
+
+
+
+
+## 4.5. Targeting?
+
+## 4.6. Items?
+
+## 4.7. Pools and Loot tables?
+
+## 4.8. World generation
+
+## 4.9. Code generation
 
 
 # 5. References
