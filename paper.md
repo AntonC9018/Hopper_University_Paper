@@ -72,7 +72,14 @@ Table of contents
       - [4.4.4.1. Sequence](#4441-sequence)
       - [4.4.4.2. Movs](#4442-movs)
       - [4.4.4.3. The Enemy Algo](#4443-the-enemy-algo)
+    - [4.4.5. Predictions](#445-predictions)
+    - [4.4.6. Actions](#446-actions)
+      - [4.4.6.1. Substituting actions](#4461-substituting-actions)
   - [4.5. Registry](#45-registry)
+    - [4.5.1. The function of a registry](#451-the-function-of-a-registry)
+    - [4.5.2. Usefulness](#452-usefulness)
+      - [4.5.2.1. Serialization](#4521-serialization)
+      - [4.5.2.2. Mods](#4522-mods)
   - [4.6. Targeting?](#46-targeting)
   - [4.7. Items?](#47-items)
   - [4.8. Pools and Loot tables?](#48-pools-and-loot-tables)
@@ -1061,7 +1068,7 @@ We want a fast insertion, deletion and lookup, while being able to iterate throu
 An idea would be to use a list, and sort that list before every iteration. 
 This is a solution for sure, but the problem is that removing handlers is generally slow, and lookup involved scanning the entire list.
 
-Another idea, which I have actually used, is to use linked lists and sort them before iterating, but, for first, sorting linked lists is messy and, for second, a second list had to be stored to keep the handlers added in between iterations, which would then be added into the main list.
+Another idea, which I have in fact used at some point, is to use linked lists and sort them before iterating, but, for first, sorting linked lists is messy and, for second, a second list had to be stored to keep the handlers added in between iterations, which would then be added into the main list.
 
 Currently, I have settled on a balanced binary tree, represented by a `SortedSet` in C#. 
 Removal, insertion and lookup are logarithmic, and the collection is kept sorted at all times.
@@ -1086,7 +1093,7 @@ So I have added the `LinearChain`, which is a chain, but without priorities, ind
 I have also defined a `SelfFilteringChain`, which uses a double buffer (double list) to filter itself on traversal by inserting the elements that should be kept in the secondary buffer, and then swapping the buffers after the traversal.
 We have already seen an instance of them being used in code: the `TriggerGrids`.
 
-See [implementation of the `DoubleList`][22].
+See [implementation of `DoubleList`][22].
 See [implementation of the different types of chains][23].
 
 
@@ -1348,9 +1355,9 @@ I call the subsystem of the world responsible for acting and ticking, the `World
 See [the source code][30].
 
 It works by keeping track of all acting and ticking behaviors currently in game. 
-The acting behaviors are stored a multidimensional array, by the *order*. 
+The acting behaviors are stored a multidimensional array, by their *order*. 
 The order specifies when the given acting behavior will be called, among others.
-So, the entities with lower order will be activated first, and then will be the ones with the higher order.
+So, the entities with lower order will be activated first, and then will be the ones with higher order.
 Currently [there are 4 orders][31], acting behaviors of which are activated one after the other.
 
 Things are done in this way to model what needs to happen in the game. 
@@ -1384,7 +1391,7 @@ So, the actions that all the entities are going to take, depend solely on the in
 Note, however, that this only affects specific *types* of actions. 
 
 So, for example, if an enemy decides to attack, it won't be able to change its mind after the player has e.g. moved to a new spot. 
-It can change the direction that the attack is going to be done into. 
+It can only change the direction that the attack is going to be done into. 
 It may also select a composite action, that is, first trying the attack, then the move, if the attack has failed.
 
 Both of these steps involve calling a strategy function, so what will actually be done is decided by that function.
@@ -1440,21 +1447,21 @@ I call the algorithm for selecting a direction for the action a `Movs` algorithm
 
 In this [basic example of a sequence][34] the `Basic` algorithm has been used.
 This algorithm returns the directions that get you closer to the player.
-For example, if the player were directly upwards of the enemy, only the upward direction would be returned by the algorithm.
+For example, if the player were directly upwards from the enemy, only the upward direction would be returned by the algorithm.
 However, if the player were up and to the left of the enemy, the directions up and left would be returned.
 The direction that is most lined up with the current orientation is returned first.
 So, for the above example, if the enemy looked up, then the order of directions returned would be up and left, however, if it looked e.g. down, the order would be first left and then up. 
 
 I use math to figure out which directions to return.
-For first, notice, that only the directions that the difference vector between the player and the enemy can be decomposed into projections onto the x-axis and onto the y-axis.
-If one of the projections is zero, meaning there is just one plausible direction that gets us closer to the player (in the example above it was upwards), we just return the other projection, which is in fact that plausible direction.
+For first, notice, that the only plausible directions returned by the algorithm concide with the projections of the difference vector between the player position and the enemy position onto the x- and y-axes.
+If one of the projections is zero, meaning there is just one plausible direction that gets us closer to the player (in the example above it was upwards), we just return the other non-zero projection, which is, in fact, that plausible direction.
 Otherwise we first return that projection, which is closer aligned with the current orientation of the enemy, then return the other.
 The "alignment" factor can be defined mathematically as the dot product between the orientation vector and the given projected vector. See the `Basic` function in [the source code][36].
 
 There are more predefined `Movs` algorithms. See [the source code][36].
 
 The movs algorithms are not complete because of *factions*.
-They currently assume the targeted faction is of the player faction, that is, any entity that uses the movs functions are assumed to be targeting the player.
+They currently assume the targeted faction is the player faction, that is, any entity that uses the movs functions are assumed to be targeting the player.
 
 Also, since the players are not currently cached in any way, any invocation of the movs algorithm involves searching through all the entities in the registry, which is really slow.
 I will eventually start using some sort of caching system, which I have not designed yet.
@@ -1503,7 +1510,120 @@ In general, though, this entity is not going to be the one hindering us from doi
 
 See [the current implementation][38].
 
+### 4.4.5. Predictions
+
+Predictions are needed to indicate to the player the cells on the map that would signify taking damage, if the player were to remain on them.
+This system is not yet complete in the code at all.
+
+How I implemented it is that any action may have an associate prediction function, which would return such positions.
+Then, when the view wants to e.g. draw crosses at those coordiates, it would iterate through all entities, making them calculate their next action and then using the prediction functions of the calculated actions to get the cells dangerous to the player. See [the source code][39].
+
+The API currently is not polished nearly enough, but it already works with attacking and explosions.
+
+
+### 4.4.6. Actions
+
+An `Action` in code represents a literal action or a sequence of actions that can be executed by an entity in game.
+It has been stated that actions can be of 2 main types:
+1. *directed actions*, requiring a direction into which they will be executed;
+2. *undirected actions*, which don't require a direction.
+
+See [the source code][40].
+
+Before the action is executed, it gets associated a direction and is stored as a `CompiledAction`.
+When either a directed action or an undirected action gets compiled, it becomes possible to execute it directly, without providing a direction.
+
+The actions have been implemented in code in OOP style: we have an interface for a `DirectedAction` (`IAction`), an interface for `UndirectedActions` and certain classes implementing these interfaces that represent actions:
+- `SimpleAction`, which takes in a function that is to called when the action gets executed;
+- `ActivatingAction`, which activates the specified `IStandartActivateable` component on the entity, in order to execute the action;
+- `CompositeAction`, which contains a list of actions, each of which get tried, and the execution stops once any of the succeeds;
+- `JoinedAction`, which likewise contains a list of actions, but the execution doesn't stop, even if an action succeeds. This is useful for defining 2-step actions, like `DieExplodeAction`;
+- `ConditionalAction`, where the second stored action is done only if the first one succeeds.
+
+I have also defined several helper functions for quickly instantiating the desired action without much boilerplate.
+
+As has been mentioned, the actions may also contain a prediction function. 
+In this case, they should also implement the `IDirectedPredictable` or `IUndirectedPredictable` interface.
+
+
+#### 4.4.6.1. Substituting actions
+
+It is possible to make an entity do some other action instead of the one chosen.
+For example, when sliding, the entity should not be able to do directed actions. 
+This is achieved by substituting the action selected by the player by moving in the direction of sliding, and doing the player's initial action only if that fails.
+See [the source code][41].
+
+Perhaps this is not correct, and should instead be replaced by adjusting the action when it is calculated, because doing it the way it is currently done would mess up predictions. 
+That is, if the enemy is sliding but is trying to attack, the endangered spot would still be shown, even though it shouldn't.
+This fix is, in fact, not hard to implement in the current code.
+
+
 ## 4.5. Registry
+
+The idea of a *registry* is essential for *implementing serialization, online multiplayer* and *mods*.
+
+At this point I'm not concerned with the first two, but implementing the latter is one of my initial goals for the project so I will not disregard it altogether.
+
+### 4.5.1. The function of a registry
+
+A registry can be used to assign identifiers to *content*, and provide a mapping from identifiers to the corresponding content. 
+The content can be anything that needs to be identified, like entity types, stat types, item types, handlers (they need priority, also managed by the registry), component types, etc.
+
+The registy can also be used to assign *runtime identifiers*, which are used to identify *instances*, like entities.
+A mapping is likewise provided from a known identifier to the entity instance with that identifier.
+
+### 4.5.2. Usefulness
+
+
+#### 4.5.2.1. Serialization
+
+Consider the task of *serialization*. 
+Serialization means saving the current state of the game in a file and deserialization means restoring that state in game.
+Imagine the player having progressed through half of the level and then decided to quit the game.
+When they run the game next time, they won't be able to go on from where they left off the last time, unless the state of the game has been somehow saved.
+
+Where are different approaches on serialization:
+1. Save a block of memory, with all references and pointers. 
+Of course, all of the pointer will have to be relative to e.g. the start of that block of memory, because if they are absolute they are most likely not going to point to the right memory after deserialization.
+This is a really neat approach, the problem is that it needs low level control over memory.
+Since the memory in C# is managed, we don't have this control, so I don't think this strategy is applicable to C#.
+2. Serialize into e.g. JSON by the use of reflection, then deserialize from JSON by instantiating the right classes and setting all of the properties correctly via reflection. 
+There are libraries to aid this, like `Newtonsoft.Json`.
+
+One common problem associated with this approach is the fact that some entity might store a reference to another entity (let's call it target).
+Due to this, the target will end up deserialized twice (as though it were 2 different entities).
+When the game state would have been deserialized, the entity would now have a reference to a copy of the target, instead of a reference to the actual target.
+This is undesired, because that would mean the state has not been captured correctly.
+
+> As an example, say the enemy stored a reference to the player in a field.
+> The game state has been serialized and then deserialized.
+> Now there are two players, one of which is the actual player, and one of which is stored in that field of the enemy.
+
+This problem is often solved by these libraries by keeping track of all referenced objects and assigning identifiers to repeating ones.
+The second time a reference to the same entity is encountered, it is substituted by that id in the serialization result.
+This is OK in simple cases, but what if you wanted to serialize handlers?
+Functions are not serializeable in C#, so the automatic approach does not work.
+
+What you actually need, is to be able to have a system that would assign an identifier (priority) to every handler, at initialization.
+Then, define serialization as simply saving that identifier.
+Define deserialization as mapping that priority number read from e.g. JSON into the actual handler.
+With this approach, you even allow closures to be used (of course, closures over something to do with content, closures over e.g. entities are prohibited).
+
+In fact, this is why closures in handlers are not allowed.
+How would you serialize a handler defined at runtime?
+Since in C# it is not allowed to instantiate a closure of the correct anonymous type, you would have to define specific closure types if you want them serialized, which would be annoying. 
+Moreover, mixing up specific and anonymous closure types is messy. 
+This is, in fact, a shortcoming of C#, since it is not hard to implement, at least conceptually, but it is how it is.
+
+So, in my code, I say that the pieces that want to use closures over runtime objects, like entities, as handlers to events (chains), must attach them either in their constructor or initialization function, or have them be temporary.
+
+The same system can be applied to any content, like the entity types.
+
+I have not tackled serialization readily, so these ideas are mostly speculative.
+
+
+#### 4.5.2.2. Mods
+
 
 ## 4.6. Targeting?
 
@@ -1556,3 +1676,6 @@ See [the current implementation][38].
 [36]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Movs/Basic.cs "Predefined movs algorithms"
 [37]: https://github.com/Zakru/opencrypt/issues/1#issue-457013204 "Zacru's opencrypt issue on enemy movement"
 [38]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Algos/Enemy.cs "Enemy Algo"
+[39]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Predictions/Predictor.cs "Predictor"
+[40]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Action.cs "Action"
+[41]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L55 "Sliding action substitution"
