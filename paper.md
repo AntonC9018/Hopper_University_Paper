@@ -91,9 +91,11 @@ Table of contents
     - [4.6.2. Roslyn (.NET Compiler Platform)](#462-roslyn-net-compiler-platform)
       - [4.6.2.1. Why Roslyn?](#4621-why-roslyn)
     - [4.6.3. The basics](#463-the-basics)
-    - [4.6.4. Attributes](#464-attributes)
-      - [4.6.4.1. FlagsAttribute](#4641-flagsattribute)
-      - [4.6.4.2. AliasAttribute](#4642-aliasattribute)
+    - [4.6.4. Templates](#464-templates)
+    - [4.6.5. Attributes](#465-attributes)
+      - [4.6.5.1. FlagsAttribute](#4651-flagsattribute)
+      - [4.6.5.2. AliasAttribute](#4652-aliasattribute)
+    - [4.6.6. Using Roslyn](#466-using-roslyn)
 - [5. References](#5-references)
 
 <!-- /TOC -->
@@ -1926,7 +1928,33 @@ The second strategy is only slighly different:
 4. Generate code using T4.
 
 
-### 4.6.4. Attributes
+### 4.6.4. Templates
+
+In this section I would like to share some tips and discoveries I made while working with T4 templates.
+
+Working with templates is mostly pretty straighforward and the way they work is transparent too.
+
+Given a text template, which is a mix of control code and the text to be printed, it is first compiled to 2 C# classes:
+- A base class, implementing the [*duck interface* needed for code generation][52]. This involves defining a virtual or abstract method `TransformText()`, methods `Write()` and `WriteLine()` for printing text, and some more things;
+- The actual printer class, inheriting from the base class, which just transforms the control code into actual C# code, and the text to be printed to calls to `Write()` and `WriteLine()`. 
+It inserts all of this printing code into the overriden `TransformText()` method.
+Since they are pasted into the scope of the printer class, they can access any fields or properties defined in it.
+This is particularly useful, because the generated class is partial, so it is easy to add more fields or properties.
+
+It also is possible to define your own base class, implementing the duck interface.
+
+It is possible to split pieces of T4 code common to multiple templates into txt files and paste them into the templates at compile time.
+I have used this approach to e.g. paste an autogen notice at the top of every generated file, with the notice itself taken from a [txt file with the notice text][53].
+
+There were problems with indentation, which I have solved by using `PushIndent()`, `PopIndent()` and a clever hack to the `Write()` method. 
+See [this overflow issue where I shared my solution][54].
+
+I try keeping my logic separate from the text template, to keep the template simpler.
+I define helper frontend properties, methods or fields for my logic components, references to which I include as fields into the particular printer class.
+See e.g. [the `AllInitPrinter`][55] and [the frontend properties defined in one of the base classes in the logic code][56].
+
+
+### 4.6.5. Attributes
 
 Attributes are the main facility for marking what piece of code should be taken into account by Roslyn.
 T4 then would be given that information in some form in order to generate the necessary code.
@@ -1935,7 +1963,7 @@ For a complete list of attributes, see [this source file][51].
 
 Let's look at some examples.
 
-#### 4.6.4.1. FlagsAttribute
+#### 4.6.5.1. FlagsAttribute
 
 Probably the easiest to undertand and the most independent attribute I can think of is the `Flags` attribute.
 It is a custom attribute I defined for marking an enum to be generated code for.
@@ -1977,7 +2005,7 @@ namespace Hopper.Core
 
 Anyway what's the point?
 
-The point is that the function `HasEitherFlag()` is way easier to use than `(flag1 & flag2) != 0`, however, it cannot be adequetely defined as a generic function for any flags enum. 
+The point is that the function `HasEitherFlag()` is way easier to use than `(flag1 & flag2) != 0`, however, it cannot be adequately defined as a generic function for any flags enum. 
 So, we would have to define such function for any future flags enum that we add.
 To keep the code high quality, we would have had to manually write the same `summary` comment for every such function.
 In other words, boilerplate.
@@ -1987,9 +2015,9 @@ If we want these similar functions to all change at once to adapt to new conditi
 Trust me, this saves a lot of time and nerves.
 
 
-#### 4.6.4.2. AliasAttribute
+#### 4.6.5.2. AliasAttribute
 
-This is another easy to understand one.
+This one is another easy to understand one.
 
 The point of the `Alias` attribute, or, in general, the point of defining aliases for certain *methods* of components, is to exploit a certain common pattern in code and to replace it with less verbose code.
 In particular, the pattern here is getting a component from an entity, and immediately calling it with certain arguments, possibly passing the entity itself to it as an argument.
@@ -2017,7 +2045,7 @@ actor.TryMove(IntVector2.Right);
 This is a really common pattern, and the latter code is really useful in practice, eliminating a lot of boilerplate.
 
 I actually generate methods like the latter with my code generator. 
-I call them alias methods, since they provide an alias to the longer version.
+I call them *alias methods*, since they provide an alias to the longer version.
 
 In order to enable autogeneration of such alias methods for the `Activate()` method from above, decorate it with the `Alias` attribute, like so:
 ```C#
@@ -2029,6 +2057,51 @@ class Moving
 ```
 
 The two functions are going to be generated automatically, available as extension methods over the `Entity` type.
+
+
+### 4.6.6. Using Roslyn
+
+In my code Roslyn is mostly used to extract necessary data from the source code, by detecting classes which implement a specific interface, extracting attribute data from types, fields and methods.
+I do not use Roslyn's syntax synthesis features, because they are too verbose, even for simple tasks.
+T4 templates are way more readable and simple.
+
+Let's just take a look at an example, which has been mentioned in the previous section: how the information about *alias methods* is extracted from the relevant attributes in the source code.
+I must warn you that the code you are about to see is not well-refactored and even includes some dead code, which I have not yet cleaned up.
+
+> Only those functions that are marked with the `Alias` attribute must be generated code for.
+
+I scan the semantic model for classes, implementing `IComponent`, to get the classes which may potentially define alias methods. 
+For this, I use `SymbolFinder.FindImplementations()`, see [the source code][57];
+
+Then I find all methods that have the `Alias` attribute. 
+See [the source code][58]. 
+Here, I try getting the given attribute, and, if it exists, I cast it to a known attribute type (attributes are defined in a shared project, so the code generator can cast the Roslyn generic representation of an attribute to this known type).
+For more info on casting to known attribute types, see [this stackoverflow issue of mine][59].
+
+So, at this point we have found the method symbols with the `Alias` attribute, defined within classes, implementing `IComponent`.
+
+> The name of the generated function must be the same as the alias from the `Alias` attribute.
+
+Since we have been able to cast the attribute data discovered by Roslyn into the actual attribute type, we can get the desired name by simply accessing the field (property) `Alias` by name, so `aliasAttribute.Alias` represents the selected alias name.
+
+> Given an alias method is always defined on a component, and the fact that the alias methods are always defined as extension methods over the `Entity` class, we need to take `this Entity actor` as the first argument. 
+> The marked method may take additional arguments besides the actor, or not take the actor argument at all. 
+> This means that our generated methos must take these additional arguments too. 
+
+So, we'll need to analyze the signature of the marked function for our generated function to have correct arguments.
+Basically, we need to copy the arguments of the marked function unto the generated function, unless the given argument is first and indicates the actor (since it already is the first argument of the generated function). 
+
+This is done [here][60]. 
+Basically, if the first parameter is of type entity, we return all of the parameters, if it's not, we return a parameter of type `Entity`, concatenated with the parameters of the function, and lastly, if there are no parameters, the parameters would include just the entity.
+
+> Generate the code.
+
+Now, all that's left to do is to generate some code for these alias methods. 
+For this, define a template snippet, [like the one seen here][61]. 
+The template produces a bit more involved code than shown in the example from before. 
+It accounts for return types in the `Try` version, by returning the result of the call to the alias method via an `out` parameter. 
+
+Using the template is as simple as calling the `TransformText()` method and writing the output to a file.
 
 # 5. References
 
@@ -2083,3 +2156,13 @@ The two functions are going to be generated automatically, available as extensio
 [49]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/FlagEnumSymbolWrapper.cs "FlagEnumSymbolWrapper"
 [50]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/FlagsPrinter.tt "FlagsPrinter"
 [51]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Shared/Attributes.cs "The list of attributes"
+[52]: https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.texttemplating.texttransformation?view=visualstudiosdk-2019 "T4 duck interface documentation"
+[53]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/autogen_notice.txt "Autogen notice"
+[54]: https://stackoverflow.com/questions/67561998/t4-indent-code-included-from-another-file "Fix to code indentation included from other files in a T4 template"
+[55]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Printers/AllInitPrinter.cs "AllInitPrinter"
+[56]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L145-L155 "Frontend properties in the base class"
+[57]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/GenerationEnvironment.cs#L133 "FindAllDirectiComponents"
+[58]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L66-L92 "Getting the alias methods"
+[59]: https://stackoverflow.com/questions/67539903/converting-attributedata-into-a-known-attribute-type-roslyn "Casting AttributeData to a know attribute type"
+[60]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/SymbolExtensions.cs#L124-L141 "ParamsWithActor()"
+[61]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/ComponentEntityExtension.txt#L49 "Alias methods"
