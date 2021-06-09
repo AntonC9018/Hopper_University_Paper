@@ -170,9 +170,9 @@ The short spacing between beats likewise feels stressful at times, but it feels 
 ## 2.3. A short history of development
 
 I started working on this project about 2 years ago. 
-Over these 2 years, it has been scrapped and rewritten, completely or partially from scratch, about 5 times.
+Over these 2 years, it has been scrapped and rewritten, completely or partially, about 5 times.
 
-Now it is hard to know what to do at the start, I would even dare say impossible.
+Now, it is hard to know what to do at the start, I would even dare say impossible.
 With complex systems and without completely defined requirements, you rarely get things right the first time.
 Code gets rewritten, ideas become more clear in your mind, new areas and possibilities get explored and abandoned.
 Writing a game is, likewise, not a linear path.
@@ -188,7 +188,7 @@ It allows exporting on mobile and desktop. See the github repository [here][1].
 However, my understanding of how such games actually work was quite poor at the time.
 
 Designing and implementing a simple game is entirely different from what I was faced with.
-If you are designing a game that could have thousands of different effects, mechanics and creatures and possibly expanded by mods, you cannot account for every item with a bunch of if-statements, you actually need more involved abstract systems making use of *some* kind of polymorphism.
+If you are designing a game that could have thousands of different effects, mechanics and creatures and possibly expanded by mods, you cannot account for every interaction with a bunch of if-statements, you actually need more involved abstract systems making use of *some* kind of polymorphism.
 I did not realize this before this project, but quickly understood it after this initial attempt.
 I will expand on this more in a separate chapter.
 
@@ -201,7 +201,8 @@ The initial code was scrapped completely and rewritten in the second version, st
 
 Lua is a really simplistic language: there is no concept of types, modules or classes.
 Dynamic method dispatch, however, can be simulated via metatables (prototypical inheritance).
-There also are no arrays: both arrays and dictionaries are represented via so-called tables.
+There also are no arrays: both arrays and dictionaries are represented via so-called tables (key-value pairs).
+Also, indexing starts from 1 (what kind of joke is this??).
 
 The biggest problem with Lua is its lack of types and, consequently, its lack of static analysis.
 One has to deal with simplest annoying bugs, like a misspelt variable name, on a regular basis.
@@ -210,7 +211,7 @@ Bugs are really hard to track down.
 I got pretty far with Lua, having developed a lot of features.
 
 At that time I came up with the idea of using **chains** for implementing events.
-In short, chains in my interpretation are responsibility chains which do something with the `context` they are given, kind of like the stack of handler functions on backend which in sequence modify the `request` and `response` objects.
+In short, chains in my interpretation are responsibility chains which do something with the `context` they are given, kind of like the stack of middleware functions on backend which in sequence modify the `request` and `response` objects.
 At any point the propagation of the `context` may be stopped by a handler, to avoid the execution of the handlers down the line.
 Also, each of the handlers has an associated priotity, by which they stay sorted in the underlying data structure. 
 See more on chains, including implementation details in future sections.
