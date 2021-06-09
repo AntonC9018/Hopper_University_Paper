@@ -103,7 +103,7 @@ Table of contents
 # 1. Abstract 
 
 Together with my colleague, we have created a Roguelike game, **Hopper**, based on the mechanics of *Crypt of the Necrodancer*.
-In the first section I explain why I initiated this project and what development path I took. The next few sections are more technical. There, I motivate and illustrate with concrete examples my design decisions of the system, explain how the game works internally. I present how I managed to escape boilerplate and code duplication via code generation with *Roslyn* and *T4*. Finally, I show how the same code generation tools can be used for integrating the project with the *Godot* game engine.
+In the first section I explain why I initiated this project and what development path I took. The next few sections are more technical. There, I motivate and illustrate with concrete examples my design decisions of the system, explain how the game works internally. I present how I managed to escape boilerplate and code duplication via code generation with *Roslyn* and *T4*.
 
 # 2. Introduction
 
@@ -111,9 +111,9 @@ In the first section I explain why I initiated this project and what development
 
 The game idea is highly inspired by the game **Crypt of the Necrodancer** (henceforth refered to as simply *Necrodancer*), which I adore.
 
-The project has always been planned to be an open-source game based on the same mechanics.
+The game has always been planned to be an open-source and based on the same mechanics.
 
-I never plan this project to make profit. It is designed for personal sake as well as, perhaps, for the community that is going to hopefully pick it up eventually.
+I never plan this project to make profit. It is designed for personal sake as well as, perhaps, for the community that is going to hopefully eventually pick it up.
 
 The **problems with Necrodancer** that made me want to make a similar game are the following:
 1. Modding is virtually impossible. Here, mods can only change visuals. No new mechanics or new types of mobs can be added into the game.
@@ -1965,7 +1965,7 @@ Let's look at some examples.
 
 #### 4.6.5.1. FlagsAttribute
 
-Probably the easiest to undertand and the most independent attribute I can think of is the `Flags` attribute.
+Probably the easiest to understand and the most independent attribute I can think of is the `Flags` attribute.
 It is a custom attribute I defined for marking an enum to be generated code for.
 In particular, the marked enum is considered to define flags.
 
@@ -1974,9 +1974,9 @@ Here is how I would mark an enum with the custom attribute:
 [Flags]
 enum MyFlags
 {
-    Colored = 0b_001,
-    Tasty = 0b_010,
-    Warm = 0b_100
+    Colored = 1,
+    Tasty   = 1 << 1,
+    Warm    = 1 << 2
 }
 ```
 
