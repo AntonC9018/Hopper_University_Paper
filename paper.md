@@ -245,20 +245,20 @@ I kind of slapped together a good enough for testing purposes prototype, and let
 So, the C# version was initially done solely in console.
 At the time, I did not even know how to write automated tests or rather had not bothered to learn how to do it.
 The tests were manual and based on inspection. 
-I had a script that would print out a bunch of information of how objects interacted in the game and I would skim throught that to see if a feature worked as expected.
+I had a script that would print out a bunch of information of how objects interacted in the game and I would skim through that to see if a feature worked as expected.
 
 For this starter C# version I basically recoded all of the Lua code in C# and also enhanced some of the ideas.
 The code became more robust, but not robust enough.
 
 There were a lot of maintenance issues that I had that slowed down programming and made it annoying.
 In short, I used factories to build out my entity types as well as builder classes for their initial chains.
-Thing is, with factories, you have this tight coupling of the factory and the class it builds.
+Thing is, with factories, you have this tight coupling of the factory and the entity type it builds.
 So when I changed the entity, I had to go back and change the factory too.
 When I changed how the chain functions, I had to go back and see if the builder works right.
 
 I had the concept of *tinkers* and *retouchers* (both made-up terms) which both existed just to help to add (remove) handlers to (from) chains.
 The sole difference between them is that retouchers are used for entity *types* (on factories) while tinkers are used for entity *instances*.
-They do the same thing, while only being different in the container they target. 
+They do the same thing, while only being different in which container they target. 
 The fact that they do the same thing means code duplication and maintenance issues.
 However, since they do the same thing, there is no point in telling them apart.
 
@@ -280,8 +280,8 @@ All of the problems described above have been remedied only recently, by code ge
 A couple of months after switching to C#, the codebase got mature enough to try to make a view on Unity or Godot.
 
 Initially, I made a small demo for [Unity][4]. 
-It featured a generic controller, which worked with interfaces and so was later reused for the [demo Godot version][5] (not the current version).
-This time I designed a prototype for the controller that was a little more robust, but still lacked a lot of features and was too annoying to enjoy working with. 
+It featured a generic view, which worked with interfaces and so was later reused for the [demo Godot version][5] (not the current version).
+This time I designed a prototype for the view that was a little more robust, but still lacked a lot of features and was too annoying to enjoy working with. 
 Its deficiencies were addressed in the new version, developed mainly by my colleague, who describes it at length [in his work][6]. 
 <!-- This is not yet true!! --> 
 The former hairiness was salvaged by means of code generation.
@@ -324,7 +324,7 @@ The slowest part of the process is reading in and analyzing the source code, so 
 My process of turning repeating code into generated code is loosely as follows:
 1. When writing code, I see a pattern that could be exploited via code generation.
 2. If the pattern is not clear enough, I wait until another piece of code encounters a similar problem, until the problem is clear enough in my head to propose a generic solution.
-3. I try solving it without code generation, in simplest way possible (hopefully without generic interfaces).
+3. I try solving it without code generation, in simplest way possible, through some sort of abstraction (hopefully without generic interfaces).
 4. If I cannot come up with a simple generic solution, I enable code generation for the given idea.
 
 
@@ -348,7 +348,7 @@ There are a few more things that take place after this, which we'll get into lat
 ### 3.1.1. Types of actions
 
 An important concept to address is that the player may only select between two types of actions:
-1. *Vector actions* (or `directed actions`, governed by directional inputs (arrow keys). These include attacking, moving and digging in a specified direction.
+1. *Vector actions* (or `directed actions`), governed by directional inputs (arrow keys). These include attacking, moving and digging in a specified direction.
 2. *Special actions* (mostly `undirected actions`), like casting a spell or activating some item. 
 These actions are executed by pressing one of the designated keys, without requiring a simultaneous directional input (arrow key). 
 Those that do need a direction to work properly, like launching a fireball in a certain direction, may use the current orientation of the character, or set the direction by other means.
