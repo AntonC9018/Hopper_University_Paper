@@ -382,7 +382,7 @@ At the same time, player may get items while clearing the floor, which grant new
 The inventory of the player has a few item slots, each either associated a role, like weapon, spell and shovel, or an armor part, like boots or the helmet. 
 Those slots which are activated are mapped to a an input, so providing that input would also activate the item in that slot. 
 
-The player may pick up items by stepping on them, thereby they are placed automatically in the slot assigned to them. If there is already an item in that slot, that item is replaced with the one just picked up.
+The player may pick up items by stepping on them, thereby they are placed automatically in the slot assigned to them. If there is already an item in that slot, that item is replaced with the one just picked up and be dropped on the ground.
 
 Some items may not have an associated slot. 
 Such items as a rule just boost player's stats or slightly change a specific behavior.
@@ -399,7 +399,7 @@ They select actions according to a well-understood strategy.
 For example, a simple enemy may have the following strategy: skip an action, then attack or move in the direction of player.
 
 The enemies must be predictable for the player to be able to quickly evaluate a given situation and be certain in one's actions.
-Ideally, nothing unexpected should ever happen.
+Ideally, nothing random or unexpected should ever happen.
 
 Likewise, every enemy must have a way to beat it, some simple pattern of moves for the player to follow to always come up ahead.
 The joy of gameplay is in learning the enemy move set, coming up with such patterns and strategies of beating them, and evalualing the situation quickly, coming up with a good action on the fly, in case the enemies come in packs. 
@@ -412,8 +412,8 @@ More specifically, the actions must be done to the beat of the music (with some 
 
 This is an essential detail in the design of the game. 
 I'd say it is *the* core mechanic borrowed from Necrodancer.
-However, this part is relatively independent of other game mechanics, like moving the player within the grid and the item system, and it's not the focus of this work.
-This work is mostly focused on my implementation of the other parts of the game: the action system, the item system etc.
+However, it is relatively independent of other game mechanics, like moving the player within the grid and the item system, and it's not the focus of this work.
+This work is mostly focused on my implementation of the other parts of the game: the action system, the grid system etc.
 
 
 ### 3.1.6. More ideas
@@ -432,7 +432,7 @@ I'm also interested in allowing the extension of existing content via mods.
 
 ### 3.2.1. How NOT to write code
 
-One of the most important topics of game development is how to neatly show what is happening in the game on the screen, with animations, particles and the right sprites being shown.
+One of the most important topics in game development is how to neatly show what is happening in the game on the screen, with animations, particles and the right sprites being shown.
 
 One way of doing this is to refer to the code that controls the *View*, that is, what you see on the screen, directly in the game logic code (the *Model*). For example, something like this (pseudocode for understanding, not actual code from the game):
 
@@ -541,7 +541,7 @@ Since the view part can be factored in a fully-fledged independent system, this 
 ### 3.2.3. A wrong turn?
 
 So, my initial idea was that the model should be separated from the view, but I did not know how to do it exactly.
-I did know of events (signals) and I did use them, but the realization that they can be used for communication between the view and the model has not come to me until lately.
+I did know of events (signals) and I did use them, but the realization that they can be used for communication between the view and the model has not come to me until recently.
 I just thought about this a little differently.
 I though about the view and the model as these two completely independent systems, the view being connected to the model with a tiny bridge.
 This can work, but it is not very scalable.

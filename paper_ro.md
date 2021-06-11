@@ -260,13 +260,354 @@ Un concept important care trebuie să-l adresez este faptul că jucătorul poate
 Aceste acțiuni sunt executate prin apasarea unei cheie desemnate, fără a necesita un input direcțional simultan (săgeata).
 Acele acțiuni speciale care totuși necesită o direcție pentru a lucra corect, ca, de exemplu, aruncarea unei sfere de foc într-o direcție specifică, pot utiliza orientarea curentă a caracterului, sau pot obține direcția într-un alt mod.
 
-Lucrul cel mai important de înțeles este faptul că jucătorul nu poate controla ce exact acțiune va fi executată după furnizarea unui input vectorial.
+Lucrul cel mai important de înțeles este faptul că jucătorul nu poate controla ce acțiune exact va fi executată după furnizarea unui input vectorial.
 Mai precis, toate acțiunile posibile vor fi încercate în ordinea și prima acțiune care a reușit să se execute termină procesul de execuție.
 
-De exemplu, dacă jucătorul dă input-ul `sus`, la început caracteul va încerca să atace în direcția sus, pe urmă, dacă atacul nu întâlnește nici un inamic, caracterul va încerca să sape obstacol din sus, pe urmă, dacă nu întâlnește un obstacol, caracterul ar mișca sus.
+De exemplu, dacă jucătorul dă input-ul `sus`, la început caracterul va încerca să atace în direcția sus, pe urmă, dacă atacul nu întâlnește nici un inamic, caracterul va încerca să sape obstacol din sus, pe urmă, dacă nu întâlnește nici un obstacol, caracterul ar mișca sus.
 
 Acest lucru este opus acțiunilor speciale care sunt de obicei mapate direct la un anumit efect sau un anumit item.
 De exemlu, zicem, jucătorul furnizează inputul `S` care este mapat la ridicarea scutului.
 Deci, apăsarea lui `S` mereu ar executa această acțiune concretă (în general, dar sunt unele excepții).
 
 Ca rezultat acestul model, jucătorul poate executa orice valabilă la moment acțiune în orice moment al timpului prin apăsarea cel mult unei cheie.
+
+### Scopul
+
+Jucătorul se confruntă cu problema de a completa un nivel generat aleator.
+Nivelurile consistă dintr-un set de cameri conectate, fiecare cameră conținând inamici.
+Există o cameră finală cu o ușă (sau o trapă, sau o scară) la următorul nivel.
+Când jucătorul învinge un număr de așa niveluri, el confruntă un bos.
+Învingerea bosului ori permite jucătorul să se procede la următorul nivel, sau rezultă într-o victorie generală.
+
+Nivelurile devin progresiv mai complicate. În special, monștri au mai multe puncte de sănătate, apar noi și mai complexi tipuri de monștri, numărul de pericoli, ca ??? (spike) sau iazuri, crește, etc.
+În același timp, jucătorul primește itemi când învinge etajul, care dă abilități noi pasive sau active, sporește statuturile.
+Deci, jucătorul tot devine mai puternic, progresând.
+
+### Itemii
+
+Inventoriul jucătorului are niște sloturi de itemi, fiecare cu un rol asociat, de exemplu, arma, lopata, ??? (spell) sau o parte de armură, ca cizmele sau casca.
+Acele sloturi care pot fi activate sunt mapate la un input, adică furnizând acel input ar activa itemul în slotul corespunzător. 
+
+Jucătorul poate ridica itemi dacă pășește pe ele, astfel ele sunt plasate în slotul desemnat lor automat.
+Dacă în acel slot deja este un item, acel item va fi schimbat la cel ridicat și plasat pe podea.
+
+Unii itemi pot să nu aibă un slot asociat.
+Așa itemi de obicei sporesc statuturile jucătorului, sau modifică subtil un comportament specific.
+De exemplu, ar putea fi un itemm care daunează toți inamicii în jurul inamicului lovit.
+
+Vom presupune, pentru simplitate, că nu pot exista două exact aceiași itemi ridicate de către jucător.
+
+### Inamicii
+
+Fiecare inamic are un comportament clar-definit.
+Ei selectează acțiuni după o strategie ușor de înțeles pentru jucător.
+
+De exemplu, un inamic simplu ar putea să aibă următoarea strategie: a sări peste o acțiune, după ce a ataca sau a se mișca în direcția jucătorului.
+
+Acțiunile inamicilor trebuie să fie previzibile pentru jucător pentru a putea evalua repede o situație dată și a fi sigur în ce acțiune el va lua.
+Ideal nimic aleator sau neprevizibil nu trebuie să întâmple.
+
+Fiecare inamic încă trebuie să aibă o metodă de a-l învinge, un pattern simplu de mișcări care jucătorul poate să urmărească și să câștige mereu.
+Bucuria jocului constă în studierea setului de mișcări al inamicului, ??? (coming up with) pattern-urile și strategiile de a-i învinge, și în evaluarea situației rapid, ??? (coming up with a good action on the fly), în cauza în care inamicii avansează în grupuri.
+
+
+### Limita de timp
+
+Cum am menționat anterior, cea mai intrigantă idee este faptul că există o limită de timp pentru fiecate acțiune.
+Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu o anumită libertate ??? (with some leeway)). 
+
+Această detalie este esențială pentru design-ul jocului.
+Eu aș zice această mecanică este cea mai importantă mecanică din Necrodancer.
+Însă, ea este relativ independentă de alte mecanici ale jocului, ca deplasarea jucătorui în grilă și sistemul de itemi, și ea nu va figura în această lucrare.
+Acestă lucrare concentrează pe întrebările implementării altor părți ale jocului: sistemul de acțiuni, sistemul de grilă, etc. 
+
+
+### Mai multe idei
+
+Când motorul este completat, va fi ușor să explorăm mai multe idei.
+
+Eu aș dori să încerc să transform jocul acesta într-o PVP arena, sau MOBA, lăsând mecanicii de bază și ideea să facem acțiuni după muzică neschimbate.
+Nu știu cât viabil aceasta ar fi, dar ideea îmi pare destul de intrigantă.
+
+
+## Prezentarea generală a design-ului sistemului.
+
+Mă preocup în mare parte numai de motorul meu, adică cum logic ar funcționa, cum itemii, acțiunile, intelectul artificial al inamicilor vor fi implementate, cu instrumentele de exemplu pentru generarea codului.
+Încă, sunt interesat să permit să extindem contentul existent prin moduri.
+
+### Cum să NU scrieți cod
+
+Unul din cele mai importante subiecte în dezvoltarea jocurilor video este cum să arătăm frumos ce se face în joc pe ecran, cu animații, particule și sprite-urile corect arătate utilizatorului.
+
+O metodă de a face acest lucru este să ne referim la codul ce controlează *View*-ul, adică ce se vede pe ecran, direct în codul pentru logică (*Model*). De exemplu, cam așa (pseudocod pentru înțelegere, nu-i codul real din joc):
+
+```C#
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+        SetAnimation(Animation.Hopping);
+        TranslateSprite(
+            to: this.position + direction, 
+            timeInMs: 500, 
+            callback: () => SetAnimation(Animation.Idle));
+        this.position += direction;
+    }
+}
+```
+
+Însă, așa cod are niște defecte asociate cu el:
+1. Logica jocului dvs este cuplată strâns cu view-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
+2. Codul este foarte instabil.
+Imaginați-vă penru un moment că jucătorul după ce s-a mișcat la o poziție nouă, a declanșat o capcană care l-a ucis. Aceasta ar trebuie să decalșe animația de moarte, însă animația inactivității (idle) setată în callback-ul se joacă ??? (is playing). Evident, acest exemplu este prea simplificat, însă deja puteți vedea că setarea callback-urilor în așa mod este ceva inadmisibil. Aveți nevoie de un sistem mai complex pentru a administra aceasta.
+3. Ce dacă jucătorul alunecă în loc de a sări? Atunci, o animație diferită trebuie să fie setată, nu `Animation.Hopping`, ci `Animation.Sliding`. Ați adăuga o verificare în funcția `Move()`? Dar ce dacă alunecarea vine dintr-un mod? Atunci, sistemul dvs nu ar fi putut să aibă cunoștințe despre aceasta. Este clar, că așa strategie simplă nu va lucra aici. 
+
+Deci, defectele identificate sunt:
+1. Cuplarea strânsă.
+2. Probleme de întreținere.
+3. Inflexibilitatea.
+
+
+### Separarea și event-urile este ideea cheie
+
+Voi ilustra cum separarea componentelor și event-urile pot rezolva toate problemele constatate mai sus.
+
+Deci, în primul rând vom adresa problema cuplării strânse. Imaginați-vă două funcții, una responsibilă pentru mișcare, alta pentru animații.
+
+```C#
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+       this.position += direction; 
+    }
+}
+
+void AnimateMove(IntVector2 newPosition)
+{
+    SetAnimation(Animation.Hopping);
+    TranslateSprite(
+        to: newPosition, 
+        timeInMs: 500, 
+        callback: () => SetAnimation(Animation.Idle));
+}
+```
+
+Codul nu este ideal, din punct de vedere a implementării (callback-urile, etc.), dar aici avem o problemă mai mare.
+Curent, nu există o modalitate de a comunica pentru aceste funcții.
+Apelarea lui `AnimateMove()` în `Move()` nu lucrează, deoarece aceasta ar însemna că doar am refactorizat codul legat de animație într-o funcție separată, însă ele au rămas cuplate strâns.
+Scopul nostru era să separăm codul pentru logică de la codul pentru view. Cum să facem acest lucru?
+Event-urile (semnale) la salvare!
+
+Ideea este să definim o coadă de handleri, codul în care să fie executat după ce jucătorul se mișcă.
+Această coadă poate fi statică, configurabilă pentru tipuri diferite de entități.
+Încă în pseudocod:
+
+```C#
+static EventQueue<Handler> moveEvent;
+
+void Move(IntVector2 direction)
+{
+    if (!Grid.HasBlockAt(this.position + direction))
+    {
+       moveEvent.Dispatch(this, this.position + direction);
+       this.position += direction;
+    }
+}
+
+void AnimateMove(IntVector2 newPosition)
+{
+    SetAnimation(Animation.Hopping);
+    TranslateSprite(
+        to: newPosition, 
+        timeInMs: 500, 
+        callback: () => SetAnimation(Animation.Idle));
+}
+
+void Setup()
+{
+    moveEvent.AddHandler(AnimateMove);
+}
+```
+
+Acum, funcția `Move()` nu știe nimic despre view.
+Ea doar expediază event-ul fiecare dată când jucătorul se mișcă.
+
+Însă, aceasta nu rezolvă problema cu de exemplu alunecare.
+Jucătorul nu alunecă implicit.
+Alunecarea este un efect care poate fi aplicat at runtime.
+Dacă am dori să animăm alunecarea corect, ar trebui să schimbăm această coadă at runtime.
+Deci, vom crea o coadă de event-uri într-o proprietate a instanței jucătorului, nu doar a tipului jucătorului, ca să putem s-o modificăm at runtime.
+
+Acum, după ce le-am separat, putem rezolva și problemele de întreținere.
+Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet și independent, această problemă tot poate fi rezolvată, cu ceva mai mult chibzuit.
+
+
+### O direcție greșită?
+
+Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să exact fac acest lucru.
+Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine până recent.
+Pur și simplu am gândit despre problema puțin diferit.
+Am gândit că view-ul și modelul sunt aceste două sisteme complet independente, view-ul fiind conectat cu model-ul printr-un pod minuscul.
+Aceasta poate lucra, însă nu este tare scalabil.
+În loc de această abordare, view-ul trebuie să fie conectat cu modelul într-un set lat de puncte de contact, prin event-uri, unde modelul nu ar cunoaște nimic despre view-ul.
+
+#### Ideea istoriei
+
+Inițial, mi-am imaginat modelul și view-ul să fie conectate prin *istoria*.
+Modelul ar împinge actualizările referitor la ce event-uri s-au întâmplat în lume prin această istorie.
+De exemplu, când jucătorul ar fi atacat, actualizarea `fiind atacat` ar fi salvată pe istorie.
+View-ul și-ar actualiza starea și ar decide ce animații să pornească dupa ce toate event-urile au avut loc.
+
+Deci, mi-am imaginat această în așa mod: avem o mulțime de mașini de stări separate în view-ul jucătorului, toate responsabile pentru detectarea event-urilor diferite.
+De exemplu, există o mașină de stări pentru fandare. "Fandare" înseamnă o atacă imediat urmărite de o mișcare.
+Mai este o mașini de stări pentru mișcare care constă din doar actualizarea de mișcare.
+
+Deci, după ce s-a procesat încă un tur în model și istoria s-a umplut, view-ul ar primi istoria și ar încerca să pornească toate mașinile de stări pe această istorie.
+Deci, după ce jucătorul și a atacat, și a mișcat în același tur, view-ul ar primi istoria cu 2 actualizări: atacul și mișcarea.
+Fiecare din aceste mașini de stări ar fi încercate.
+Fandarea este atac și mișcare, deci această mașină de stări ar fi satisfăcută.
+Mașina de stări care reprezintă mișcare tot ar reuși, deoarece actualizarea de mișcare este prezentă.
+Din aceste două view-ul ar selecta pentru animare una mai complexă, adică, fondarea.
+
+Chiar am avut un termen mai intuitiv pentru această: sitele.
+Fiecare mașină de stări este o sită care devine blocată când încercați să ciuruiți istoria prin ea.
+După ce am trecut istoria prin toate sitele, cea mai complexă blocată sită este selectată și animațiile pentru acea sită sunt ??? (played).
+
+
+#### Care este problemă dar?
+
+Problema vine când aveți nevoie să transmiteți datele împreună cu actualizările.
+
+Ați putea transmite orice date cu ele, însă atunci nu avem o modalitate clară de a vedea ce event a avut loc fără de a face un cast al datelor într-un tip cunoscut.
+Aceasta aduce la `if-else` urâte pentru a determina tipul corect.
+
+
+```C#
+foreach (object update in history)
+{
+   if (update is AttackingUpdate attackingUpdate)
+   {
+       // facem ceva cu datele din `attackingUpdate`
+       // ...
+   }
+   else if (update is MovingEvent movingEvent)
+   {
+       // ați înțeles ideea
+   }
+}
+```
+
+Din cauza că gaură prin care încercați să împingeți aceste actualizări de la model la view-ul este atât de îngustă, aveți nevoie să convertați actualizările într-un tip analog lui `object`, astfel pierzând tipul concret al actualizării în proces.
+Acest fenomen poartă numele "ștergerea tipului".
+
+Stop, oare nu putem putem utiliza polimorfizmul în loc de `if-else` pentru a apela funcșiile concrete care trebuie să procesează datele?
+
+Având în vedere faptul că modelul nu știe nimic despre logica view-ului dvs asociată cu actualizaările, însă știe ce datele vor fi în update-urile, nu, aceasta nu este posibil.
+Nu puteți da modelului un tip cu acele date pe care el l-ar instanția (ca obiectul să conțină funcțiile pozimorfice dvs).
+Adică, *ați putea*, însă nu este tare convenabil si sunt modalități mai simple de a atinge același rezultat.
+
+Ați putea menține un dicționar tipurile actualizărilor mapate la handler-urile, ca mai jos.
+Însă acest cod este rău și nu este plăcut să mențineți așa cod.
+
+```C#
+void HandleAttack(object update)
+{
+    // În primul rând, castăm în tipul dorit
+    var attackingUpdate = (AttackingUpdate) update;
+    // Facem ceva cu datele ...
+}
+
+void HandleMove(object update)
+{
+    // În primul rând, castăm în tipul dorit
+    var movingUpdate = (MovingUpdate) update;
+    // Facem ceva cu datele ...
+}
+
+// Type este type info unei clase date.
+// Action<T> este void function care ia T ca argument.
+Dictionary<Type, Action<object>> typeErasedHandlers
+{
+    { typeof(AttackingUpdate), HandleAttack },
+    { typeof(MovingUpdate),    HandleMove   }
+};
+
+void SieveThroughHistory(History history)
+{
+    foreach (object update in history)
+    {
+        typeErasedHandlers[typeof(update)](update);
+    }
+}
+```
+
+
+#### Soluția
+
+Din fericire, există o modalitate mai bună de a ??? (deal with this).
+
+Ideea este să permitem mai multe puncte de contact între modelul și view-ul.
+Astfel, putem sări peste faza istoriei cu totul.
+Modelul nu ar trebui să împingă nici o actualizare în istorie.
+Al doar ar declanșa un event corespunzător cu toate datele cu care la moment lucrează, păstrate într-un context.
+Ca un exemplu simplificat (codul nu este real):
+
+```C#
+class AttackingContext
+{
+    Player player;
+    Enemy attackedEnemy;
+    IntVector2 direction;
+}
+
+class Player
+{
+    // ...
+
+    EventQueue<AttackingContext> attackEventQueue;
+
+    void Attack(IntVector2 direction)
+    {
+        var enemy = Grid.GetEnemyAt(this.position + direction);
+       
+        if (enemy != null)
+        {
+            var context = new AttackingContext(
+                player        : this,
+                attackedEnemy : enemy,
+                direction     : direction);
+            
+            attackEventQueue.Dispatch(context);
+
+            enemy.TakeDamage(this.damage);
+        }
+    }
+}
+
+class PlayerView
+{
+    // ...
+
+    void AttackHandler(AttackingContext context)
+    {
+        // Facem ceva cu:
+        // context.player
+        // context.attackedEnemy 
+        // context.direction     
+    } 
+
+    void Setup(Player playerInstance)
+    {
+        playerInstance.attackEventQueue.AddHandler(AttackHandler);
+    }
+}
+
+```
+
+Această idee poate vă pare evidentă după ce am ilustrat-o, însă pentru mine ea nu era evidentă până recent.
+Trebuia să sufăr prin toate probelemele istoriei explicate mai sus pentru a ajunge la această revelație.
+
+Deci, am reușit șă separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
+
+#### Este oare totul?
