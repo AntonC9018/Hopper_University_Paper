@@ -898,7 +898,7 @@ It contains information about the current position in the world, the current ori
 Every transform also stores a reference to the entity, so that one could get it by querying the grid.
 
 Currently, there is a concept of being `directed`, which will be covered later.
-It is modeled with an optional `tag` (a component without data), however, it could be beneficial to store it as a flag in the `Transform` component. 
+It is modeled with an optional `tag` (a component without data), however, recently I have refactored it to store it as a flag in the `Transform` component. 
 This way, new flags could be introduced, like `sized`, an entity that takes up more that one cell at once.
 Currently, any entity takes up just one position at a time.
 

@@ -776,3 +776,43 @@ Poate când progresez profesional, voi înțelege mai bine.
 Să fie notat, țiglele statice nu sunt considerate ca entități și de aceea nu sunt păstrate în grilă.
 Aceași se aplică la efectele de particule, care nu au influența asupra mecanicilor din joc.
 Modelul este responsabil doar pentru chestiile care sunt legate de logica jocului. 
+
+
+### Componentele responsabile pentru poziția și mișcare
+
+Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimbe poziția at runtime este esențială pentru joc.
+
+Aceste abilități sunt modelate după următoarele componente specializate:
+- `Transform`, dând o *poziție în lume*,
+- `Displaceable`, dând abilitatea de *a-și schimba poziția în lume*,
+- `Moving`, dând abilitatea de *a se mișca volunar*,
+- `Pushable`, dând abilitatea de *a fi mișcat involuntar*.
+
+### Transform
+
+Entitățile care pot fi poziționate în lume trebuie să aibă componentul [`Transform`][11].
+Conține informația despre poziția curentă în lume, orientarea curentă (în ce direcție se uită) și ce nivel entitatea ocupă.
+Fiecare transform mai conține o referență la entitate, pentru a putea accesa entitatea când interogăm grila.
+
+Curent, există conceptul de a fi `directat` care va fi examinată pe urmă.
+Este modelată printr-un `tag` (un component fără date), însă recent am adăugat un flag în `Transform` pentru această.
+Astfel am putea introduce mai multe flaguri.
+
+`Transform` mai conține metode ajutătoare pentru interacțiunea cu grila.
+Acest component este cuplat cu grila.
+Aceste metode sunt definite ca metode instanțe pentru transform simplu pentru comoditate.
+Ele ar putea fi definite ca metode de extindere, sau ca metode pe `Grid`, deoarece majoritatea lor are analoguri pe `Grid`.
+
+`Transform` curent lucrează cu grila globală, adică, presupune că există *doar o lume în același timp*.
+Aceasta am făcut în primul rând pentru comoditate, deoarece anterior toate transform-urile au avut o referință la lumea în care ele se află.
+Însă, am schimbat acest lucru în mare parte deoarece aproape toate funcțiile într-un mod referă la grilă și mi-a fost anevoios să transmit manual această referință la toate funcțiile.
+
+Când am adaug posibilitatea pentru mai multe lumi de a exista deodată, cumva voi schimba aceast lucru.
+Însă, sper că patch-ul nu va fi unul dificil, având în vedere faptul că codul logicii este de un singur thread, ceea ce înseamnă că am putea să schimb lumea globală când se schimbă lumea curent procesată.
+
+Dacă v-ați uita la cod mai aproape, ați putea să observați că unele câmputi sunt decorate cu atribute.
+Această este legat cu generatorul de cod.
+În scurt, atributul `Inject` este utilizat pentru a genera un constructor și un constructor de copiere pentru acest component, care ar solicita o valoare pentru acel câmp ca parametru.
+
+Probabil ați observat și apelările la metodele `Grid.TriggerLeave()` și `Grid.TriggerEnter()`.
+Cum acestea funcționează va fi explicat pe urmă.
