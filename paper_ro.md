@@ -755,3 +755,24 @@ Am relizat că pot păstra entitățile într-o listă, și itera prin această 
 Căutarea lineară ar fi de fapt acceptabilă în acel scenariu, deoarece celulele de obicei nu am mai mult decât 1-2 entități.
 Cazurile unde ele conțină mai multe entități sunt rare și pot fi neglijate.
 
+Încă un beneficiu de așa abordare este faptul că o entitate poate să-și schimbe nivelul în care ea se află at runtime, fără a actualiza unde ea este păstrată în celulă.
+
+Implementarea curentă a celulii implică moștenirea de la `List<Transform>`.
+[Vedeți implementarea curentă.][9]
+Eu personal nu văd nimic rău în așa abordare, cu toate că [unii spun multe lucruri răi despre aceasta.][10]
+Oamenii deseori ridic tema *compoziție peste moștenire*, cum compoziția este mai flexibilă, însă consider că aici un avem un caz de așa ceva.
+Aici mai mult este vorba despre evitarea boilerplate-ului prin faptul că nu scrieți implementarea pentru interfața `IList<Transform>`, prin înaintarea tuturor metodelor la un membru privat de tip `List<Transform>`.
+În același timp această abordare poate aduce la erori deoarece utilizatorului îi permitem mai multe lucruri de decât el trebuie să fie conștient. 
+De exemplu, dacă castăm celulă în listă, ceea ce putem face în acest caz, putem folosi metoda `Add()` furnizată de către clasa listei, decât de clasa celulei, care mai conțină unele asserturi pentru debug.
+
+Mie personal nu-mi pasă ce zic oameni la această temă.
+Eu voi face ceea ce îmi pare admisibil mie.
+Implementarea interfeței prin scrierea manuală a metodelor de înaintare la un list-membru nu mă face să mă simt bine.
+În același timp, încă nu mi-am dezvoltat stilul meu propriu de programare în C#, și personal nu sunt de acord cu unele sfaturi ce oameni dau.
+Poate când progresez profesional, voi înțelege mai bine.
+
+Încă, un test rapid a indicat că dacă de fapt ne moștenim de la `List` codul merge cu aproape 1.5 ori mai rapid.
+
+Să fie notat, țiglele statice nu sunt considerate ca entități și de aceea nu sunt păstrate în grilă.
+Aceași se aplică la efectele de particule, care nu au influența asupra mecanicilor din joc.
+Modelul este responsabil doar pentru chestiile care sunt legate de logica jocului. 
