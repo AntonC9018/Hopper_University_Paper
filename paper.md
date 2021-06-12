@@ -767,7 +767,7 @@ So, with even this simple example, the typical OOP inheritance idea breaks down.
 Now, imagine the same scenario but amplified 100 times: there are hundreds of properties and behaviors any entity could have.
 This is impossile to model with a hierarchy.
 
-Se second point is that the entites, if they are modeled as instances of static types, cannot alter their behavior at runtime.
+The second point is that the entites, if they are modeled as instances of static types, cannot alter their behavior at runtime.
 In a real game, the player may start of not having the ability to dig, but once thay acquire a pickaxe, they may learn this new ability.
 However, you cannot dynamically modify the `Player` type to become able to dig.
 Making it able to dig off the start likewise does not make sense, because it learned to do it *eventually*.
@@ -821,8 +821,12 @@ Doing an ECS in the right way in C# is a very hard feat to accomplish.
 Structs and arrays of structs are the only way of storing data directly in memory and not somewhere on the heap.
 C# lacks tools of doing manual memory management, like the ones found in C++, because you're just not assumed to care about memory management when doing C#.
 I even once considered migrating the project into C++, but C++ has its own faults, e.g. the fact that modding is going to be a lot more challenging to implement, so in the end I settled with a fake ECS instead.
+I may in the close future migrate it to D, which seems really appealing to me, mainly because of its metaprogramming facilities.
 
-
+> In fact, manual memory management is often highly discouraged, e.g. by people turning down mutable structs and `ref` parameters. 
+> These are basically the only options you have for managing memory efficiently.
+> Heck, you can't even store there refences to structs as fields, or even return refs to structs at some index in an array.
+> They made it "safe", but at the same time really annoying to work with, if you were to do something more low-level with memory.
 
 # 4. Technical topics
 
@@ -833,7 +837,7 @@ In particular, I explain their motivation and the way they have been implemented
 ## 4.1. The grid
 
 As has already been mentioned, the world is represented as a 2d grid with entities.
-Now, since the query operations of finding an entity at a specific cell, seeing if there is a block at a specific cell are so common, it is beneficial to store the entites (more explicitly, their *transforms*) by their current coordinates, in a literal 2d array. This is, in fact, the way I decided to model it ([see e.g. the constructor][7]. 
+Now, since the query operations of finding an entity at a specific cell, seeing if there is a block at a specific cell are so common, it is beneficial to store the entites (more explicitly, their *transforms*) by their current coordinates, in a literal 2d array. This is, in fact, the way I decided to model it ([see e.g. the constructor][7]). 
 
 
 ### 4.1.1. Cells
@@ -843,7 +847,7 @@ For example, generally, a spiked trap, which damages the player when they step o
 This is because the layer in the cell that the trap is located at is the `trap` layer, while the player or enemies can only target the `real` layer with their normal attacks.
 Anyway, this is how I decided to model this idea.
 
-Before the rework, I used to have a slot for each of the layers in each cell, but that was not good, at least because most of the layers were empty most of the time, since there was nothing at those positions.
+Before the rework, I used to have a slot for each of the layers in each cell, but that was not good, at least because most of the layers were empty most of the time.
 See, for example, [the former Cell class, in lua][8].
 
 This had another drawback: there can only be one entity in that layer at a time. 

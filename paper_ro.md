@@ -611,3 +611,147 @@ Trebuia să sufăr prin toate probelemele istoriei explicate mai sus pentru a aj
 Deci, am reușit șă separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
 
 #### Este oare totul?
+
+Mai sunt niște probleme cu așa design.
+
+Una din ele este legată de inconviența unelor lucruri care apar din cauza că design-ul este așa.
+Le-am adresat prin generarea codului.
+
+O altă problemă este legată de ordonarea handler-urilor.
+Am rezolvat-o prin introducerea priorităților.
+
+Vom discuta ambele pe urmă.
+
+
+### ECS (Entitate-Component-Sistem)
+
+S-au spus multe lucruri despre ECS-uri.
+Însă, eu sunt convins că nu puteți să le înțelegeți integral dacă nu redescoperiți această idee singuri.
+Când vedeți o problemă reală și încercați s-o soluționați prin diferite metode, incluzând ECS-ul, iată atunci apare înțelerea profundă.
+
+#### Introducere 
+
+ECS permite să privim spațiul programului printr-o perspectivă diferită.
+
+ECS zice că există o lume și orice obiect în acea lume este o *entitate*.
+Toate entitățile încep ca un obiect vid doar cu un identificator.
+Ele sunt ca un schelet la care adăugăm componente pentru a le da un comportament sau o proprietate specifică.
+Componentele de obicei doar conțin datele.
+
+Toate mecanicile din joc sunt pur și simplu interacțiunile dintre diferite obiecte din lume.
+Acestea sunt conceptualizate ca *sisteme*.
+Ele operează pe componentente individuale ale entităților, astfel asigurându-le comportament specific.
+
+Ideea după ECS-ul este "entitățile flexibile și dinamice".
+
+#### De ce nu POO?
+
+Dacă vreodată ați încercat să reprezentați tipurile diferite ale entităților într-un mediu dinamic, știți că aceasta nu va lucra.
+1. Nu puteți utiliza conceptul de moștenire și ierarhiile cum-se-cade.
+2. Tipurile statice sunt prea rigide.
+
+Deci, imaginați-vă pentru un moment că aveți clasa `Player`.
+Jucătorul poate face multe lucruri, prin care mișcarea, atacarea și săparea.
+
+Acum, considrați o clasă diferită, `Enemy`.
+Puteți observa că inamicul tot poate să se miște și să atace, dar are o schemă de control diferită: jucătorul este controlat de către input-ul utilizatorului, pe când inamicul de o inteligență artificială.
+
+Deci, probabil veți fi tentați să refactorizați lucrurile comune, anume atacarea și mișcare, într-o clasă de bază.
+Clasa `Player` atunci ar moșteni acea clasă de bază adăugând abilitatea de a săpa, pe lângă schemei proprii de input, iar clasa `Enemy` ar adăuga iteligența sa artificială.
+
+Acum apare un tip nou de inamic: el poate să atace, să se miște și să sape, având un IA.
+Unde să-l punem în ierarhia noastră? Ar trebuie el să moștenească `Enemy`?
+Dar atunci ar trebui să adăugăm săparea, care este deja implementată în clasa `Player`.
+Să scoatem săparea într-o clasă de bază `DiggingMovingAttackingBase`?
+Nu, deoarece atunci nu putem moșteni IA din clasa `Enemy`.
+Poate `Enemy` trebuie să moștenească `DiggingMovingAttackingBase`?
+Din nou nu, deoarece el nu poate săpa după design.
+
+Deci, chiar cu așa exemplu simplist, ideea tipică lui POO a moștenire nu merge.
+Acum imaginați-vă același scenariu dar amplificat în sutele de ori: sunt sutele de proprietăți și comportamente pe care orice entitate poate să le posede.
+Aceasta ar fi imposibil de modelat printr-o ierarhie.
+
+Altă ideea este faptul că entitățile, dacă sunt modelate ca instanțe de tipuri statice, nu pot să-și schimbe comportamentul at runtime.
+Într-un joc real, jucătorul poate să înceapă fără abilitatea de a săpa, însă, când primește târnăcopul, ar învăța această abilitate nouă.
+Însă, nu puteți modifica clasa `Player` să poată sape.
+S-o modificați de la început nu are sens, deoarece jucătorul a obținut abilitatea *eventual*.
+
+Încă un exemplu: aveți un monstru de două faze, zicem, un fluture furioas care inițial începe ca o omidă inocentă, deci nici nu poate ataca, însă care poate să se transforme într-un fluture, obține abilitatea de a zbura și de a ataca jucătorul.
+
+Cu POO există doar un mod de a modela această transformare.
+Ați avea două clase, una pentru starea de omidă, alta pentru starea de fluture.
+Ca să transformați omida în fluture trebuie să distrugeți instanța omidei si să creați un fluture nou.
+
+Cu componentele dinamice aveți două posibilități.
+Puteți ori să facem cum am descris mai sus, ori să transformați omida în fluture dându-i comportamentele de `Flying` și de `Attacking`.
+În acest sens, a două abordare este mai flexibilă.
+
+
+#### Compresie
+
+O altă idee este să dați fiecării entități întreaga gama tuturor proprietăților și abilităților posibile însă să nu le dați voie să utilizeze majoritatea lor.
+Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să curățați acel flag care indică dacă entitatea poate aplica acea abilitate.
+
+Avem două probleme cu așa abordare:
+1. Cât de multe componente și proprietăți aveți în joc, atât de umflate entitățile dvs devin, atât de mult spațiu ele ocupă.
+Nu doar una din ele, ci toate. 
+2. Așa sistem nu poate fi expandat de moduri, ceea ce-i inacceptabil în cazul meu. Unul din scopuri al proiectului meu este de a permite modarea.
+
+Deci, păstrarea componentelor în constrast lumii unde toate entitățile au toate proprietăți posibile, natural aduce la entități *sparse*, în alte cuvinte, la ideea *compresiei*. 
+
+#### ECS-ul meu
+
+La moment, perspectiva mea la ECS este ceva specială.
+- Noțiunea *sistemei* este destul de vagă în codul meu.
+- Există distincția dintre *componente cu datele* (sau simplu *componente*) și *comportamente*.
+- În codul meu, comportamentele sunt acele care definesc *event-urile* (utilizez *chain-urile*, mai mult ulterior).
+Deci, comportamentele în codul meu este o fuziune dintre componente și sisteme.
+Cum am descris anterior, event-urile sunt esențiale pentru a lega view-ul și model-ul.
+- Există conceptul unui tip.
+La moment, tipul este de fapt un template după care entitățile sunt construite la instanțiere.
+Tipurile la moment sunt modelate printr-o entitate (un *subiect*) care este copiată la instanțiere pentru a crea o instanță nouă de acel tip.
+Instanța atunci devine independentă de subiect și poate să se schimbe at runtime în orice mod, fără a-l afecta pe subiect.
+Așadar, tipurile pot fi augmentate cu componente în timpul construcției, la fel ca entitățile at runtime.
+
+Sunt nelniștit referitor la performanța ECS-ului meu.
+Chestia este, ECS-ul meu este, cum se spune, "fake".
+Un ECS optimizat de obicei focusează pe stocarea diferitelor componente într-un loc central în memorie pentru a putea itera pe ele în sisteme (iterarea secvențială este cu mult mai rapidă).
+Administrarea memoriei manuală îmbunătățește performanța, salvând lucru pentru GC (colector de gunoi).
+
+Eu face aceasta în modul "nu-mi pasă", adică, aloc toate componentele pe memorie dinamică cu operatorul `new`.
+Aceasta este, de fapt, modul cel așteptat și cel ușor de a face acest lucru în C#, însă nu este performant deloc.
+
+Să faceți un ECS într-un mod corect este o sarcină extrem de complicată pentru C#.
+Structuri și tablouri de structuri este singurul mod în care datele pot fi păstrate direct în memorie dar nu împrăștiate undeva în memorie dinamică.
+C# nu dispune de instrumentele necesare pentru a gestiona memoria manual, care există de exemplu în C#, deoarece nu se așteptă de la programator să facă așa ceva în C#.
+Am considerat să migrez proiectul în C++, însă C++ tot are problemele sale, de exemplu că modding-ul ar fi mai complicat de implementat, că serializarea este proastă, deci am hotărât să progrezez cu ECS-ul "fake" al meu, în loc de aceasta.
+În viitorul apropiat este posibil că voi migra proiectul pe D care este atrăgător pentru mine în special din cauza facilităților sale de metaprogramare.
+
+# Subiectele tehnice
+
+În această secțiune, prezint unele elemente din joc.
+Mai specific, explic motivarea lor și cum le-am implementat, cu exemple concrete din codul sursă.
+
+## Grila
+
+Cum am stabilit anterior, lumea este reprezintată printr-o grilă de două dimensiuni cu entitățile.
+Întrucât interogările de a afla dacă dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de răspândite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
+Aceasta este de fapt cum am decis să modelez grila ([uitați-vă la costructor][7]).
+
+### Celulile
+
+Se presupune că fiecare celulă are mai multe nivele, unde entitățile de la diferite nivele au proprietăți ceva diferite.
+De exemplu, în general, ??? (spiked trap) care dăunează jucătorul când acela o calcă, nu poate fi atacată de către jucători sau inamici, dar poate fi exploadată de către bombe.
+Aceasta este deoarece nivelul în celulă unde se află capcana este locat pe nivelul `trap`, pe când jucătorul sau inamicii pot viza doar nivelul `real` prin atacii normali.
+În orice caz, am modelat astfel ideea.
+
+Înainte de refacere, am avut câte un slot pentru fiecare nivel al celulei, dar aceasta nu era bine, minimum deoarece majoritatea nivelurilor erau vide aproape mereu.
+Vedeți, de exemplu, [clasa celulei din codul precedent, în lua][8].
+
+Acest design a avut un minus: poate fi doar o entitate la fiecare nivel în fiecare moment al timpului.
+Aceasta face unele lucruri, de exemplu entități care trec prin alți entități, dificil sau imposibil de implementat sau de considerat.
+
+Am relizat că pot păstra entitățile într-o listă, și itera prin această listă, pentru a lua o entitate din nivelul care mă interesează.
+Căutarea lineară ar fi de fapt acceptabilă în acel scenariu, deoarece celulele de obicei nu am mai mult decât 1-2 entități.
+Cazurile unde ele conțină mai multe entități sunt rare și pot fi neglijate.
+
