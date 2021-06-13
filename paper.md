@@ -942,7 +942,7 @@ Applying it would autogenerate the code to allocate a unique priority number to 
 [Here][14] is an example of such attribute being applied to expose a handler function to the code generator.
 
 The different chains defined in the `Displaceable` behavior are executed at different times in the process of displacing:
-- `Check` is done before the movement, checking whether it should be done at all. 
+- `Check` is done before the movement, checking whether it should be tried at all. 
   If the check chain has been passed through without stop, the action of displacing is considered successful, even though the entity may actually not move in the process. This is by design. 
 - `BeforeRemove` is the second check to see if the displacement should be applied. 
   The difference between `BeforeRemove` and `Check` is that, even if `BeforeRemove` fails, that is, a handler stops the propagation of the context to other handlers, the move is to be considered successfull, even though it will not be executed.
@@ -1036,7 +1036,7 @@ These have not been battle-tested yet, but they have been given a try in the imp
 
 Basically, these grids lets you subscribe a handler function that will be executed upon any entity entering (or leaving) that cell.
 The difference between normal `TriggerGrid` and the filtering one is that in the normal grid, your handler function *will be removed at the end of the current turn*, which essentially means your handler will persist only until all of the current entities have done their moves.
-In contrast, handlers added to the filtering grid decide whether to keep or to remove themselves by returning true or false.
+In contrast, the handlers added to the filtering grid decide whether to keep or to remove themselves by returning true or false.
 For an example, see e.g. [the `Leave` handler of bouncing][21].
 
 Note that this API is not complete and might change in the future. 
@@ -1046,7 +1046,6 @@ For example, [this handler][21] captures the entity as the first argument.
 Capturing should ideally be replaced with a lookup based on id of the entity to allow the entities to be garbage collected immediately. 
 However, doing that manually each time would be annoying.
 Again, I may use the code generator for this purpose in the future.
-
 
 
 

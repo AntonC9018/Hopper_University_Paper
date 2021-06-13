@@ -815,4 +815,178 @@ Această este legat cu generatorul de cod.
 În scurt, atributul `Inject` este utilizat pentru a genera un constructor și un constructor de copiere pentru acest component, care ar solicita o valoare pentru acel câmp ca parametru.
 
 Probabil ați observat și apelările la metodele `Grid.TriggerLeave()` și `Grid.TriggerEnter()`.
-Cum acestea funcționează va fi explicat pe urmă.
+Cum acestea funcționează va fi explicat mai pe urmă.
+
+
+#### Displaceable
+
+Schimbarea poziției proprii într-o direcție dată, fie voluntar sau nevoluntar, este conceptualizat ca *deplasare*.
+Teleportarea la o poziție nouă nu este considerată ca o deplasare.
+
+Acest comportament permite deplasarea dacă celula unde entitatea se mișcă nu este blocată.
+Informația ce nivel să fie considerat ca nivelul de blocare este stocat ca un câmp injectat în acest comportament deci poate fi schimbată at runtime pentru o entitate particulară, dacă necesită.
+
+`Displaceable` este un *comportament* care poate fi adăugat la o entitate pentru a-i da posibilitate de a se deplasa. [Codul sursă][12].
+În această clasă puteți vede aproximativ modul în care comportamentele sunt implementate.
+[Aici][13] definim niște chain-uri (ca atare event-uri).
+Generator de cod reacționează la ele, inițializându-le într-un constructor generat automat, și le copiază în constructorul de copiere generat automat.
+
+Dacă codul extern dorește să adauge handler-uri la aceste chain-uri pe o instanță de entitate (sau pe un tip de entitate, deoarece fabricele sunt modelate print-o instanță de entitate-subiect), ar utiliza atributul `Export`.
+Aplicând acest atribut ar autogenera codul pentru alocarea unui număr de prioritate unic pentru acel handler și, opțional, ar genera un învelitor care ar putea fi utilizat pentru a ușura procesul de obținere a chain-ului necesar de pe entitate și de conectare a acelui handler.
+
+[Aici][14] avem un exemplu de așa atribute utilizate pentru a expune o funcție handler la generator de cod.
+
+Diferența dintre chain-urile în comportamentul `Displaceable` este că ele sunt executate în momente diferite ale procesului de deplasare:
+- `Check` se face înainte de deplasare, verificând dacă deplasarea trebuie să fie încercată cu totul.
+Dacă am chain-ul de verificare până la capăt fără stopare, acțiunea de deplasare se consideră reuțită, cu toate că entitatea ar putea să nu se miște în proces. Acesta este by design.
+- `BeforeRemove` reprezintă al doilea verificare pentru a verifica dacă deplasarea trebuie să fie aplicată.
+  Diferența dintre aceste două chain-uri este că, dacă `BeforeRemove` ar eșua, adică, un handler ar opri propagarea contextului la restul handler-urilor, mișcarea s-ar fi considerată reușită, cu toate că nu ar fi executată în așa caz.
+  Diferența există în mare parte pentru sistemul de acționare, explicată mai pe urmă.
+  Însă ideea cheie este că chain-urile `Check` sunt utilizate pentru a verifica *dacă o acțiune trebuie să fie încercată*.
+  Dacă deplasarea eșuează la `Check`, de exemplu *atacarea va fi încercată*, însă dacă eșuează mai pe urmă la `BeforeRemove`, acțiunea de mișcare va reuși și *nici o acțiune după mișcare nu ar fi încercată*.
+- `BeforeReset` este traversată imediat după ce entitatea a fost eliminat din grilă, dar înainte de a fi *resetată* în grilă.
+  Cum ați putea observa, este traversată direct, fără verificare propagării, deci toate handler-urile se execută garantat după ce `_BeforeResetChain.Pass(ctx);` este apelat.
+- `After` este traversată după ce entitatea a fost resetată în grilă.
+
+Atât de multe chain-uri sunt necesare pentru a putea să schimbe comportamentul de deplasare într-un mod foarte specific.
+De exemplu, funcția particulară după [acest link][14] face așa că când entitatea se deplasează, orientarea lui ar fi schimbată în acea direcție.
+Însă v-ați putea imagina ideile foarte complicate implementate datorită acestor chain-uri.
+De exemplu, [*alunecarea* utilizează chain-ul `After`][15] pentru a opri alunecarea când entitatea se ciocnește cu peretele sau plece de pe o suprafață alunecoasă.
+
+Eu numesc această idee de aplicarea unor detalii mici la algoritmul de deplasare, *retouching*, ca adăugarea unor detalii sau efecte în Photoshop.
+
+
+#### Moving
+
+`Moving` este comportamentul responsibil de deplasarea voluntară.
+
+Comportamentul `Moving` este un *comportament direcționat activat*, ceea ce implică că el are o funcție `Activate()` care ia o direcție și returnează un boolean, indicând dacă activarea a reușit.
+Așa comportamente pot fi activate de către *sistemul de acționare*.
+`Moving` utilizează `Displaceable` pentru a executa deplasarea.
+
+`Moving` este un exemplu de comportament care utilizează *autoactivarea*.
+*Autoactivarea* este o modalitate oferită de către generatorul de cod care permite să generăm funcția `Activate()` și 2 chain-uri `Check` și `Do` automat.
+Scopul lui `Check` ar fi să verificăm dacă trebuie să traversăm chain-ul `Do`.
+Chain-ul `Do` ar conține handler-urile care fac ceea ce ține de mișcare în acest caz.
+Aici încă vedem uzul funcției `DefaultPreset()` care ar seta aceste chain-uri inițial, aplicând handler-urile necesare.
+
+Acest pattern este răspândit între comportament, dar este cel mai util pentru *prototipare*.
+Strategia unde utilizăm `Check` și `Do` lucrează pentru majoritatea comportamentelor la început, însă eventual deseori realizați că aveți nevoie de mai mult control, de exemplu de chain-urile `Before` sau `After`.
+Atunci veți defini toate pe care le aveți nevoie în comportamentele dvs particulare, lăsând autoactivarea în urmă.
+
+De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
+
+[Vedeți codul sursă.][16]
+
+
+#### Pushable
+
+`Pushable` este asemănător un comportament *autoactivat*, însă nu este *direcționat activat*, deoarece acțiunea asociată cu el nu poate fi executată voluntar.
+
+Codul lui `Pushable` la moment nu este matur, deci nu pot explica mult aici.
+
+[Vedeți codul sursă.][17]
+
+
+### Bloc
+
+Ideea că o entitate nu poate să se miște la o celulă este conceptualizată spunând că acea celulă este *blocată* de o altă entitate.
+Tipic, această entitate ar fi ori de la nivelul *real*, ori de la nivelul *wall*.
+
+Cum am notat anterior, blocarea mișcării este implementată în `Displaceable`.
+Blocuri mai pot afecta *sistemul de selectare țelelor*, explicată mai târziu.
+
+#### Entitățile direcționate
+
+Proprietatea de a fi direcționat semnifică că entitatea ar ocupa doar o parte a celulii în care ea se află.
+Așa entități direcționate care servesc ca blocuri direcționate sunt numite *bariere*.
+
+Ideea este inspirată de așa blocuri din **Cadence of Hyrule**.
+[Unul din teste][18] explică ideea blocurilor direcționale cu ASCII mai clar decât eu aș putea prin text.
+
+Aceasta introduce mai multă complexitate în procesul de detectare dacă o celulă particulară este blocată.
+
+De obicei, pentru blocuri nedirecționate, pur și simplu trebuie să verificăm doar o celulă pentru a determina dacă celula este blocată sau nu.
+Dacă celula conține o entitate din nivelul de bloc dvs, da, dacă nu conține, nu.
+Cu blocuri direcționate aceasta este mai subtil.
+
+Dacă entitatea din nivelul de bloc dvs este direcționat, trebuie să verificați dacă este la partea corectă a celulei (ce parte ea ocupă este indicată de către orientarea ei).
+Partea corectă a celulei este partea din care caracterul dvs o ar intra.
+Dacă entitatea potențial bloc ar fi pe orice altă parte a celulei, mișcarea nu ar fi blocată. 
+
+Însă nu-i totul! Mai trebuie să verificați dacă celula de pa care caracterul începe mișcare conține un bloc direcțional pe cealaltă parte a celulei de pe care caracterul o ar ieși.
+
+Am implementat toate acestea în [funcția `HasBlock()`][19] din `Grid`.
+Deoarece trebuie să știem din ca parte caracterul ar ieși, luăm ca input direcția pe lângă coordonatelor celulei de interes.
+
+
+### Event-urile de intrare și de ieșire
+
+Grila mai definește [4 structuri utile][20]:
+- `TriggerGrids` normală de `Enter` și `Leave`;
+- `TriggerGrids` filtrată de `Enter` și `Leave`;
+
+Acestea încă nu și-au demonstrat valoarea utilă în cod, însă le-am utilizat pentru a implementa efectele de *alunecare, bouncing, fixare* și în *proiectile*.
+
+Esențial, aceste grile permit să adăugați funcții handler care vor fi executate când orice entitate intră (sau iese de pe) celula.
+Diferența dintre grilele cele normale și filtrate este faptul că în grilele normale, handler-ul dvs *ar fi eliminat după terminarea turului curent*, ceea ce înseamnă că handler-ul va persista numai până la moment când toate entitățile își termină acțiunile.
+În constrast, handler-urile adăugate în grila filtrată decid dacă ei trebuie să fie păstrate sau scoase singuri, returnând true sau false. 
+Pentru un exemplu, vedeți [`Leave` handlerul lui bouncing][21].
+
+Remarc că acest API încă nu este complet și am putea să decid să-l schimb în viitor.
+Pur și simplu am explorat ideea care mi-a părut utilă.
+
+De exemplu, [acest handler][21] captează entitatea ca primul argument.
+Captarea (crearea closure-ilor) ideal am s-o schimb la un lookup pe id al entității pentru a permite entităților să fie "garbage collected" imediat.
+Însă, să fac acest lucru manual ar fi anevoios.
+Eu aș putea să utilizez iarăși generatorul de cod pentru acest scop în viitor.
+
+
+## Chain-urile
+
+În secțiunile precedente am apăsat ușor ideea de *chain-uri*.
+Acestă secțiune dă o descriere mai detaliată despre ce ele sunt.
+
+### Resposibility chains
+
+*Chain-urile* în codul meu sunt băzate pe ideea unui **lanț de responsibilitate** (responsibility chain).
+
+Un lanț de responsibilitate este o listă de funcții handler care operează cu anumite date.
+Datele pot fi simple, ca un număr, dar pot fi și mai complexe, în care caz de obicei sunt numite *context*.
+
+Sensul apelării acestor handleri este de a primi un oarecare rezultat sau de a aplica un oarecare efect.
+După ce unul din handler-uri au reușit să-și aplică efectul sau să-și calcula rezultatul, propagarea se termină, adică nici un handler ce urmează nu ar fi executat.
+
+În cazul chain-urilor *din codul meu*, ideea *"reușirii de a-și aplica efectul"* este mai generală.
+Oare propagarea trebuie să fie oprită este verificat prin evaluarea proprietății `Propagate` a contextului, care poate or incapsula un câmp boolean ori să utilizeze o funcție pentru a calcula valoarea în dependența de valorile altor câmpuri din context.
+Încă, un chain poate fi *trecut fără a verifica propagarea*, adică trecut până la capăt independent de valoare lui `Propagate`.
+
+Vedeți [testele pentru chain-urile][24].
+
+### Prioritatea
+
+Ar putea să fie beneficiar ca handler-urile să aibă o prioritate și să fie sortate după acea prioritate.
+Aceasta ar face procesul de fixare a diferitor bug-uri legate de ordonarea execuției a handler-urilor mai ușor, dând mai multe flexibilitate chain-urilor.
+
+Întrebarea este, ce structură de date să utilizăm pentru acest scop?
+Avem nevoie de inserții, ștergeri și căutări rapide, dar în același timp să putem itera prin colecția sortată după prioritate.
+
+O idee ar fi să utilizăm o listă și s-o sortăm înainte de fiecare iterare prin ea.
+Este o soluție, însă problema este că adăugarea handler-urilor este lentă, și căutarea implică scanarea întregei liste.
+
+O altă idee, care am utilizat-o la un moment, ar fi să utilizăm listele înlănțuite, sortându-le înainte de iterare.
+Însă:
+- sortarea listelor înlănțuite nu este frumoasă,
+- trebuie să avem a doua listă pentru a stoca handler-uri adăugate între iterații, ce ar fi pe urmă adăugate în lista principală.
+
+Curent, utilizez un arbore binar balansat (`SortedSet` în C#).
+Ștergerea, inserția și căutarea sunt logaritmuce, și colecția mereu stă sortată.
+Încă am făcut ca prioritățile să fie unice pentru toate handler-urile în program, ca orice handler să poată fi identificat prin prioritatea sa.
+
+#### Cum prescriem prioritățile?
+
+Prioritatea este prescrisă în funcția de inițializare generată automat, utilizând registrul pentru a genera numere de prioritate.
+
+Am făcut o clasă specială pentru acest lucru, [priority assigner][25], care mapează
+
+
