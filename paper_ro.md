@@ -1,12 +1,12 @@
 
-# Abstract
+# 1. Abstract
 
 Cu colegul meu am creat jocul Roguelike, **Hopper**, băzată pe mecanici din *Crypt of the Necrodancer*. 
 În prima secțiune eu explic de ce am inițiat acest proiect, prin ce cale de dezvoltare am trecut.
 Următoarele secțiuni sunt mai tehnice. Acolo eu motivez și ilustrez prin exemple concrete design-ul meu al sistemei, explic cum jocul funcționează intern.
 Eu prezint cum am evitat boilerplate-ul și duplicarea codului prin generarea codului cu *Roslyn* și *T4*.
 
-# Introduction
+# 2. Introduction
 
 Ideea jocului este inspirată de jocul **Crypt of the Necrodancer** (mai departe voi referi la ea ca simplu *Necrodancer*), care este jocul meu preferat.
 
@@ -33,7 +33,7 @@ Deci, **scopurile mele pentru proiect** au devenit următoarele:
 4. Să adaug mai un proiect în lista proiectelor personale.
 
 
-### Partea mea în acest job
+### 2.0.1. Partea mea în acest job
 
 Eu sunt programator, nu sunt artist sau designer.
 
@@ -45,7 +45,7 @@ Aș dori să accentuez faptul că partea mea în acest proiect este să construi
 Ca o demonstrare, totuți am creat o versiune minimală a jocului.
 
 
-## Design-ul mecanicilor jocului
+## 2.1. Design-ul mecanicilor jocului
 
 Jocul care am vizat să-l dezvolt împrumută mecanicile sale de bază de la **Crypt of the Necrodancer**.
 
@@ -70,7 +70,7 @@ Această idee este într-un mod similară la ideea șahului cronomerat, unde tim
 (The short spacing between beats likewise feels stressful at times, but it feels good to sometimes clutch out such intense moments, where you are able to ward off a horde of enemies e.g. with a well-casted magic spell or a deft weapon swing.) 
 
 
-## Istoria scurtă a dezvoltării
+## 2.2. Istoria scurtă a dezvoltării
 
 Am început să lucrez asupra acestui proiect aprope 2 ani în urmă.
 Pe parcursul acestor 2 ani, a fost aruncat și rescris, complet sau parțial, de aproape 5 ori.
@@ -83,7 +83,7 @@ Să scieți un joc, asemănător, nu este liniar.
 Cu toate că am știut de la început conceptul general pe care am vrut să-l urmăresc, și mecanicii de bază deja clare, nu am știut cum să structurez jocul corect, în ceea ce privește codul și design-ul sistemei.
 Deci, trebuiam să încerc mai multe chestii pentru a ajunge la acele momente mai insteresante pe care le am astăzi. 
 
-### Încerări inițiale
+### 2.2.1. Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
 Permite exportarea pe mobil și pe desktop. Vedeți repertoriul pe github [după acest link][1].
@@ -101,7 +101,7 @@ Ele necesită creativitatea și competența.
 Codul inițial a fost aruncat și rescris de la început în a doua versiune, încă pe Corona.
 
 
-### Corona și Lua: etapa 2
+### 2.2.2. Corona și Lua: etapa 2
 
 Lua este un limbaj de programare foarte simplist: nu există tipurile, modulele sau clasurile.
 Dynamic method dispatch, încă, poate fi simulat prin metatable-urile (moștenirea prototipică).
@@ -121,7 +121,7 @@ Chain-urile vor fi exemplificate mai bine în secțiunile ce urmează.
 
 Această idee a devenit esențială pentru modul în care eu am reușit să administrez mișcarea, atacarea, primirea daunei, etc.
 
-În acest timp, am relizat că, ca sistemul să fie destul de robust, am nevoie de component dinamice.
+În acest timp, am relizat că, ca sistemul să fie destul de robust, am nevoie de componente dinamice.
 Mai mult despre ele în secțiunile ce urmează.
 
 Această etapă a proiectului este documentată destul de bine, o valoare esențială, dacă chiar nu aveți tipuri în limbajul dvs.
@@ -129,7 +129,7 @@ Am scris niște articole în limba engleză ce descriu unele mecanici din sistem
 Unele idei documentate aici s-au tradus aproape intact în versiunea nouă a codului.
 
 
-### Rescrierea în C#
+### 2.2.3. Rescrierea în C#
 
 În fine, m-am săturat de faptul că Lua nu are tipuri.
 Am decis să rescriu întregul proiect în C#.
@@ -179,7 +179,7 @@ Acestea lucrez într-o măsură, însă prea mult complic codul.
 Pe toate aceste probleme le-am rezolvat în mare parte doar recent, utilizând generarea codului.
 
 
-### Unity și Godot
+### 2.2.4. Unity și Godot
 
 Peste niște luni după rescierea proiectului în C#, baza de cod a devenit destul de matură pentru a încerca să fac un *view* pe Unity au Godot.
 
@@ -197,11 +197,11 @@ Acest mod de a vizualiza ce face program uneori poate ajuta în identificarea ș
 Chestia este că oameni înțeleg input-ul vizual mai intuitiv decât log-urile în consola sau stiva de apeluri; uneori problema este mai aparentă dacă o observați în acțiune.
 
 
-### Generarea codului
+### 2.2.5. Generarea codului
 
 Începând cu luna aprilie, am lucrat asupra generării codului pentru a elimina boilerplate-ul și pentru a face procesul de dezvoltare mai puțin strângenitor.
 
-#### Motive pentru generarea codului
+#### 2.2.5.1. Motive pentru generarea codului
 
 Generarea codului este esențială, deoarece ea induce experimentarea.
 Când eu văd un pattern care nu poate fi ușor exploatat ușor fără generarea codului, au pot să fac rapid un modul prototip pentru generator de cod care ar exploata ideea.
@@ -214,7 +214,7 @@ Este mai ușor de administrat, deoarece singurul lucru catre trebuie să schimbe
 Este mai ușor de adăugat capacitățile noi, din aceeași cauză.
 Dă documentarea automată. Imaginați-vă păstrarea documentării la zi în toate acele fișiere.
 
-#### Instumente în scurt
+#### 2.2.5.2. Instumente în scurt
 
 Utilizez `T4`, scurt pentru `Text Template Transformation Toolkit`, pentru a crea template-uri pentru a genera fișiere sursă adăugătoare.
 Utilizez `Roslyn`, pentru analiza codului sursă.
@@ -226,7 +226,7 @@ Când generatorul de cod este pornit, el șterge toate fișierile generate anter
 Da, această abordare este foarte lentă dar este cu mult mai ușoară de implementat.
 Cea mai lentă parte a procesului este citirea și analiza fișierilor sursă, deci precis ar putea fi optimizată cu un language server.
 
-#### Fluxul meu de lucru
+#### 2.2.5.3. Fluxul meu de lucru
 
 Procesul meu de tranformare a docului repetativ în codul generat este aproximativ următorul:
 1. Când scriu cod observ un pattern care poate fi exploatat de către generatorul de cod.
@@ -235,9 +235,9 @@ Procesul meu de tranformare a docului repetativ în codul generat este aproximat
 4. Dacă nu pot rezolva astfel, pornesc generarea codului pentru ideea dată.
 
 
-# Prezentarea generală a sistemei
+# 3. Prezentarea generală a sistemei
 
-## Prezentarea generală a mecanicilor jocului
+## 3.1. Prezentarea generală a mecanicilor jocului
 
 Cum am menționat anterior, mecanicile jocului sunt băzate pe cele din Necrodancer.
 
@@ -252,7 +252,7 @@ Ce acțiune va fi selectată depinde de IA a lor (algoritm pentru selectarea urm
 Mai sunt lucruri care au loc după aceasta, însă le vom discuta mai târziu.
 
 
-### Tipurile de acțiuni
+### 3.1.1. Tipurile de acțiuni
 
 Un concept important care trebuie să-l adresez este faptul că jucătorul poate selecta dintre următoarele două tipuri de acțiuni:
 1. *Acțiuni-vector* (`directed actions`), governate de către input-uri direcționale (săgețile). Acestea includ atacarea, mișcarea și săparea într-o direcție specificată.
@@ -271,7 +271,7 @@ Deci, apăsarea lui `S` mereu ar executa această acțiune concretă (în genera
 
 Ca rezultat acestul model, jucătorul poate executa orice valabilă la moment acțiune în orice moment al timpului prin apăsarea cel mult unei cheie.
 
-### Scopul
+### 3.1.2. Scopul
 
 Jucătorul se confruntă cu problema de a completa un nivel generat aleator.
 Nivelurile consistă dintr-un set de cameri conectate, fiecare cameră conținând inamici.
@@ -283,7 +283,7 @@ Nivelurile devin progresiv mai complicate. În special, monștri au mai multe pu
 În același timp, jucătorul primește itemi când învinge etajul, care dă abilități noi pasive sau active, sporește statuturile.
 Deci, jucătorul tot devine mai puternic, progresând.
 
-### Itemii
+### 3.1.3. Itemii
 
 Inventoriul jucătorului are niște sloturi de itemi, fiecare cu un rol asociat, de exemplu, arma, lopata, ??? (spell) sau o parte de armură, ca cizmele sau casca.
 Acele sloturi care pot fi activate sunt mapate la un input, adică furnizând acel input ar activa itemul în slotul corespunzător. 
@@ -297,7 +297,7 @@ De exemplu, ar putea fi un itemm care daunează toți inamicii în jurul inamicu
 
 Vom presupune, pentru simplitate, că nu pot exista două exact aceiași itemi ridicate de către jucător.
 
-### Inamicii
+### 3.1.4. Inamicii
 
 Fiecare inamic are un comportament clar-definit.
 Ei selectează acțiuni după o strategie ușor de înțeles pentru jucător.
@@ -311,7 +311,7 @@ Fiecare inamic încă trebuie să aibă o metodă de a-l învinge, un pattern si
 Bucuria jocului constă în studierea setului de mișcări al inamicului, ??? (coming up with) pattern-urile și strategiile de a-i învinge, și în evaluarea situației rapid, ??? (coming up with a good action on the fly), în cauza în care inamicii avansează în grupuri.
 
 
-### Limita de timp
+### 3.1.5. Limita de timp
 
 Cum am menționat anterior, cea mai intrigantă idee este faptul că există o limită de timp pentru fiecate acțiune.
 Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu o anumită libertate ??? (with some leeway)). 
@@ -322,7 +322,7 @@ Eu aș zice această mecanică este cea mai importantă mecanică din Necrodance
 Acestă lucrare concentrează pe întrebările implementării altor părți ale jocului: sistemul de acțiuni, sistemul de grilă, etc. 
 
 
-### Mai multe idei
+### 3.1.6. Mai multe idei
 
 Când motorul este completat, va fi ușor să explorăm mai multe idei.
 
@@ -330,12 +330,12 @@ Eu aș dori să încerc să transform jocul acesta într-o PVP arena, sau MOBA, 
 Nu știu cât viabil aceasta ar fi, dar ideea îmi pare destul de intrigantă.
 
 
-## Prezentarea generală a design-ului sistemului.
+## 3.2. Prezentarea generală a design-ului sistemului.
 
 Mă preocup în mare parte numai de motorul meu, adică cum logic ar funcționa, cum itemii, acțiunile, intelectul artificial al inamicilor vor fi implementate, cu instrumentele de exemplu pentru generarea codului.
 Încă, sunt interesat să permit să extindem contentul existent prin moduri.
 
-### Cum să NU scrieți cod
+### 3.2.1. Cum să NU scrieți cod
 
 Unul din cele mai importante subiecte în dezvoltarea jocurilor video este cum să arătăm frumos ce se face în joc pe ecran, cu animații, particule și sprite-urile corect arătate utilizatorului.
 
@@ -368,7 +368,7 @@ Deci, defectele identificate sunt:
 3. Inflexibilitatea.
 
 
-### Separarea și event-urile este ideea cheie
+### 3.2.2. Separarea și event-urile este ideea cheie
 
 Voi ilustra cum separarea componentelor și event-urile pot rezolva toate problemele constatate mai sus.
 
@@ -443,7 +443,7 @@ Acum, după ce le-am separat, putem rezolva și problemele de întreținere.
 Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet și independent, această problemă tot poate fi rezolvată, cu ceva mai mult chibzuit.
 
 
-### O direcție greșită?
+### 3.2.3. O direcție greșită?
 
 Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să exact fac acest lucru.
 Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine până recent.
@@ -452,7 +452,7 @@ Am gândit că view-ul și modelul sunt aceste două sisteme complet independent
 Aceasta poate lucra, însă nu este tare scalabil.
 În loc de această abordare, view-ul trebuie să fie conectat cu modelul într-un set lat de puncte de contact, prin event-uri, unde modelul nu ar cunoaște nimic despre view-ul.
 
-#### Ideea istoriei
+#### 3.2.3.1. Ideea istoriei
 
 Inițial, mi-am imaginat modelul și view-ul să fie conectate prin *istoria*.
 Modelul ar împinge actualizările referitor la ce event-uri s-au întâmplat în lume prin această istorie.
@@ -475,7 +475,7 @@ Fiecare mașină de stări este o sită care devine blocată când încercați s
 După ce am trecut istoria prin toate sitele, cea mai complexă blocată sită este selectată și animațiile pentru acea sită sunt ??? (played).
 
 
-#### Care este problemă dar?
+#### 3.2.3.2. Care este problemă dar?
 
 Problema vine când aveți nevoie să transmiteți datele împreună cu actualizările.
 
@@ -543,7 +543,7 @@ void SieveThroughHistory(History history)
 ```
 
 
-#### Soluția
+#### 3.2.3.3. Soluția
 
 Din fericire, există o modalitate mai bună de a ??? (deal with this).
 
@@ -610,7 +610,7 @@ Trebuia să sufăr prin toate probelemele istoriei explicate mai sus pentru a aj
 
 Deci, am reușit șă separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
 
-#### Este oare totul?
+#### 3.2.3.4. Este oare totul?
 
 Mai sunt niște probleme cu așa design.
 
@@ -623,13 +623,13 @@ Am rezolvat-o prin introducerea priorităților.
 Vom discuta ambele pe urmă.
 
 
-### ECS (Entitate-Component-Sistem)
+### 3.2.4. ECS (Entitate-Component-Sistem)
 
 S-au spus multe lucruri despre ECS-uri.
 Însă, eu sunt convins că nu puteți să le înțelegeți integral dacă nu redescoperiți această idee singuri.
 Când vedeți o problemă reală și încercați s-o soluționați prin diferite metode, incluzând ECS-ul, iată atunci apare înțelerea profundă.
 
-#### Introducere 
+#### 3.2.4.1. Introducere 
 
 ECS permite să privim spațiul programului printr-o perspectivă diferită.
 
@@ -644,7 +644,7 @@ Ele operează pe componentente individuale ale entităților, astfel asigurându
 
 Ideea după ECS-ul este "entitățile flexibile și dinamice".
 
-#### De ce nu POO?
+#### 3.2.4.2. De ce nu POO?
 
 Dacă vreodată ați încercat să reprezentați tipurile diferite ale entităților într-un mediu dinamic, știți că aceasta nu va lucra.
 1. Nu puteți utiliza conceptul de moștenire și ierarhiile cum-se-cade.
@@ -687,7 +687,7 @@ Puteți ori să facem cum am descris mai sus, ori să transformați omida în fl
 În acest sens, a două abordare este mai flexibilă.
 
 
-#### Compresie
+#### 3.2.4.3. Compresie
 
 O altă idee este să dați fiecării entități întreaga gama tuturor proprietăților și abilităților posibile însă să nu le dați voie să utilizeze majoritatea lor.
 Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să curățați acel flag care indică dacă entitatea poate aplica acea abilitate.
@@ -699,7 +699,7 @@ Nu doar una din ele, ci toate.
 
 Deci, păstrarea componentelor în constrast lumii unde toate entitățile au toate proprietăți posibile, natural aduce la entități *sparse*, în alte cuvinte, la ideea *compresiei*. 
 
-#### ECS-ul meu
+#### 3.2.4.4. ECS-ul meu
 
 La moment, perspectiva mea la ECS este ceva specială.
 - Noțiunea *sistemei* este destul de vagă în codul meu.
@@ -727,18 +727,18 @@ C# nu dispune de instrumentele necesare pentru a gestiona memoria manual, care e
 Am considerat să migrez proiectul în C++, însă C++ tot are problemele sale, de exemplu că modding-ul ar fi mai complicat de implementat, că serializarea este proastă, deci am hotărât să progrezez cu ECS-ul "fake" al meu, în loc de aceasta.
 În viitorul apropiat este posibil că voi migra proiectul pe D care este atrăgător pentru mine în special din cauza facilităților sale de metaprogramare.
 
-# Subiectele tehnice
+# 4. Subiectele tehnice
 
 În această secțiune, prezint unele elemente din joc.
 Mai specific, explic motivarea lor și cum le-am implementat, cu exemple concrete din codul sursă.
 
-## Grila
+## 4.1. Grila
 
 Cum am stabilit anterior, lumea este reprezintată printr-o grilă de două dimensiuni cu entitățile.
 Întrucât interogările de a afla dacă dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de răspândite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
 Aceasta este de fapt cum am decis să modelez grila ([uitați-vă la costructor][7]).
 
-### Celulile
+### 4.1.1. Celulile
 
 Se presupune că fiecare celulă are mai multe nivele, unde entitățile de la diferite nivele au proprietăți ceva diferite.
 De exemplu, în general, ??? (spiked trap) care dăunează jucătorul când acela o calcă, nu poate fi atacată de către jucători sau inamici, dar poate fi exploadată de către bombe.
@@ -778,7 +778,7 @@ Aceași se aplică la efectele de particule, care nu au influența asupra mecani
 Modelul este responsabil doar pentru chestiile care sunt legate de logica jocului. 
 
 
-### Componentele responsabile pentru poziția și mișcare
+### 4.1.2. Componentele responsabile pentru poziția și mișcare
 
 Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimbe poziția at runtime este esențială pentru joc.
 
@@ -788,18 +788,18 @@ Aceste abilități sunt modelate după următoarele componente specializate:
 - `Moving`, dând abilitatea de *a se mișca volunar*,
 - `Pushable`, dând abilitatea de *a fi mișcat involuntar*.
 
-### Transform
+### 4.1.3. Transform
 
-Entitățile care pot fi poziționate în lume trebuie să aibă componentul [`Transform`][11].
+Entitățile care pot fi poziționate în lume trebuie să aibă componenta [`Transform`][11].
 Conține informația despre poziția curentă în lume, orientarea curentă (în ce direcție se uită) și ce nivel entitatea ocupă.
 Fiecare transform mai conține o referență la entitate, pentru a putea accesa entitatea când interogăm grila.
 
 Curent, există conceptul de a fi `directat` care va fi examinată pe urmă.
-Este modelată printr-un `tag` (un component fără date), însă recent am adăugat un flag în `Transform` pentru această.
+Este modelată printr-un `tag` (o componentă fără date), însă recent am adăugat un flag în `Transform` pentru această.
 Astfel am putea introduce mai multe flaguri.
 
 `Transform` mai conține metode ajutătoare pentru interacțiunea cu grila.
-Acest component este cuplat cu grila.
+Această componentă este cuplată cu grila.
 Aceste metode sunt definite ca metode instanțe pentru transform simplu pentru comoditate.
 Ele ar putea fi definite ca metode de extindere, sau ca metode pe `Grid`, deoarece majoritatea lor are analoguri pe `Grid`.
 
@@ -812,13 +812,13 @@ Când am adaug posibilitatea pentru mai multe lumi de a exista deodată, cumva v
 
 Dacă v-ați uita la cod mai aproape, ați putea să observați că unele câmputi sunt decorate cu atribute.
 Această este legat cu generatorul de cod.
-În scurt, atributul `Inject` este utilizat pentru a genera un constructor și un constructor de copiere pentru acest component, care ar solicita o valoare pentru acel câmp ca parametru.
+În scurt, atributul `Inject` este utilizat pentru a genera un constructor și un constructor de copiere pentru această componentă, care ar solicita o valoare pentru acel câmp ca parametru.
 
 Probabil ați observat și apelările la metodele `Grid.TriggerLeave()` și `Grid.TriggerEnter()`.
 Cum acestea funcționează va fi explicat mai pe urmă.
 
 
-#### Displaceable
+#### 4.1.3.1. Displaceable
 
 Schimbarea poziției proprii într-o direcție dată, fie voluntar sau nevoluntar, este conceptualizat ca *deplasare*.
 Teleportarea la o poziție nouă nu este considerată ca o deplasare.
@@ -856,7 +856,7 @@ De exemplu, [*alunecarea* utilizează chain-ul `After`][15] pentru a opri alunec
 Eu numesc această idee de aplicarea unor detalii mici la algoritmul de deplasare, *retouching*, ca adăugarea unor detalii sau efecte în Photoshop.
 
 
-#### Moving
+#### 4.1.3.2. Moving
 
 `Moving` este comportamentul responsibil de deplasarea voluntară.
 
@@ -879,7 +879,7 @@ De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 [Vedeți codul sursă.][16]
 
 
-#### Pushable
+#### 4.1.3.3. Pushable
 
 `Pushable` este asemănător un comportament *autoactivat*, însă nu este *direcționat activat*, deoarece acțiunea asociată cu el nu poate fi executată voluntar.
 
@@ -888,7 +888,7 @@ Codul lui `Pushable` la moment nu este matur, deci nu pot explica mult aici.
 [Vedeți codul sursă.][17]
 
 
-### Bloc
+### 4.1.4. Bloc
 
 Ideea că o entitate nu poate să se miște la o celulă este conceptualizată spunând că acea celulă este *blocată* de o altă entitate.
 Tipic, această entitate ar fi ori de la nivelul *real*, ori de la nivelul *wall*.
@@ -896,7 +896,7 @@ Tipic, această entitate ar fi ori de la nivelul *real*, ori de la nivelul *wall
 Cum am notat anterior, blocarea mișcării este implementată în `Displaceable`.
 Blocuri mai pot afecta *sistemul de selectare țelelor*, explicată mai târziu.
 
-#### Entitățile direcționate
+#### 4.1.4.1. Entitățile direcționate
 
 Proprietatea de a fi direcționat semnifică că entitatea ar ocupa doar o parte a celulii în care ea se află.
 Așa entități direcționate care servesc ca blocuri direcționate sunt numite *bariere*.
@@ -920,7 +920,7 @@ Am implementat toate acestea în [funcția `HasBlock()`][19] din `Grid`.
 Deoarece trebuie să știem din ca parte caracterul ar ieși, luăm ca input direcția pe lângă coordonatelor celulei de interes.
 
 
-### Event-urile de intrare și de ieșire
+### 4.1.5. Event-urile de intrare și de ieșire
 
 Grila mai definește [4 structuri utile][20]:
 - `TriggerGrids` normală de `Enter` și `Leave`;
@@ -942,12 +942,12 @@ Captarea (crearea closure-ilor) ideal am s-o schimb la un lookup pe id al entit�
 Eu aș putea să utilizez iarăși generatorul de cod pentru acest scop în viitor.
 
 
-## Chain-urile
+## 4.2. Chain-urile
 
 În secțiunile precedente am apăsat ușor ideea de *chain-uri*.
 Acestă secțiune dă o descriere mai detaliată despre ce ele sunt.
 
-### Resposibility chains
+### 4.2.1. Resposibility chains
 
 *Chain-urile* în codul meu sunt băzate pe ideea unui **lanț de responsibilitate** (responsibility chain).
 
@@ -963,7 +963,7 @@ Oare propagarea trebuie să fie oprită este verificat prin evaluarea proprietă
 
 Vedeți [testele pentru chain-urile][24].
 
-### Prioritatea
+### 4.2.2. Prioritatea
 
 Ar putea să fie beneficiar ca handler-urile să aibă o prioritate și să fie sortate după acea prioritate.
 Aceasta ar face procesul de fixare a diferitor bug-uri legate de ordonarea execuției a handler-urilor mai ușor, dând mai multe flexibilitate chain-urilor.
@@ -983,10 +983,266 @@ Curent, utilizez un arbore binar balansat (`SortedSet` în C#).
 Ștergerea, inserția și căutarea sunt logaritmuce, și colecția mereu stă sortată.
 Încă am făcut ca prioritățile să fie unice pentru toate handler-urile în program, ca orice handler să poată fi identificat prin prioritatea sa.
 
-#### Cum prescriem prioritățile?
+#### 4.2.2.1. Cum prescriem prioritățile?
 
 Prioritatea este prescrisă în funcția de inițializare generată automat, utilizând registrul pentru a genera numere de prioritate.
 
-Am făcut o clasă specială pentru acest lucru, [priority assigner][25], care mapează
+Am făcut o clasă specială pentru acest lucru, [priority assigner][25], care mapează *rangurile de prioritate* la *numere de prioritate*.
+[Rangurile de prioritate][26] sunt următoarele: lowest, low, medium, high și highest și sunt definite într-un enum.
+Posibil am adăuga mai multe ranguri în viitor, însă pentru moment este suficient.
+
+Când marcați un handler pentru export, puteți specifica un rang de prioritate.
+Handler-ul va primi o prioritate unică pentru acel rang la inițializare.
+
+### 4.2.3. Tipuri de chain-uri
+
+Introducerea priorităților a făcut toate chain-urile cele de prioritate, ceea ce în unele cazuri este o complicare excesivă.
+Deci, am adăugat `LinearChain` care este un chain fără priorități, elementele individuale din care nu trebuie să fie șterse, deoarece este modelat printr-o listă.
+Mai am definit `SelfFilteringChain` care utilizează un bufer dublu pentru a se filtra în timpul traversării, inserând elemenetele care trebuie să le pastrăm în al doilea bufer, pe urma schimbând buferele cu locuri.
+Am văzut deja un exemplu de utilizare în `TriggerGrids`.
+
+Vedeți [implementarea lui `DoubleList`][22].
+Vedeți [implementarea differitelor tipuri de chain-uri][23].
 
 
+## 4.3. Entități și Componente
+
+Entitățile sunt obiectele care **afectează logica jocului**.
+Exemple: *jucător*, *inamic*, *obiect din mediu*, *capcană*, *țigla de podea specială*.
+
+Lucrurile care nu afectează logica jocului, ca *particule* sau *țiglele de podea simple*, *nu* sunt considerate ca entități.
+Acestea *nu sunt dirijate de către modelul*.
+
+
+### 4.3.1. Structura entităților
+
+Entitatea este doar un obiect cu un id și un dicționar de componente.
+Deci, ar fi echitabil să le numim simplu *containere pentru componente*.
+
+Adițional, entitățile mele încă își stochează *id-ul tipului*, pentru a simplifica interacțiunea cu view-ul.
+Acest id al tipului este utilizat pentru sistemul itemilor (însă probabil voi schimba aceasta).
+
+[Vedeți codul sursă][27].
+
+Cum puteți observa, clasa `Entity` este `sealed`, semnuficând că ea nu poate fi moștenită.
+Cum am discutat deja în [prezentarea generală a sistemului](#324-ecs-entity-component-system), unicul mecanism utilizat pentru a atinge diversitatea proprietăților și a comportamentelor entităților este *folosirea componentelor*.
+Datorită acestuia, comportamentul sau proprietățile entităților pot fi augmentate prin aplicarea noilor componente sau prin eliminarea celor existente.
+
+
+### 4.3.2. Ce componentele necesită pentru a funcționa?
+
+Fiecare componentă are 2 tipuri de câmpuri:
+1. *Câmpurile injectate*.
+Valorile acestora sunt transmite prin constructor, setate și deseori nu sunt schimbate niciodată.
+Copierea formei inițiale a unei componente ar însemna copierea tuturor valorilor injectate.
+De exemplu, nivelul entității este un câmp injectat pe componenta `Transform`.
+2. *Alte câmăuri*.
+Acestea sunt necesare pentru a cuprinde *starea runtime* a componentei.
+De exemplu, flagurile pe comportamentul `Acting` indică dacă entitatea deja a făcut o actțiune în acest tur.
+Poziția și orientarea curentă pe `Transform`.
+
+Deci, cum am stabilit, pentru a funcționa cum-se-cade, componentele trebuie să fie furnizate cu valorile pentru toate câmpurile injectate când componenta este instanciat.
+
+Comportamentele definesc mai un tip de câmp, anume *chain-urile*.
+Chain-urile reprezintă mecanismul care permite să atingem *polimorfizmul*.
+
+Al doilea punct important este faptul că comportamentele pot schimba comportamentul general a unei entități într-un mod.
+Acesta implică adăugarea funcțiilor handler pe chain-urile sale proprii sau pe cele definite de alte comportamente, deja prezente pe acea entitate.
+
+De exemplu, `Acting` trebuie să-și reseteze flagurile când turul se termină.
+Pentru a atinge aceasta, adaugă un *handler de resetare* pe chain-ul de ticare a comportamentului `Ticking`.
+
+Al treilea lucru sunt *retoucher-urile*.
+Retoucher-urile sunt handler-urile care sunt adăugate separat pe chain-uri specifice a unui comportament specific.
+Le-am menționat când am dat prezentarea generală a sistemului.
+
+Aceste trei lucruri, anume instanțierea și adăugare comportamentelor, inițializarea handler-urilor comportamentelor și retușare definesc modul în care entitățile sunt fabricate.
+
+
+### 4.3.3. Tipurile entităților
+
+Prin "tipuri" în acest context nu avem în vedere "subclase", deoarece, cum am menționat anterior, componentele sunt utilizate în loc de moștenire.
+Tipurile specifice ale entităților sunt implementate diferit.
+
+#### 4.3.3.1. Procedura în 3 pași
+
+Deci, mai întâi să înțelegem în ce fel pot fi create tipuri. Posibilitățile:
+1. Se rulează funcții pe entități care ar adăuga componente, retoucher-uri și le inițializa în modul corect.
+2. Se creeză o reprezentare intermediară a tipurilor pe urmă folosite pentru a crea instanțe noi. Acest lucru a eșuat pentru mine, deoarece dacă utilizați așa strategie trebuie practic să creați două copii ale logicii dvs.: una pentru entitatea reală și una pentru "fabrică". Cu aceasta, aveți multe probleme de întreținere.
+3. Un compromis între cele două metode: să avem o fabrică, care să augmenteze o entitate și la instanțiere să creeze doar copii ale acelei entități. Adică, vom avea funcții care ar configura fabrica, adăugând componentele adecvate și conectând handler-urile prin funcția `Preset()` respectivă.
+Pentru aceasta am optat în implementarea curentă, deoarece strategia este cea mai simplă din aceste trei.
+
+Dacă luăm în considerare lucrurile menționate mai sus necesare pentru ca componentele să fie inițializate corect, ajungem la următoarea procedură de inițializare în 3 pași:
+1. Se adaugă toate componentele / comportamentele.
+2. Se execută funcțiile de inițializare (posibil vor fi disponibile mai multe funcții de inițializare pentru un anumit comportament, deoarece acestea ar fi utilizate în loc de subclasare pentru a obține pormorfizmul).
+3. Se mai adaugă handler-urile (retușare).
+
+Așadar, ideea mea a fost să definesc tipurile de entități ca clase statice cu 3 funcții statice, câte o funcție pentru fiecare pas, care ar augmenta subiectul fabricii pentru a construi inițial entitatea unui tip dat.
+
+Iată [un exemplu de astfel de clasă statică][28].
+Acest exemplu ilustrează, de asemenea, modul în care se realizează un fel de moștenire a tipurilor: trebuie doar să apelați aceste 3 funcții ale tipului pe care doriți să-l moșteniți la pașii corespunzători, înainte de a le apela pe cele proprii.
+
+Iată un exemplu al sintaxei pentru moștenire.
+```C#
+[EntityType(Abstract = true)]
+public static class BaseType
+{
+    public static void AddComponents(Entity subject) {/*something*/}
+    public static void InitComponents(Entity subject) {/*something*/}
+    public static void Retouch(Entity subject) {/*something*/}
+}
+
+[EntityType(Abstract = false)]
+public static class DerivedType
+{
+    public static EntityFactory Factory;
+
+    public static void AddComponents(Entity subject) { 
+        Base.AddComponents(subject); 
+        /*încă ceva*/ 
+    }
+    public static void InitComponents(Entity subject) {
+        Base.InitComponents(subject); 
+        /*încă ceva*/
+    }
+    public static void Retouch(Entity subject) {
+        Base.Retouch(subject); 
+        /*încă ceva*/
+    }
+}
+```
+
+#### 4.3.3.2. Problemele
+
+Prezint câteva probleme asociate cu această abordare:
+1. Implică boilerplate anevoios.
+Apelarea funcției tipului de bază la *fiecare* din pași, furnizarea corectă a semnăturilor pentru cele trei funcții statice, definirea unui câmp static de tipul `EntityFactory` sunt acele lucruri anevoioase.
+2. Din același motiv, este predispusă la erori.
+Este ușor să uitați să apelați funcția de inițializare a unuia din comportamente și nu veți primi nici un mesaj clar în timpul dezvoltării ce ar indica această greșeală.
+
+Cu toate acestea, nu îmi fac griji referitor la aceste probleme, deoarece eventual intenționez să *generez acest cod automat* din fișiere JSON cu descrieri de tipuri.
+Aceste fișiere JSON ideal vor fi modificate printr-un editor grafic sau cu ajutorul Intellisense-ului.
+Prin Intellisense mă refer de exemplu la sugerări ale valorilor adecvate pentru câmpurile injectate.
+Aceste valori vor fi obținute prin scanarea codului sursă, căutând tipuri sau câmpuri marcate cu atributele corespunzătoare.
+
+De exemplu, componenta `Transform` are un câmp injectat de tipul `Layers`, care evident poate avea doar valori din enum-ul `Layers`.
+Deci Intellisense-ul le-ar putea sugera.
+
+Ca un alt exemplu, considerăm componenta `SlotComponent`.
+Are nevoie de o valoare injectată de tip `Slot`.
+`Slot` nu este un enum.
+Deși este un tip cunoscut, sugestiile ar trebui să fie instanțe de acel tip.
+Spunem că astfel de instanțe sunt stocate ca câmpuri statice și sunt marcate cu atributul `[Slot]`.
+În acest fel, analizorul de cod le-ar putea registra și le poate sugera prin Intellisense.
+
+Cu toate acestea, trebuie să facem **cu mult** mai mult lucru, pentru a implementa această funcționalitate, așa că, deocamdată, am decis să simplific și să definesc manual clasele statice.
+Sigur, așa abordare este predispusă la erori, dar în acest fel aș putea măcar să construiesc un prototip la timp.
+
+
+### 4.3.4. Copierea componentelor
+
+Prin copierea componentelor mă refer la copierea *chain-urilor* și a *câmpurilor injectate*, adică acelor părți ale componentei care sunt legate de tipul entității, ignorând valorile care s-ar schimba at runtime.
+
+#### 4.3.4.1. Pentru ce să copiem componente?
+
+Acest lucru este esențial pentru inițializarea entităților.
+După cum am menționat, pentru a inițializa o entitate, fabrica corespunzătoare trebuie să cloneze instanța de entitate "subiect" stocată.
+
+De ce să nu rulați același set de funcții pe o entitate nouă de fiecare dată când o entitate de acest tip urmează să fie instanțiată în loc de a crea o instanță "subiect" întreagă?
+Cel puțin faptul că acest lucru ar anula posibilitatea de a optimiza copierea chain-urilor pe entitatea nouă să fie *leneșă*, trebuind să fie reconstituită în întregime de fiecare dată când avem nevoie de o nouă instanță, face această idee proastă.
+
+#### Implementarea
+
+Pentru a copia orice obiect, aveți câteva opțiuni, dintre care unele au fost deja menționate:
+1. Copierea prin reflecție (un fel de serializare automată);
+2. Copierea prin generarea codului (furnizând strategia de copiere implicită pentru majoritatea componentelor);
+3. Copierea manuală.
+
+Deoarece toate componentele sunt cunoscute static în prealabil, nu avem nevoie de copiere prin reflexie.
+
+Codul meu folosește pe larg copierea prin generarea codului, oferind constructori de copiere autogenerate și funcții de copiere, care, la rândul lor, folosesc acești constructori.
+Mai multe detalii despre generarea codului mai târziu.
+
+Copierea manuală este uneori preferate față de generarea codului automată, deoarece, pentru unele componente, strategia de creare a unei copii ar putea fi prea complexă.
+Deci, generatorul de cod nu va furniza construcorul de copiere, dacă găsește unul specificat de utilizator.
+
+Acum să înțelegem ce ar fi de fapt copiat de fiecare dată:
+1. Valorile câmpurilor injectate.
+Acestea sunt copiate direct (prin referință, dacă este un tip de referință, sau făcând o copie shallow, dacă este un tip de valoare).
+1. Chain-urile sunt întotdeauna copiate.
+Deoarece nu permit nici un closure pentru handler-uri, adică funcțiile nu sunt permise să capteze de exemplu componente, sarcina de copiere a acestora este banală, și anume, se copiează doar structura de date subiacentă.
+Aceasta poate fi, de asemenea, îmbunătățit în viitor utilizând un set sortat imuabil, astfel încât să fie copiat numai atunci când se schimbă handler-urile obiectului nou.
+
+Faptul că valorile câmpurilor runtime nu trebuie să fie copiate duce la o altă idee interesantă.
+Am putea să construim un fel de *reprezentare de tip* a componentelor, adică să extragem versiunile prescurtate ale componentelor care ar avea doar câmpurile injectate și chain-urile.
+Aceasta este de fapt o idee destul de bună, deși singurul beneficiu pe care l-ar obține este că fabricile entității ar ocupa mai puțin spațiu în memorie (componentele nu ar avea câmpurile prezente at runtime).
+Nu o fac pentru că ar fi greu de implementat și ar lua mult timp, cu beneficii minime.
+
+
+### Fabrica de entități
+
+Fabricile de entități, după cum am menționat, conțin o instanță "subiect" și scopul lor este de a crea copii la această instanță la cerere.
+A se vedea [implementarea][29].
+
+Deoarece fabricile pot fi interogate prin ID-ul lor (având un ID de fabrică, este posibil să obțineți fabrica cu acel ID), trebuie să le atribuim aceste ID-uri și să le stocăm în registru.
+Voi prezenta mai multe teorii despre registru și identificatori mai târziu.
+
+### Wrapper-uri de entități
+
+O altă idee ipotetică neimplementată interesantă este de a crea wrapper-uri asupra unor tipuri de entități specifice.
+
+În prezent, generatorul de cod creează unele metode de extensie pentru clasa `Entitate` pentru recuperarea unei anumite componente dintr-o entitate.
+Deci, având orice entitate, chiar dacă acesta nu are componenta `X`, puteți executa `entity.GetX()` sau `entity.TryGetX()`.
+Acest lucru este rău atunci când vă așteptați la o entitate de un anumit tip, deoarece toate metodele irelevante, adică metodele care recuperează componente care nu ar exista niciodată pe acea entitate, ar crea dezordine printre metodele relevante.
+Acest lucru face explorarea API-ului prin Intellisense considerabil mai dificilă și este predispusă la erori.
+
+Deci, considerăm o entitate de tip `A` care are componenta `X`.
+Alte componente, pe care entitatea de tip `A` nu le-ar avea, sunt `Y` și `Z`.
+Dacă definim un wrapper în următorul fel:
+
+```c#
+public readonly struct A_EntityWrapper
+{
+    public readonly Entity entity;
+
+    public A_EntityWrapper(Entity entity) => this.entity = entity;
+
+    public X GetX() => entity.GetX();
+}
+
+public void HypotheticalUsage()
+{
+   var entity = A_EntityType.Factory.Instantiate();
+
+   // probabil se face automat de către fabrică, când ea returnează entitatea
+   var wrapped = new A_EntityWrapper(entity);
+
+   wrapped.GetX(); // lucrează
+   // wrapped.GetY(); // nu lucrează
+   wrapped.entity.GetY(); // lucrează dacă știți că entitatea de fapt are Y 
+}
+```
+
+Metodele `GetY()` și `GetZ()` nu vor aglomera imaginea, când știm că entitatea este de tipul entității `A`.
+Dacă, dintr-un anumit motiv, am decis că dorim să obținem `Y` de la entitate, putem face simplu `wrapped.entity.GetY();` sau chiar să accesăm orice alte metode de extensie care au fost definite pentru entitate.
+
+Deci, ar fi un wrapper *moale*, mai degrabă decât unul dur, ca atunci când moștenești o clasă.
+
+Odată ce avem un mod de a stoca o reprezentare intermediară a tipului de entitate, adică ce componente vor fi prezente pe ea după ce fabrica entității a fost instanțiată, sarcina de a genera aceste clase de wrapper devine relativ trivială.
+
+Totuși, această reprezentare intermediară este, de asemenea, o idee ipotetică la moment.
+Trebuie prea mult lucru pentru a implementa ideea în timp.
+Cu toate acestea, o astfel de reprezentare va fi esențială pentru metacompilarea JSON în clasele statice `EntityType` în C#, precum și pentru această idee.
+Deci, aceasta este cu siguranță o problemă care merită rezolvată în cele din urmă.
+
+### Încarcarea tiputilor de entități din JSON at runtime
+
+După cum am menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
+
+Generatorul de cod ar metacompila aceste fișiere JSON cu descrieri ale tipurilor de entități în clase reale C# statice, care ar produce pe urmă fabrici de entități funcționale atunci când sunt rulate.
+Dar ar trebui, de asemenea, să fie posibilă încărcarea tipurilor de entități direct din JSON at runtime, transformându-l imediat într-o fabrică de entități funcțională.
+
+Pentru a nu redefini aceeași logică atât în generatorul de fabrică runtime de entități, cât și în metacompilator, poate fi utilizată o logică partajată care ar analiza fișierele JSON și ar genera o reprezentare intermediară a tipurilor de entități.
+Apoi, această reprezentare intermediară va fi utilizată direct pentru a genera o fabrică at runtime, sau pentru a genera clase statice utilizând generatorul de cod.
+
+Tipurile de entități runtime se pot dovedi utile în prototiparea tipurilor noi chiar în joc.
