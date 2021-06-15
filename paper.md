@@ -1439,14 +1439,14 @@ See [the source code for `Sequence`][33].
 
 Here is [a simple example of a sequence][34]. Let's go over it.
 
-So, this sequence represents the AI of a simple skeleton (zombie). 
+So, this sequence represents the AI of a simple skeleton (in Necrodancer it would be a skeleton, in our game it's a zombie). 
 The idea is to have the enemy move or attack the player every second turn.
 So it would attack in one turn, skip the other, attack, skip, etc.
 
 We specify an action for the first step of the algorithm as the composition of attacking and moving by writing `action = Compose(Attacking.Action, Moving.Action)`. 
-This means first the action of attacking will be tried and, if it does not succeed, moving will be tried.
+This means first the action of attacking would be tried and, if it does not succeed, moving would be tried.
 
-On the line `movs = Movs.Basic` we say that the direction will be selected according to the `Basic` movs algorithm.
+On the line `movs = Movs.Basic` we say that the direction would be selected according to the `Basic` movs algorithm.
 This means attacking or moving in an orthogonal direction towards the player.
 
 The second step in the sequence represents doing nothing.
@@ -1490,7 +1490,7 @@ The fact that there may be more than one player makes the enemies search for the
 #### 4.4.4.3. The Enemy Algo
 
 The enemy action execution algorithm, or simply the *enemy algo*, was designed based on the following requirements:
-1. The selected action must be executed successfully once;
+1. The selected action must be executed successfully at most once;
 2. The directions that the action must be tried in are defined by the movs algorithm;
 3. If there is an entity blocking one of the actions, that entity should do their action first.
 
@@ -1509,14 +1509,14 @@ Does the enemy end up not having executed its action even if it would have been 
 (See a [description of this issue][37] on Zakru's opencrypt, a project similar to mine, but which has been abandoned).
 
 Well, my solution to this problem is to make that entity act first, if it hasn't already.
-So, when we decide that e.g. another enemy is blocking our path, we make that entity act.
+So, when we decide that e.g. another enemy is blocking our path, we make that enemy act.
 After it has acted, we try our action again.
 
 The problem associated with this approach is that the enemy that we're trying to make act might itself be waiting on some other enemy to act, and it eventually loops back on the first entity, creating an infinite cycle.
 This is solved trivially by adding a flag to the acting behavior, indicating if it is being activated.
 So, before we make the other enemy move, we check for that flag to be off.
 
-While we're add it, we should add another flag indicating that the given entity has finished acting this turn.
+While we're at it, we should add another flag indicating that the given entity has finished acting this turn.
 If either this flag or the flag indicating acting in process are set, se do not make that enemy move.
 
 The other, bigger problem, is how to figure out what entity is blocking our action.
@@ -1596,10 +1596,10 @@ Consider the task of *serialization*.
 Imagine the player having progressed through half of the level and then decided to quit the game.
 When they run the game next time, they won't be able to go on from where they left off the last time, unless the state of the game has been somehow saved.
 
-Where are different approaches on serialization:
+These are different approaches on serialization:
 1. Save a block of memory, with all references and pointers. 
 Of course, all pointers will have to be relative to e.g. the start of that block of memory, because if they are absolute they are most likely not going to point to the right memory after deserialization.
-This is a really neat approach, the problem is that it needs low level control over memory.
+This is a really neat approach, the problem is that it needs low-level control over memory.
 Since the memory in C# is managed, we don't have this control, so I don't think this strategy is applicable to C#.
 2. Serialize into e.g. JSON by the use of reflection, then deserialize from JSON by instantiating the right classes and setting all of the properties correctly via reflection. 
 There are libraries to aid this, like `Newtonsoft.Json`.
@@ -1634,7 +1634,7 @@ So, in my code, I say that the code that wants to use closures over runtime obje
 
 The same system can be applied to any content, like the entity types.
 
-I have not tackled serialization readily, so these ideas are mostly speculative.
+I have not tackled serialization properly, so these ideas are mostly speculative.
 
 
 #### 4.5.2.2. Multiplayer
@@ -1645,7 +1645,7 @@ How would the server signal to other clients what item a specific player has pic
 Well, each player, item or entity will have an identifier, which the server will use in packets of data, which would contain e.g. the action selected by another player along with their identifier, or the item that has been picked up, etc.
 
 Without identifiers, the server will not be able to transmit to clients the information about players or any other entities, because they cannot transmit references to objects in packets.
-The only way to reference an object in a packet is by transmitting its identifier and then mapping that identifier to a reference on the client side.
+The only way to reference an object mentioned in a packet is by transmitting its identifier and then mapping that identifier to a reference on the client side.
 
 So, the registry is essential for multiplayer.
 

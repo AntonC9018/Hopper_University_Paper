@@ -86,7 +86,7 @@ Deci, trebuiam să încerc mai multe chestii pentru a ajunge la acele momente ma
 ### 2.2.1. Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
-Permite exportarea pe mobil și pe desktop. Vedeți repertoriul pe github [după acest link][1].
+Permite exportarea pe mobil și pe desktop. A se vedea repertoriul pe github [după acest link][1].
 
 Însă, înțelegerea mea a structurii acestor jocuri, cum ele lucrează pe partea sistemei, era slabă atunci.
 
@@ -435,9 +435,9 @@ Ea doar expediază event-ul fiecare dată când jucătorul se mișcă.
 
 Însă, aceasta nu rezolvă problema cu de exemplu alunecare.
 Jucătorul nu alunecă implicit.
-Alunecarea este un efect care poate fi aplicat at runtime.
-Dacă am dori să animăm alunecarea corect, ar trebui să schimbăm această coadă at runtime.
-Deci, vom crea o coadă de event-uri într-o proprietate a instanței jucătorului, nu doar a tipului jucătorului, ca să putem s-o modificăm at runtime.
+Alunecarea este un efect care poate fi aplicat în timpul rulării.
+Dacă am dori să animăm alunecarea corect, ar trebui să schimbăm această coadă în timpul rulării.
+Deci, vom crea o coadă de event-uri într-o proprietate a instanței jucătorului, nu doar a tipului jucătorului, ca să putem s-o modificăm în timpul rulării.
 
 Acum, după ce le-am separat, putem rezolva și problemele de întreținere.
 Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet și independent, această problemă tot poate fi rezolvată, cu ceva mai mult chibzuit.
@@ -671,7 +671,7 @@ Deci, chiar cu așa exemplu simplist, ideea tipică lui POO a moștenire nu merg
 Acum imaginați-vă același scenariu dar amplificat în sutele de ori: sunt sutele de proprietăți și comportamente pe care orice entitate poate să le posede.
 Aceasta ar fi imposibil de modelat printr-o ierarhie.
 
-Altă ideea este faptul că entitățile, dacă sunt modelate ca instanțe de tipuri statice, nu pot să-și schimbe comportamentul at runtime.
+Altă ideea este faptul că entitățile, dacă sunt modelate ca instanțe de tipuri statice, nu pot să-și schimbe comportamentul în timpul rulării.
 Într-un joc real, jucătorul poate să înceapă fără abilitatea de a săpa, însă, când primește târnăcopul, ar învăța această abilitate nouă.
 Însă, nu puteți modifica clasa `Player` să poată sape.
 S-o modificați de la început nu are sens, deoarece jucătorul a obținut abilitatea *eventual*.
@@ -710,8 +710,8 @@ Cum am descris anterior, event-urile sunt esențiale pentru a lega view-ul și m
 - Există conceptul unui tip.
 La moment, tipul este de fapt un template după care entitățile sunt construite la instanțiere.
 Tipurile la moment sunt modelate printr-o entitate (un *subiect*) care este copiată la instanțiere pentru a crea o instanță nouă de acel tip.
-Instanța atunci devine independentă de subiect și poate să se schimbe at runtime în orice mod, fără a-l afecta pe subiect.
-Așadar, tipurile pot fi augmentate cu componente în timpul construcției, la fel ca entitățile at runtime.
+Instanța atunci devine independentă de subiect și poate să se schimbe în timpul rulării în orice mod, fără a-l afecta pe subiect.
+Așadar, tipurile pot fi augmentate cu componente în timpul construcției, la fel ca entitățile în timpul rulării.
 
 Sunt nelniștit referitor la performanța ECS-ului meu.
 Chestia este, ECS-ul meu este, cum se spune, "fake".
@@ -746,7 +746,7 @@ Aceasta este deoarece nivelul în celulă unde se află capcana este locat pe ni
 În orice caz, am modelat astfel ideea.
 
 Înainte de refacere, am avut câte un slot pentru fiecare nivel al celulei, dar aceasta nu era bine, minimum deoarece majoritatea nivelurilor erau vide aproape mereu.
-Vedeți, de exemplu, [clasa celulei din codul precedent, în lua][8].
+A se vede, de exemplu, [clasa celulei din codul precedent, în lua][8].
 
 Acest design a avut un minus: poate fi doar o entitate la fiecare nivel în fiecare moment al timpului.
 Aceasta face unele lucruri, de exemplu entități care trec prin alți entități, dificil sau imposibil de implementat sau de considerat.
@@ -755,10 +755,10 @@ Am relizat că pot păstra entitățile într-o listă, și itera prin această 
 Căutarea lineară ar fi de fapt acceptabilă în acel scenariu, deoarece celulele de obicei nu am mai mult decât 1-2 entități.
 Cazurile unde ele conțină mai multe entități sunt rare și pot fi neglijate.
 
-Încă un beneficiu de așa abordare este faptul că o entitate poate să-și schimbe nivelul în care ea se află at runtime, fără a actualiza unde ea este păstrată în celulă.
+Încă un beneficiu de așa abordare este faptul că o entitate poate să-și schimbe nivelul în care ea se află în timpul rulării, fără a actualiza unde ea este păstrată în celulă.
 
 Implementarea curentă a celulii implică moștenirea de la `List<Transform>`.
-[Vedeți implementarea curentă.][9]
+[A se vedea implementarea curentă.][9]
 Eu personal nu văd nimic rău în așa abordare, cu toate că [unii spun multe lucruri răi despre aceasta.][10]
 Oamenii deseori ridic tema *compoziție peste moștenire*, cum compoziția este mai flexibilă, însă consider că aici un avem un caz de așa ceva.
 Aici mai mult este vorba despre evitarea boilerplate-ului prin faptul că nu scrieți implementarea pentru interfața `IList<Transform>`, prin înaintarea tuturor metodelor la un membru privat de tip `List<Transform>`.
@@ -780,7 +780,7 @@ Modelul este responsabil doar pentru chestiile care sunt legate de logica joculu
 
 ### 4.1.2. Componentele responsabile pentru poziția și mișcare
 
-Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimbe poziția at runtime este esențială pentru joc.
+Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimbe poziția în timpul rulării este esențială pentru joc.
 
 Aceste abilități sunt modelate după următoarele componente specializate:
 - `Transform`, dând o *poziție în lume*,
@@ -824,7 +824,7 @@ Schimbarea poziției proprii într-o direcție dată, fie voluntar sau nevolunta
 Teleportarea la o poziție nouă nu este considerată ca o deplasare.
 
 Acest comportament permite deplasarea dacă celula unde entitatea se mișcă nu este blocată.
-Informația ce nivel să fie considerat ca nivelul de blocare este stocat ca un câmp injectat în acest comportament deci poate fi schimbată at runtime pentru o entitate particulară, dacă necesită.
+Informația ce nivel să fie considerat ca nivelul de blocare este stocat ca un câmp injectat în acest comportament deci poate fi schimbată în timpul rulării pentru o entitate particulară, dacă necesită.
 
 `Displaceable` este un *comportament* care poate fi adăugat la o entitate pentru a-i da posibilitate de a se deplasa. [Codul sursă][12].
 În această clasă puteți vede aproximativ modul în care comportamentele sunt implementate.
@@ -876,7 +876,7 @@ Atunci veți defini toate pe care le aveți nevoie în comportamentele dvs parti
 
 De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 
-[Vedeți codul sursă.][16]
+[A se vedea codul sursă.][16]
 
 
 #### 4.1.3.3. Pushable
@@ -885,7 +885,7 @@ De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 
 Codul lui `Pushable` la moment nu este matur, deci nu pot explica mult aici.
 
-[Vedeți codul sursă.][17]
+[A se vedea codul sursă.][17]
 
 
 ### 4.1.4. Bloc
@@ -961,7 +961,7 @@ După ce unul din handler-uri au reușit să-și aplică efectul sau să-și cal
 Oare propagarea trebuie să fie oprită este verificat prin evaluarea proprietății `Propagate` a contextului, care poate or incapsula un câmp boolean ori să utilizeze o funcție pentru a calcula valoarea în dependența de valorile altor câmpuri din context.
 Încă, un chain poate fi *trecut fără a verifica propagarea*, adică trecut până la capăt independent de valoare lui `Propagate`.
 
-Vedeți [testele pentru chain-urile][24].
+A se vedea [testele pentru chain-urile][24].
 
 ### 4.2.2. Prioritatea
 
@@ -1001,8 +1001,8 @@ Deci, am adăugat `LinearChain` care este un chain fără priorități, elemente
 Mai am definit `SelfFilteringChain` care utilizează un bufer dublu pentru a se filtra în timpul traversării, inserând elemenetele care trebuie să le pastrăm în al doilea bufer, pe urma schimbând buferele cu locuri.
 Am văzut deja un exemplu de utilizare în `TriggerGrids`.
 
-Vedeți [implementarea lui `DoubleList`][22].
-Vedeți [implementarea differitelor tipuri de chain-uri][23].
+A se vedea [implementarea lui `DoubleList`][22].
+A se vedea [implementarea differitelor tipuri de chain-uri][23].
 
 
 ## 4.3. Entități și Componente
@@ -1022,7 +1022,7 @@ Deci, ar fi echitabil să le numim simplu *containere pentru componente*.
 Adițional, entitățile mele încă își stochează *id-ul tipului*, pentru a simplifica interacțiunea cu view-ul.
 Acest id al tipului este utilizat pentru sistemul itemilor (însă probabil voi schimba aceasta).
 
-[Vedeți codul sursă][27].
+[A se vedea codul sursă][27].
 
 Cum puteți observa, clasa `Entity` este `sealed`, semnuficând că ea nu poate fi moștenită.
 Cum am discutat deja în [prezentarea generală a sistemului](#324-ecs-entity-component-system), unicul mecanism utilizat pentru a atinge diversitatea proprietăților și a comportamentelor entităților este *folosirea componentelor*.
@@ -1141,7 +1141,7 @@ Sigur, așa abordare este predispusă la erori, dar în acest fel aș putea măc
 
 ### 4.3.4. Copierea componentelor
 
-Prin copierea componentelor mă refer la copierea *chain-urilor* și a *câmpurilor injectate*, adică acelor părți ale componentei care sunt legate de tipul entității, ignorând valorile care s-ar schimba at runtime.
+Prin copierea componentelor mă refer la copierea *chain-urilor* și a *câmpurilor injectate*, adică acelor părți ale componentei care sunt legate de tipul entității, ignorând valorile care s-ar schimba în timpul rulării.
 
 #### 4.3.4.1. Pentru ce să copiem componente?
 
@@ -1175,7 +1175,7 @@ Aceasta poate fi, de asemenea, îmbunătățit în viitor utilizând un set sort
 
 Faptul că valorile câmpurilor runtime nu trebuie să fie copiate duce la o altă idee interesantă.
 Am putea să construim un fel de *reprezentare de tip* a componentelor, adică să extragem versiunile prescurtate ale componentelor care ar avea doar câmpurile injectate și chain-urile.
-Aceasta este de fapt o idee destul de bună, deși singurul beneficiu pe care l-ar obține este că fabricile entității ar ocupa mai puțin spațiu în memorie (componentele nu ar avea câmpurile prezente at runtime).
+Aceasta este de fapt o idee destul de bună, deși singurul beneficiu pe care l-ar obține este că fabricile entității ar ocupa mai puțin spațiu în memorie (componentele nu ar avea câmpurile prezente în timpul rulării).
 Nu o fac pentru că ar fi greu de implementat și ar lua mult timp, cu beneficii minime.
 
 
@@ -1235,14 +1235,317 @@ Trebuie prea mult lucru pentru a implementa ideea în timp.
 Cu toate acestea, o astfel de reprezentare va fi esențială pentru metacompilarea JSON în clasele statice `EntityType` în C#, precum și pentru această idee.
 Deci, aceasta este cu siguranță o problemă care merită rezolvată în cele din urmă.
 
-### Încarcarea tiputilor de entități din JSON at runtime
+### Încarcarea tiputilor de entități din JSON în timpul rulării
 
 După cum am menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
 
 Generatorul de cod ar metacompila aceste fișiere JSON cu descrieri ale tipurilor de entități în clase reale C# statice, care ar produce pe urmă fabrici de entități funcționale atunci când sunt rulate.
-Dar ar trebui, de asemenea, să fie posibilă încărcarea tipurilor de entități direct din JSON at runtime, transformându-l imediat într-o fabrică de entități funcțională.
+Dar ar trebui, de asemenea, să fie posibilă încărcarea tipurilor de entități direct din JSON în timpul rulării, transformându-l imediat într-o fabrică de entități funcțională.
 
 Pentru a nu redefini aceeași logică atât în generatorul de fabrică runtime de entități, cât și în metacompilator, poate fi utilizată o logică partajată care ar analiza fișierele JSON și ar genera o reprezentare intermediară a tipurilor de entități.
-Apoi, această reprezentare intermediară va fi utilizată direct pentru a genera o fabrică at runtime, sau pentru a genera clase statice utilizând generatorul de cod.
+Apoi, această reprezentare intermediară va fi utilizată direct pentru a genera o fabrică în timpul rulării, sau pentru a genera clase statice utilizând generatorul de cod.
 
 Tipurile de entități runtime se pot dovedi utile în prototiparea tipurilor noi chiar în joc.
+
+
+## Acționare și bucla de joc
+
+*Sistemul de acționare* este sistemul al cărui scop este de a permite entităților să interacționeze cu alte entități din lume.
+
+### Când și cum are loc acționarea
+
+În prezent, atât *sistemul de acționare*, cât și *tick-area entităților* sunt dirijate direct de lume.
+Numesc subsistemul lumii responsabil pentru acționare și tick-area, "WorldStateManager" (un nume temporar).
+A se vedea [codul sursă][30].
+
+Acest sistem funcționează ținând evidența la toate comportamentele de acționare `Acting` și de tick-are `Ticking` prezente la un oarecare moment în joc.
+Comportamentele de acționare sunt stocate într-o matrice multidimensională, după *ordinea* lor.
+Ordinea specifică când ar fi apelat comportamentul de acțiune dat, printre altele.
+Deci, entitățile cu ordinea inferioară vor fi activate mai întâi și apoi vor fi cele cu ordinea inferioară.
+În prezent [există 4 ordine][31], ale căror comportamente actuale sunt activate unul după altul.
+
+Lucrurile se fac în acest mod pentru a modela ceea ce trebuie să se întâmple în joc.
+Și anume, acțiunile inamicilor sunt executate după acțiunile jucătorului, după ce rândul se duce la obiectele din mediu înconjurător.
+
+Comportamentele de tick-are sunt activate unul după altul, fără o ordine clar definită.
+
+Ce se întâmplă exact când este activat comportamentul de acționare al unei entități vom examina mai târziu.
+
+
+### Bucla de joc
+
+*Bucla de joc* reprezintă secvența de pași care se întâmplă în timpul unei ture.
+Ea include activarea tuturor comportamentelor de acțiune în ordine, urmată de activarea tuturor comportamentelor de tick-are.
+A se vedea [codul][32].
+
+API-ul nu este complet. Noile *chain-uri globale* introduse vor fi utilizate pentru a implementa semnale pentru momentul în care se începe și se termină bucla de joc.
+*Chain-urile globale* vor fi discutate mai târziu.
+
+### Acționare
+
+Sistemul de acționare este destul de complex.
+
+Cele două etape distincte ale acestuia sunt:
+1. Calcularea următoarei acțiuni, modelată prin strategia `CalculateAction` (o funcție);
+2. Executarea următoarei acțiuni, modelată prin strategia `ExecuteAction` (de asemenea, doar o funcție).
+
+Acești pași sunt executați separat de `WorldStateManager` și înainte ca oricare dintre entități să efectueze o acțiune.
+Deci, acțiunile luate de entități depind exclusiv de starea inițială a lumii la începutul buclei jocului.
+Rețineți, totuși, că acest lucru afectează doar anumite *tipuri* de acțiuni.
+
+Deci, de exemplu, dacă un inamic decide să atace, nu va putea să se răzgândească după ce jucătorul de exemplu s-a mutat într-un loc nou.
+Poate schimba doar direcția în care urmează să atace.
+De asemenea, poate selecta o acțiune compusă, adică încercând mai întâi atacul, pe urmă mutarea, dacă atacul a eșuat.
+
+Ambii pași implică apelarea unei funcții de strategie, deci ceea ce de fapt se va face este decis de acea funcție.
+
+Funcția `CalculateAction` poate utiliza IA pentru a selecta următoarea acțiune sau poate lua acțiunea din input-ul utilizatorului sau poate să returneze aceeași acțiune de fiecare dată.
+Se injectează împreună cu instanțierea comportamentul de acționare.
+
+`ExecuteAction` este puțin mai complicat.
+Pentru acțiunile prestabilite, unde direcția în care trebuie efectuată acțiunea este cunoscută în prealabil, cum ar fi cu input-ul utilizatorului, acțiunea ar putea fi setată să se execute pur și simplu în acea direcție.
+Complexitatea vine atunci când considerăm IA a inamicilor.
+
+### IA inamicilor
+
+Există 3 aspecte de aceasta pe care trebuie să le discutăm:
+1. Algoritmul de selecție a acțiunii (`Sequence`);
+2. Algoritmul de execuție a acțiunii (`EnemyAlgo`);
+3. Algoritmul de selecție a direcției (`Movs`).
+
+
+#### Sequence
+
+Algoritmul de selecție a acțiunii pentru inamici este reprezentat de un obiect `Sequence` (secvență).
+Un obiect de secvență este în esență o listă de pași și un contor care arată pasul curent.
+Pașii în sine sunt fără stare, definind pur și simplu regulile de tranziție la alți pași din secvență.
+
+De fiecare dată când acțiunea trebuie calculată, secvența returnează acțiunea asociată cu pasul curent.
+Când acțiunea respectivă a fost executată, pasul curent din secvență este ajustat în dependența de rezultatul acțiunii.
+A se vedea [codul sursă pentru `Sequence`][33].
+
+Iată [un exemplu simplu aș unei secvențe][34]. Să trecem peste el.
+
+Deci, această secvență reprezintă IA a unui schelet simplu (zombi).
+Ideea este ca inamicul să se miște sau să atace jucătorul în fiecare tur.
+Deci ar ataca în prima rundă, nu face nimic în a doua, ataca, nu face nimic etc.
+
+Specificăm o acțiune pentru primul pas al algoritmului ca compoziție de atac și mișcare scriind `action = Compose(Attacking.Action, Moving.Action)`.
+Aceasta înseamnă că acțiunea de atac ar fi încercată mai întâi și, dacă nu reușește, mișcarea ar fi încercată.
+
+Pe linia `movs = Movs.Basic` spunem că direcția ar fi selectată în după algoritmul movs `Basic`.
+Aceasta înseamnă atacarea sau deplasarea într-o direcție ortogonală către jucător.
+
+Al doilea pas din secvență reprezintă acțiunea "a nu face nimic".
+
+Când al doilea pas se termină, secvența trece la primul pas și se repetă.
+
+Iată [un exemplu mai implicat][35].
+
+
+#### Movs
+
+Numesc algoritmul pentru selectarea unei direcții pentru acțiune un algoritm `Movs`.
+
+În acest [exemplu de bază al unei secvențe][34] a fost utilizat algoritmul `Basic`.
+Acest algoritm returnează direcțiile care v-ar apropia de jucător.
+De exemplu, dacă jucătorul ar fi direct în sus de inamic, doar direcția în sus ar fi returnată de algoritm.
+Însă, dacă jucătorul ar fi sus și în stânga inamicului, direcțiile în sus și în stânga ar fi returnate.
+Direcția cea mai aliniată cu orientarea curentă este returnată prima.
+Deci, pentru exemplul de mai sus, dacă inamicul se uită în sus, atunci ordinea de direcții returnate ar fi în sus și în stânga, însă, dacă se uită de exemplu în jos, ordinea returnată ar fi mai întâi în stânga și pe urmă în sus.
+
+Folosesc matematica pentru a afla ce direcții să returnez.
+În primul rând, observăm că singurele direcții plauzibile returnate de algoritm coincid cu proiecțiile vectorului diferenței dintre poziția jucătorului și poziția inamicului pe axele x și y.
+Dacă una dintre proiecții este zero, adică există o singură direcție plauzibilă care ne apropie de jucător (în exemplul de mai sus această direcție era în sus), returnăm cealaltă proiecție non-zero, ceea ce este, de fapt, acea direcţie plauzibilă.
+În caz contrar, returnăm mai întâi acea proiecție, care este mai aproape aliniată cu orientarea curentă a inamicului, după ce returnăm și cealaltă.
+Factorul de "aliniere" poate fi definit matematic ca produsul scalar între vectorul de orientare și vectorul proiectat dat. A se vedea funcția `Basic` din [codul sursă][36].
+
+Există mai mulți algoritmi `Movs` predefiniți. A se vedea [codul sursă][36].
+
+Algoritmii de mișcare nu sunt complete din cauza existenței *facțiunilor*.
+În prezent, presupun că facțiunea vizată este facțiunea jucătorului, adică orice entitate care folosește funcțiile movs se presupune că vizează jucătorul.
+
+De asemenea, deoarece jucătorii nu sunt în prezent în niciun fel memorate în cache, orice invocare a algoritmului movs implică căutarea prin toate entitățile din registru, ceea ce este foarte lent.
+În cele din urmă, voi începe să folosesc un fel de sistem de cache, pe care nu l-am conceput încă.
+Acest sistem ar trebui să fie similar cu ideea de *indici* pe tabelele bazei de date.
+
+> PS: Am început lucrul asupra acestui sistem. Deja am un prototip funcțional.
+
+De notat: jocul *nu presupune că există un singur jucător*.
+Acest lucru se face pentru a permite multiplayer în viitor.
+Faptul că pot exista mai mulți jucători îi face pe inamici să caute cel mai apropiat jucător, în loc de a-l considera doar pe primul din registru.
+
+#### Enemy Algo
+
+Algoritmul de execuție a acțiunilor inamicilor, sau pur și simplu *enemy algo*, a fost conceput pe baza următoarelor cerințe:
+1. Acțiunea selectată reușește cel mult o dată;
+2. Direcțiile în care trebuie încercată acțiunea sunt definite de algoritmul movs;
+3. Dacă există o entitate care blochează una dintre acțiuni, entitatea respectivă ar trebui să-și facă mai întâi acțiunea.
+
+Așa cum s-a explicat în secțiunea despre acțiuni, ele se consideră reușite dacă a reușit verificarea.
+Așadar, inamicii ar încerca acțiunea până când trece una din verificări și atunci s-ar opri.
+
+De exemplu, dacă acțiunea este atacarea, mai întâi, țintele vor fi selectate și apoi, dacă țintele sunt goale, acțiunea ar eșua.
+Dacă lista țintelor nu a fost goală, acțiunea de atacare ar reuși.
+
+Dacă o acțiune eșuează, la fel eșuează și direcția asociată acțiunii respective.
+În acest caz, următoarea acțiune disponibilă ar fi încercată.
+Dacă o acțiune reușește, algoritmul de execuție a acțiunilor se oprește.
+
+Acum, ce se întâmplă dacă o acțiune eșuează deoarece un alt inamic a împiedicat-o să reușească?
+Oare acțiunea inamicul în final rămâne neexecutată, chiar dacă ar fi fost posibilă?
+(A se vedea o [descriere a acestei probleme][37] pe opencript lui Zakru, un proiect similar cu al meu, dar care a fost abandonat).
+
+Soluția mea la această problemă este de a face acea entitate să acționeze, dacă nu a făcut-o deja.
+Deci, atunci când decidem că de exemplu un alt incamic ne blochează calea, facem acel inamic să acționeze.
+După ce a acționat, ne încercăm din nou acțiunea.
+
+Problema asociată acestei abordări este că inamicul pe care îl impunem să acționeze ar putea aștepta el însuși un alt inamic să acționeze în același timp. 
+Ca rezultat, astfel am putea revine la prima entitate, creând un ciclu infinit de așteptare.
+Acest lucru este rezolvat în mod trivial prin setarea unui flag la comportamentul de acțiune, indicând dacă acesta este activat.
+Deci, înainte de a-l face pe celălalt inamic să se miște, verificăm dacă flagul respectiv nu este setat.
+
+Ar fi beneficiar să mai adaugăm un flag care ar indica dacă entitatea dată și-a terminat procesul de acționare în turul acesta.
+Dacă fie acest flag, fie flagul care indică faptul că acționarea se face curent sunt setate, nu facem inamicul să se miște.
+
+Cealaltă problemă, una mai mare, este cum să ne dăm seama ce entitate ne blochează acțiunea.
+Pentru acum, am optat pentru o abordare euristică simplă: entitatea în direcția curent încercată este solicitată să acționeze.
+În general, însă, această entitate nu ar fi cea care ne-ar împiedica să ne acționăm.
+
+A se vedea [implementarea curentă][38].
+
+
+### Predicții 
+
+Predicțiile sunt necesare pentru a indica jucătorului acele celule din lume care, dacă jucătorul ar rămâne pe ele, l-ar dăuna.
+Acest sistem nu este încă cu totul complet în cod.
+
+L-am implementat în așa fel că orice acțiune poate avea o funcție de predicție asociată, care ar returna astfel de poziții.
+Apoi, când vizualizarea dorește de exemplu să deseneze cruci la acele coordonate, ar itera prin toate entitățile, făcându-le să-și calculeze următoarea acțiune și apoi să utilizeze funcțiile de predicție ale acțiunilor calculate pentru a obține celulele periculoase pentru jucător. A se vedea [codul sursă][39].
+
+În prezent, API-ul nu este suficient de lustruit, dar funcționează deja cu atacuri și explozii.
+
+### Acțiuni
+
+`Action` din cod reprezintă o acțiune concretă sau o succesiune de acțiuni care pot fi executate de o entitate din joc.
+Am menționat deja că acțiunile pot fi de 2 tipuri principale:
+1. *acțiuni direcționate*, care necesită o direcție în care vor fi executate;
+2. *acțiuni nedirecționate*, care nu necesită o direcție.
+
+A se vedea [codul sursă][40].
+
+Înainte ca acțiunea să fie executată, îi se asociază o direcție după ce ea este stocată ca `CompiledAction`.
+Atunci când este compilată o acțiune direcționată sau o acțiune nedirecționată, devine posibilă executarea acesteia direct, fără a furniza o direcție.
+
+Acțiunile au fost implementate în cod în stil POO: avem o interfață pentru `DirectedAction` (`IAction`), o interfață pentru `UndirectedAction` și anumite clase care implementează aceste interfețe care reprezintă acțiuni:
+- `SimpleAction`, care acceptă o funcție care este chemată atunci când acțiunea este executată;
+- `ActivatingAction`, care activează componenta specificată `IStandartActivateable` pe entitate, pentru a executa acțiunea;
+- `CompositeAction`, care conține o listă de acțiuni, fiecare dintre acestea fiind încercată, iar execuția se oprește odată ce oricare dintre acestea reușește;
+- `JoinedAction`, care conține, de asemenea, o listă de acțiuni, dar execuția nu se oprește, chiar dacă o acțiune reușește. Acest lucru este util pentru definirea acțiunilor în doi pași, cum ar fi `DieExplodeAction`;
+- `ConditionalAction`, unde a doua acțiune stocată se face numai dacă prima reușește.
+
+De asemenea, am definit mai multe funcții ajutătoare pentru instanțierea rapidă a acțiunii dorite fără prea mult boilerplate.
+
+După cum am menționat, acțiunile pot conține, de asemenea, o funcție de predicție.
+În acest caz, ar trebui să implementeze interfața `IDirectedPredictable` sau `IUndirectedPredictable`.
+
+
+#### Înlocuirea acțiunilor
+
+Este posibil ca o entitate să facă o altă acțiune în locul celei alese.
+De exemplu, atunci când o entitate alunecă, ea nu ar trebui să poată face acțiuni direcționate.
+Acest lucru se realizează prin înlocuirea acțiunii selectate de jucător prin mișcarea în direcția de alunecare și efectuarea acțiunii inițiale a jucătorului numai dacă alunecarea eșuează.
+A se vedea [codul sursă][41].
+
+Poate modul în care am realizat această funcționalitate nu este corect. 
+Poate am trebui s-o înlocuiesc prin ajustarea acțiunii atunci când ea este calculată, deoarece dacă lăsăm așa cum este acum, predicțiile ar devine uneori incorecte.
+Adică, dacă inamicul alunecă, în același timp încearcând să atace, celula periculoasă pentru jucător ar fi totuși evidențiată pe ecran, cu toate că nu trebuie.
+De fapt, această soluție nu este greu de implementat în codul curent.
+
+> PS: Am început lucrul și asupra acesteia.
+
+
+## Registru
+
+Ideea unui *registru* este esențială pentru *implementarea serializării, multiplayerului online* și a *modurilor*.
+
+În acest moment nu mă preocupă primele două, însă implementarea suportului pentru moduri este una din obiectivele mele inițiale pentru proiect, așa că nu o voi ignora cu totul.
+
+### Funcția unui registru
+
+Un registru poate fi utilizat pentru a atribui identificatori *conținutului* și pentru a furniza o mapare de la identificatori la conținutul corespunzător.
+Conținutul poate fi orice lucru care necesită un identificator, cum ar fi tipurile de entități, tipurile de statistici, tipurile de itemi, handler-urile (au nevoie de prioritate, gestionate tot de registru), tipurile de componente etc.
+
+Registrul poate fi, de asemenea, utilizat pentru a atribui *identificatori de runtime*, care sunt utilizați pentru a identifica *instanțe*, cum ar fi entitățile.
+O mapare este, de asemenea, furnizată de la un identificator cunoscut al instanței de entitate cu acel identificator.
+
+### Cazuri de utilizare
+
+#### Serializare
+
+Vom considera sarcina de *serializăre*.
+*Serializarea* înseamnă salvarea stării curente a jocului într-un fișier și *deserializarea* înseamnă restabilirea stării respective înapoi în joc.
+Imaginați-vă că jucătorul a progresat cu jumătate de nivel și apoi a decis să oprească jocul.
+Când ar porni jocul data viitoare, nu ar mai putea continua de unde s-a oprit ultima dată, dacă starea jocului nu a fost cumva salvată.
+
+Acestea sunt diferitele abordări privind serializarea:
+1. Se salvează un bloc de memorie, cu toate referințele și pointeri.
+Desigur, toți pointerii vor trebui să fie relative la, de exemplu începutul blocului de memorie, deoarece dacă sunt absolute, cel mai probabil nu vor indica memoria corectă după deserializare.
+Această abordare este una destul de elegantă, însă problema este că ea are nevoie de un control ne nivel scăzut asupra memoriei.
+Deoarece memoria din C# este gestionată de către runtime, nu avem acest control, deci nu cred că această strategie este aplicabilă în C#.
+2. Se serializează datele în, de exemplu, JSON prin utilizarea reflecției, după ce ele se deserializează din JSON prin instanțierea claselor potrivite și setarea corectă a tuturor proprietăților prin reflexie.
+Există biblioteci care ar ajuta cu acest lucru, cum ar fi `Newtonsoft.Json`.
+
+O problemă obișnuită asociată acestei abordări este faptul că o entitate ar putea stoca o referință la o altă entitate (să o numim țintă).
+Datorită acestui fapt, ținta ar fi deserializată de două ori (ca și cum ar fi două entități diferite).
+Când starea jocului ar fi fost deserializată, entitatea ar avea acum o referință la o copie a țintei, în loc de o referință la ținta reală.
+Acest lucru este nedorit, deoarece aceasta ar însemna că statul jocului nu a fost capturat corect.
+
+> De exemplu, spuneți că inamicul a stocat o referință la jucător într-un câmp.
+> Starea jocului a fost serializată și apoi deserializată.
+> Acum sunt doi jucători, dintre care unul este jucătorul propriu-zis iar altul este stocat în acel câmp al inamicului.
+
+Această problemă este adesea rezolvată de aceste biblioteci, ținând evidența tuturor obiectelor la care se face referire și atribuind identificatori celor repetați.
+Când se întâlnește o referință la o entitate de a doua oară, aceasta este înlocuită cu acel identificator în rezultatul serializării.
+Acest lucru este OK în cazuri simple, dar ce se întâmplă dacă doriți să serializați handler-uri?
+Funcțiile nu sunt serializabile în C#, deci abordarea automată nu ar funcționa.
+
+Ceea de ce aveți de fapt nevoie este să puteți avea un sistem care să atribuie un identificator (prioritate) fiecărui handler, la inițializare.
+Apoi, definiți serializarea ca salvarea pur și simplu a acelui identificator.
+Definiți deserializarea ca mapare a numărului de prioritate citit din, de exemplu, JSON în handler-ul propriu-zis.
+Cu această abordare, puteți permite chiar și utilizarea closure-urilor (desigur, closure-urile pentru ceva de a face cu conținutul static; closururile pentru, de exemplu, entitățile, sunt oricum interzise).
+
+De fapt, acesta este motivul pentru care closure-urile în handler-uri nu sunt permise.
+Cum ați serializa un handler definit în timpul rulării?
+Deoarece în C# nu se permite instanțierea unui closure de un tip anonim corect, ar trebui să definiți tipuri de închidere specifice dacă doriți ca acestea să fie serializate, ceea ce ar fi anevoios (prea multe clase, sintaxa ar fi prea detaliată).
+Mai mult, amestecarea tipurilor de closure specifice, definite de utilizator ca clase, și cele anonime este complicată.
+Acesta este, de fapt, un neajuns al C#, deoarece nu este greu de implementat, cel puțin conceptual.
+Oricum, este așa cum este.
+
+Deci, în codul meu, spun că codul care dorește să utilizeze închideri peste obiecte runtime (cum ar fi entități) ca handler la evenimente (chain-uri), trebuie să le atașeze fie în constructor (fie într-o funcție de inițializare), fie să le facă temporare, deoarece aceste handler-uri nu ar fi serializate.
+
+Același sistem poate fi aplicat la oricare conținut static, cum ar fi tipurile de entități.
+
+Nu am abordat serializarea cum-se-cade, deci aceste idei sunt în mare parte speculative.
+
+#### Multiplayer
+
+Cum ar putea spune serverul ce player este asociat cu ce adresă IP?
+Cum ar semnaliza serverul către ceilalți clienți ce item a obșinut un anumit jucător sau ce acțiune au selectat etc.?
+
+Fiecare jucător, item sau entitate ar avea un identificator, pe care serverul l-ar folosi în pachete de date, care ar conține de exemplu acțiunea selectată de un alt jucător împreună cu identificatorul lui, sau itemul care a fost obținut etc.
+
+Fără identificatori, serverul nu ar putea transmite clienților informații despre jucători sau orice alte entități, deoarece nu poate transmite referințe la obiecte prin pachete.
+Singura modalitate de a referi la un obiect menționat în pachet este prin transmiterea identificatorului său și apoi maparea acelui identificator la o referință pe partea clientului.
+
+Deci, registrul este esențial pentru multiplayer.
+
+### Stocarea și accesare componentelor
+
+Am menționat anterior că componentele unei entități sunt stocate într-un dicționar, însă nu am subliniat după ce cheie sunt stocate.
+
+O idee este să folosiți `TypeInfo` ca cheie.
+De fapt, am folosit-o la început.
+- În primul rând, acest lucru este nefast și nu-mi place această abordare.
+- Nu ar funcționa pentru un sistem în care aveți mai multe instanțe de același tip, care totuși trebuie să fie cumva identificate și stocate într-un loc central pentru a permite maparea, cum ar fi tipurile de componente.
+- Dacă permiteți vreodată mai multe componente de același tip să existe simultan pe o entitate, decizia de a folosi `TypeInfo` ca cheii ar avea efecte nefaste în viitor.
