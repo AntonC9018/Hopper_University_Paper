@@ -1151,7 +1151,7 @@ După cum am menționat, pentru a inițializa o entitate, fabrica corespunzătoa
 De ce să nu rulați același set de funcții pe o entitate nouă de fiecare dată când o entitate de acest tip urmează să fie instanțiată în loc de a crea o instanță "subiect" întreagă?
 Cel puțin faptul că acest lucru ar anula posibilitatea de a optimiza copierea chain-urilor pe entitatea nouă să fie *leneșă*, trebuind să fie reconstituită în întregime de fiecare dată când avem nevoie de o nouă instanță, face această idee proastă.
 
-#### Implementarea
+#### 4.3.4.2. Implementarea
 
 Pentru a copia orice obiect, aveți câteva opțiuni, dintre care unele au fost deja menționate:
 1. Copierea prin reflecție (un fel de serializare automată);
@@ -1179,7 +1179,7 @@ Aceasta este de fapt o idee destul de bună, deși singurul beneficiu pe care l-
 Nu o fac pentru că ar fi greu de implementat și ar lua mult timp, cu beneficii minime.
 
 
-### Fabrica de entități
+### 4.3.5. Fabrica de entități
 
 Fabricile de entități, după cum am menționat, conțin o instanță "subiect" și scopul lor este de a crea copii la această instanță la cerere.
 A se vedea [implementarea][29].
@@ -1187,7 +1187,7 @@ A se vedea [implementarea][29].
 Deoarece fabricile pot fi interogate prin ID-ul lor (având un ID de fabrică, este posibil să obțineți fabrica cu acel ID), trebuie să le atribuim aceste ID-uri și să le stocăm în registru.
 Voi prezenta mai multe teorii despre registru și identificatori mai târziu.
 
-### Wrapper-uri de entități
+### 4.3.6. Wrapper-uri de entități
 
 O altă idee ipotetică neimplementată interesantă este de a crea wrapper-uri asupra unor tipuri de entități specifice.
 
@@ -1235,7 +1235,7 @@ Trebuie prea mult lucru pentru a implementa ideea în timp.
 Cu toate acestea, o astfel de reprezentare va fi esențială pentru metacompilarea JSON în clasele statice `EntityType` în C#, precum și pentru această idee.
 Deci, aceasta este cu siguranță o problemă care merită rezolvată în cele din urmă.
 
-### Încarcarea tiputilor de entități din JSON în timpul rulării
+### 4.3.7. Încarcarea tiputilor de entități din JSON în timpul rulării
 
 După cum am menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
 
@@ -1248,11 +1248,11 @@ Apoi, această reprezentare intermediară va fi utilizată direct pentru a gener
 Tipurile de entități runtime se pot dovedi utile în prototiparea tipurilor noi chiar în joc.
 
 
-## Acționare și bucla de joc
+## 4.4. Acționare și bucla de joc
 
 *Sistemul de acționare* este sistemul al cărui scop este de a permite entităților să interacționeze cu alte entități din lume.
 
-### Când și cum are loc acționarea
+### 4.4.1. Când și cum are loc acționarea
 
 În prezent, atât *sistemul de acționare*, cât și *tick-area entităților* sunt dirijate direct de lume.
 Numesc subsistemul lumii responsabil pentru acționare și tick-area, "WorldStateManager" (un nume temporar).
@@ -1272,7 +1272,7 @@ Comportamentele de tick-are sunt activate unul după altul, fără o ordine clar
 Ce se întâmplă exact când este activat comportamentul de acționare al unei entități vom examina mai târziu.
 
 
-### Bucla de joc
+### 4.4.2. Bucla de joc
 
 *Bucla de joc* reprezintă secvența de pași care se întâmplă în timpul unei ture.
 Ea include activarea tuturor comportamentelor de acțiune în ordine, urmată de activarea tuturor comportamentelor de tick-are.
@@ -1281,7 +1281,7 @@ A se vedea [codul][32].
 API-ul nu este complet. Noile *chain-uri globale* introduse vor fi utilizate pentru a implementa semnale pentru momentul în care se începe și se termină bucla de joc.
 *Chain-urile globale* vor fi discutate mai târziu.
 
-### Acționare
+### 4.4.3. Acționare
 
 Sistemul de acționare este destul de complex.
 
@@ -1306,7 +1306,7 @@ Se injectează împreună cu instanțierea comportamentul de acționare.
 Pentru acțiunile prestabilite, unde direcția în care trebuie efectuată acțiunea este cunoscută în prealabil, cum ar fi cu input-ul utilizatorului, acțiunea ar putea fi setată să se execute pur și simplu în acea direcție.
 Complexitatea vine atunci când considerăm IA a inamicilor.
 
-### IA inamicilor
+### 4.4.4. IA inamicilor
 
 Există 3 aspecte de aceasta pe care trebuie să le discutăm:
 1. Algoritmul de selecție a acțiunii (`Sequence`);
@@ -1314,7 +1314,7 @@ Există 3 aspecte de aceasta pe care trebuie să le discutăm:
 3. Algoritmul de selecție a direcției (`Movs`).
 
 
-#### Sequence
+#### 4.4.4.1. Sequence
 
 Algoritmul de selecție a acțiunii pentru inamici este reprezentat de un obiect `Sequence` (secvență).
 Un obiect de secvență este în esență o listă de pași și un contor care arată pasul curent.
@@ -1343,7 +1343,7 @@ Când al doilea pas se termină, secvența trece la primul pas și se repetă.
 Iată [un exemplu mai implicat][35].
 
 
-#### Movs
+#### 4.4.4.2. Movs
 
 Numesc algoritmul pentru selectarea unei direcții pentru acțiune un algoritm `Movs`.
 
@@ -1375,7 +1375,7 @@ De notat: jocul *nu presupune că există un singur jucător*.
 Acest lucru se face pentru a permite multiplayer în viitor.
 Faptul că pot exista mai mulți jucători îi face pe inamici să caute cel mai apropiat jucător, în loc de a-l considera doar pe primul din registru.
 
-#### Enemy Algo
+#### 4.4.4.3. Enemy Algo
 
 Algoritmul de execuție a acțiunilor inamicilor, sau pur și simplu *enemy algo*, a fost conceput pe baza următoarelor cerințe:
 1. Acțiunea selectată reușește cel mult o dată;
@@ -1415,7 +1415,7 @@ Pentru acum, am optat pentru o abordare euristică simplă: entitatea în direc�
 A se vedea [implementarea curentă][38].
 
 
-### Predicții 
+### 4.4.5. Predicții 
 
 Predicțiile sunt necesare pentru a indica jucătorului acele celule din lume care, dacă jucătorul ar rămâne pe ele, l-ar dăuna.
 Acest sistem nu este încă cu totul complet în cod.
@@ -1425,7 +1425,7 @@ Apoi, când vizualizarea dorește de exemplu să deseneze cruci la acele coordon
 
 În prezent, API-ul nu este suficient de lustruit, dar funcționează deja cu atacuri și explozii.
 
-### Acțiuni
+### 4.4.6. Acțiuni
 
 `Action` din cod reprezintă o acțiune concretă sau o succesiune de acțiuni care pot fi executate de o entitate din joc.
 Am menționat deja că acțiunile pot fi de 2 tipuri principale:
@@ -1450,7 +1450,7 @@ După cum am menționat, acțiunile pot conține, de asemenea, o funcție de pre
 În acest caz, ar trebui să implementeze interfața `IDirectedPredictable` sau `IUndirectedPredictable`.
 
 
-#### Înlocuirea acțiunilor
+#### 4.4.6.1. Înlocuirea acțiunilor
 
 Este posibil ca o entitate să facă o altă acțiune în locul celei alese.
 De exemplu, atunci când o entitate alunecă, ea nu ar trebui să poată face acțiuni direcționate.
@@ -1465,13 +1465,13 @@ De fapt, această soluție nu este greu de implementat în codul curent.
 > PS: Am început lucrul și asupra acesteia.
 
 
-## Registru
+## 4.5. Registru
 
 Ideea unui *registru* este esențială pentru *implementarea serializării, multiplayerului online* și a *modurilor*.
 
 În acest moment nu mă preocupă primele două, însă implementarea suportului pentru moduri este una din obiectivele mele inițiale pentru proiect, așa că nu o voi ignora cu totul.
 
-### Funcția unui registru
+### 4.5.1. Funcția unui registru
 
 Un registru poate fi utilizat pentru a atribui identificatori *conținutului* și pentru a furniza o mapare de la identificatori la conținutul corespunzător.
 Conținutul poate fi orice lucru care necesită un identificator, cum ar fi tipurile de entități, tipurile de statistici, tipurile de itemi, handler-urile (au nevoie de prioritate, gestionate tot de registru), tipurile de componente etc.
@@ -1479,9 +1479,9 @@ Conținutul poate fi orice lucru care necesită un identificator, cum ar fi tipu
 Registrul poate fi, de asemenea, utilizat pentru a atribui *identificatori de runtime*, care sunt utilizați pentru a identifica *instanțe*, cum ar fi entitățile.
 O mapare este, de asemenea, furnizată de la un identificator cunoscut al instanței de entitate cu acel identificator.
 
-### Cazuri de utilizare
+### 4.5.2. Cazuri de utilizare
 
-#### Serializare
+#### 4.5.2.1. Serializare
 
 Vom considera sarcina de *serializăre*.
 *Serializarea* înseamnă salvarea stării curente a jocului într-un fișier și *deserializarea* înseamnă restabilirea stării respective înapoi în joc.
@@ -1528,7 +1528,7 @@ Același sistem poate fi aplicat la oricare conținut static, cum ar fi tipurile
 
 Nu am abordat serializarea cum-se-cade, deci aceste idei sunt în mare parte speculative.
 
-#### Multiplayer
+#### 4.5.2.2. Multiplayer
 
 Cum ar putea spune serverul ce player este asociat cu ce adresă IP?
 Cum ar semnaliza serverul către ceilalți clienți ce item a obșinut un anumit jucător sau ce acțiune au selectat etc.?
@@ -1540,7 +1540,7 @@ Singura modalitate de a referi la un obiect menționat în pachet este prin tran
 
 Deci, registrul este esențial pentru multiplayer.
 
-### Stocarea și accesare componentelor
+### 4.5.3. Stocarea și accesare componentelor
 
 Am menționat anterior că componentele unei entități sunt stocate într-un dicționar, însă nu am subliniat după ce cheie sunt stocate.
 
@@ -1549,3 +1549,501 @@ De fapt, am folosit-o la început.
 - În primul rând, acest lucru este nefast și nu-mi place această abordare.
 - Nu ar funcționa pentru un sistem în care aveți mai multe instanțe de același tip, care totuși trebuie să fie cumva identificate și stocate într-un loc central pentru a permite maparea, cum ar fi tipurile de componente.
 - Dacă permiteți vreodată mai multe componente de același tip să existe simultan pe o entitate, decizia de a folosi `TypeInfo` ca cheii ar avea efecte nefaste în viitor.
+
+În mod clar, ar trebui să se dezvolte o modalitate de identificare a unei colecții de tipuri ca aceasta.
+
+Astfel, am optat pentru *indici* (în alte sisteme, acestea se mai numesc și *referințe*).
+În opinia mea, indicii sunt o idee bună. 
+Ei încapsulează atât tipul obiectului asociat identificatorului, cât și identificatorul în sine.
+A se vedea [codul sursă][42].
+
+Acest lucru este util, deoarece permite rezolvarea automată a genericilor, ceea ce ajută la evitarea cast-urilor explicite și, prin urmare, a erorilor din cod.
+
+De exemplu, să considerăm că entitatea are următoarea metodă generică de recuperare a componentelor (presupunem că acestea sunt stocate după tip, ceea ce, după cum s-a stabilit, nu este maxim flexibil):
+
+```C#
+T GetComponent<T>() where T : IComponent
+{
+    return (T) components[typeof(T)];
+}
+```
+
+Ați utiliza codul asemănător la acesta:
+
+```C#
+entity.GetComponent<Attacking>();
+```
+
+Utilizând abordarea mea cu indicii, se schimbă la:
+```C#
+T GetComponent<T>(Index<T> index) where T : IComponent
+{
+    return (T) components[index.Id];
+}
+```
+
+Iar utilizarea devine:
+```C#
+class Attacking : IComponent 
+{ 
+    // Acestui indice se atribuie un identificator de către registru
+    static Index<Attacking> Index; 
+}
+
+entity.GetComponent(Attacking.Index);
+
+// Țineți minte că genericul aici se rezolvă, deoacere indicele are informație despre tip.
+// Exemplul de fapt invocă următoarea metodă:
+entity.GetComponent<Attacking>(Attacking.Index);
+```
+
+Dacă ați păstra doar identificatorul fără a-l include într-un indice, componenta ar fi recuperată în felul următor:
+```C#
+entity.GetComponent<Attacking>(Attacking.Identifier);
+// Sau, și mai rău, dacă GetComponent() nu este generică
+var attacking = (Attacking) entity.GetComponent(Attacking.Identifier);
+```
+
+Abordarea cu indici este mai bună, deoarece oferă anumite garanții cu privire la tipul stocat de identificator și nu necesită casturi sau completarea explicită a argumentului generic.
+
+De asemenea, cu ajutorul indicilor este posibil să se decidă cum să se recupereze componentele în mod diferit în funcție de tipul de indice din care provine identificatorul lor:
+
+```C#
+interface IComponent {}
+interface ISpecial {}
+
+class PlainComponent : IComponent { static Index<PlainComponent> Index; }
+class SpecialComponent : IComponent, ISpecial { static SpecialIndex<SpecialComponent> Index; }
+// ...
+// Definim 2 metode supraîncărcate, luând diferite tipuri de indici.
+// Nu puteți supraîncărca o metodă cu aceleași parametri, chiar dacă interfețele sunt diferite.
+// Nu știu de ce ei au impus această restricție peste C#. 
+// Unica modalitate de a atinge metodele de stocare diferite este să utilizăm tipurile de indici diferite
+// Din fericire, așa tipuri pot fi generate prin creare subtipurilor lui Index<T> fără membrii noi
+T GetComponent<T>(Index<T> index) where T : IComponent 
+{
+    return (T) components[index.Id];
+}
+T GetComponent<T>(SpecialIndex<T> index) where T : IComponent, ISpecial 
+{
+    return (T) specialComponents[index.Id];
+}
+// ...
+PlainComponent plain     = entity.GetComponent(PlainComponent.Index);
+SpecialComponent special = entity.GetComponent(SpecialComponent.Index); // Evocă metoda supraîncărcată.
+```
+
+Implementarea reală este destul de similară, a se vedea [codul sursă relevant][43].
+
+Există o problemă aparentă cu această abordare: fiecare componentă ar conține boilerplate-ul acelui câmp de index static și fiecare componentă ar trebui să primească un identificator din partea registrului. 
+Am reușit să rezolv această problemă prin generărarea codului.
+
+### 4.5.4. Moduri
+
+Să presupunem că doriți să încărcați o anumită combinație de moduri. 
+Fiecare mod definește un anumit conținut nou (presupunem ordinea intițializării conținutul constantă). 
+Presupunem, de asemenea, că nu există dependențe circulare dintre moduri. 
+Urmând terminologia mea, *conținutul* unui mod este definit ca o colecție de tipuri, care au fiecare un identificator unic în cadrul categoriei lor.
+
+Ideea mea inițială a fost că, odată ce un tip (de exemplu, un tip de entitate) a fost instanțiat, acesta ar primi un identificator global unic, care ar fi salvat în *registrul global*. 
+Acum, dacă presupunem că conținutul unui mod este construit static, adică tipurile sunt salvate ca și câmpuri statice pe unele clase definite de mod, problema devine că acesta nu poate fi reinitializat ulterior. 
+Odată ce un mod a fost încărcat, ID-urile nu pot fi realocate, iar tipurile nu pot fi recreate. 
+Acest lucru înseamnă că descărcarea și reîncărcarea modurilor este inconsecventă.
+
+De exemplu, aveți un mod `A` care a definește 4 tipuri, care au primit identificatorii de la 0 la 3. 
+Acum încărcați un nou mod, numit `B`, care la rândul său definește 4 tipuri. 
+Acestea primesc identificatorii de la 4 la 7. 
+Acum doriți să descărcați modul `A`. 
+Deoarece nu există niciun mecanism de reîncărcare sau de modificare a id-urilor, tipurile din modul `B` vor avea în continuare id-urile lor anterioare. 
+Acest lucru este rău, deoarece, deși avem un singur mod, mod `B`, dacă am fi avut doar `B` de la început, id-urile ar fi fost diferite, deoarece tipurile ar fi avut în schimb identificatorii de la 0 la 3. 
+Aceasta o am numi *inconsecvență*.   
+
+Așadar, cel mai simplu mod de a remedia această problemă este ca fiecare mod să definească *lista de conținut* pe care o creează și o funcție *init* (de intițializare), care poate fi rulată din nou pentru a realoca identificatorii și a-i citi în registru. 
+
+Să presupunem că avem modurile `A` și `B`. 
+Acum, dacă am dori să descărcăm `A`, am șterge totul din registru și am redefini `B`, folosind funcția sa de inițializare.
+
+Acest lucru ar elimina, de asemenea, problemele cu serializarea (save-uri și server). 
+
+Să presupunem că avem o salvare care a fost jucată cu modurile `A` și `B`. 
+Acum, dacă ordinea în care au fost definite `A` și `B` ar fi fost inconsecventă, identificatorii ar putea fi încurcate în sensul că după reîncărcarea jocului, conținutul din cele două moduri ar primi alți identificatori decât cele stocate în save-ul și astfel s-ar încărca incorect.
+
+Acum, în cazul serverului, să presupunem că jucătorul activat un număr mai mare de moduri decât serverul sau că identificatorii tipurilor nu corespund cu identificatorilor tipurilor corespunzătoare de pe server. 
+În acest caz, dacă am dori să trimitem informații care se referă la un anumit tip de la server la client, ar trebui să urmărim maparea identificatorilor de la server la client, ceea ce, cred, este complicat.
+În schimb, atunci când ne conectăm la un server, verificăm dacă modurile corespund, iar dacă nu, descărcăm toate modurile și le reîncărcăm doar pe cele de care are nevoie serverul. 
+Bineînțeles, acest lucru nu ar trebui să afecteze modurile care se referă doar la grafică, de exemplu, cele care schimbă texturile default.
+
+Această abordare ar necesita ca modurile să definească în mod explicit tot conținutul lor și să enumere dependențele lor. 
+Acest lucru este facilitat de generatorul de cod, care creează automat o astfel de funcție init.
+
+### 4.5.5. Identificatori
+
+*Identificatorul* a fost menționat de multe ori, dar nu s-a precizat niciodată cum arată exact.
+
+Un identificator este, în esență, un număr unic.
+Pentru orice conținut definit de moduri (inclusiv modul `Core`), am decis să folosesc unul care să conțină un număr întreg pe 32 de biți care să indice numărul modului și un număr întreg pe 32 de biți care să indice numărul secvențial al tipului dat.
+A se vedea [`Indentifier` în codul sursă][44].
+
+Identificatorul *runtime* este utilizat pentru identificarea *instanțelor* entităților. În codul actual am optat pentru un singur număr întreg pe 32 de biți, dar acesta poate fi modificat. 
+A se vedea [`RuntimeIdentifier` în codul sursă][45].
+
+Registrul atribuie identificatorii în mod secvențial.
+Modurile, de asemenea, primesc identificatori secvențiali, deși ar fi benefic ca ele să-și specifice prin hardcode numărul lor de mod. 
+Iată [cel mai simplu identificator][46], fără mapare. 
+Iată un [subregistru pentru orice categorie specifică de tipuri, cu mapare][47].
+
+În prezent, codul de registru nu l-am perfecționat.
+Nu există nicio modalitate de a defini categorii personalizate de tipuri, ceea ce va fi cu siguranță util în viitor.
+
+### 4.5.6. Înregistrarea flagurilor
+
+Înregistrarea flagurilor este neimplementată în momentul curent.
+
+Ideea este ca un tip de indicator să fie extensibil în timpul execuției.
+De exemplu, există un enum `Faction` enum, care reprezintă facțiunea unei anumite entități.
+Aceasta poate fi `Player`, `Enemy` sau `Environment`, care ar avea valorile `001b`, `010b` și, respectiv, `100b`. 
+Acum, imaginați-vă că un mod a decis să adauge mai multe facțiuni, cum ar fi `RedTeam` sau `BlueTeam`. 
+Singura modalitate de a face acest lucru pe care o au este de a codifica în hardcode biți de flaguri specifice pentru acestea și de a spera că nici un alt mod nu a decis să folosească aceiași biți pentru flagurile facțiunilor ale *lor*.
+
+Pentru a se asigura că flagurile nu se ciocnesc niciodată, este necesar să facem ca registrul să atribuie și să distribuie noi flaguri.
+Evident, dacă numărul de flaguri deja înregistrate este mai mare decât dimensiunea numărului întreg, nu ar putea fi adăugate noi flaguri, dar cred că aceasta nu se va întâmpla niciodată.
+Așadar, 32 sau 64 de flaguri este limita, în dependența de dimensiunea selectată pentru numărul întreg care reprezintă tipul.
+
+## 4.6. Generarea codului
+
+*Generarea codului* este un instrument foarte util pentru:
+- a elimina boilerplate, făcând astfel baza de cod mai ușor de întreținut;
+- a face sistemul mai prietenos față de refactorizare, încurajând dezvoltarea treptată;
+- facilitarea definirii sau asigurarea unei definiții automate a anumitor tipuri sau funcții din cod;
+- asigurarea integrării cu instrumente externe, cum ar fi un plugin pentru editor.
+
+Cele două instrumente principale pe care le folosesc pentru generarea de cod sunt **T4** pentru generarea de text din șabloane și **Roslyn** pentru analiza de cod.
+
+### 4.6.1. T4 (Text Template Transformation Toolkit)
+
+**Text Template Transformation Toolkit** (denumit de obicei "T4") este un framework de generare de text bazat pe șabloane, gratuit și open-source. Fișierele sursă T4 sunt denumite, de obicei, prin extensia de fișier ".tt". 
+
+T4 este utilizat de dezvoltatori ca parte a unei aplicații sau a unui cadru de instrumente pentru a automatiza crearea de fișiere text cu o varietate de parametri. Aceste fișiere text pot fi, în cele din urmă, orice format de text, cum ar fi codul (de exemplu, C#), XML, HTML sau XAML.
+
+T4 utilizează un format de șablon personalizat care poate conține cod .NET și șiruri literale în el, acesta fiind analizat de instrumentul de linie de comandă T4 în cod .NET, compilat și executat. Rezultatul codului executat este fișierul text generat de șablon. T4 poate fi, de asemenea, rulat complet în cadrul aplicațiilor .NET prin utilizarea clasei `TextTransformation`, ceea ce elimină necesitatea ca utilizatorul final să aibă instalat Visual Studio. 
+
+[Sursa: wiki][48].
+
+#### 4.6.1.1. De ce T4?
+
+Folosesc T4 pentru a genera cod C# pentru proiect, pe baza informațiilor din fișierele JSON sau extrase din codul sursă.
+
+Motivele pentru care folosesc T4:
+- Se integrează cu alt cod C#, ceea ce a fost o cerință în cazul meu, deoarece o parte din codul dintre generatorul de cod și aplicație urma să fie partajat și nu voiam să îl scriu în 2 limbaje diferite;
+- T4 a fost prima și singura opțiune pe care am încercat-o. Nu este deloc ideală, dar își face treaba;
+- Scrierea unui motor de modelare suficient de puternic ar implica prea multă muncă, de aceea mă bucur că am reușit să o evit.
+
+#### 4.6.1.2. Un exemplu simplu
+
+Șabloanele T4 includ logica de control, scrisă în cadrul `<# ... #>`, împreună cu textul care urmează să fie inserat.
+
+```t4
+<#  if (X == 2) 
+    { #>
+This text will be in the output if X is 2.
+<#  }
+    else
+    { #>
+Otherwise, this text will be output.
+<#  } #>
+```
+
+Rularea șablonului cu X = 3 produce următorul text ca output:
+```
+Otherwise, this text will be output.
+```
+
+Mai este posibil să afișăm valoarea unei variabile:
+```t4
+X at generation time was <#= X #>
+```
+
+Rularea șablonului cu X = 4 produce următorul text ca output:
+```
+X at generation time was 4
+```
+
+Practic, aceasta este esența lui T4. 
+Desigur, este puțin mai complicat în practică, deoarece acest `X` trebuie definit și transmis cumva șablonului, dar este doar un detaliu.
+
+### 4.6.2. Roslyn (.NET Compiler Platform)
+
+**Roslyn** oferă un set de API-uri pentru analiza lexicală a codului, analiza semantică și sinteza codului.
+Acesta poate citi și analiza codul dintr-un întreg proiect, oferind programatorului acces la arborele sintactic și la modelul semantic.
+
+Modelul semantic este deosebit de util.
+Acesta permite obținerea cu ușurință a informațiilor despre *simboluri*: unde a fost definit un anumit tip în sursă, găsirea namespace-urilor sau tipurilor unde a fost definit, găsirea tuturor referințelor la un acest simbol, inspectarea argumentelor generice, găsirea și evaluarea atributelor etc.
+
+
+#### 4.6.2.1. De ce Roslyn?
+
+Folosesc Roslyn pentru citirea și analiza codului din proiectul *Core*, precum și din orice proiect al unui mod pentru a obține anumite date din codul sursă, oferind aceste informații lui T4 pentru a genera codul necesar.
+
+- Roslyn este un framework pe C#, ceea ce este o cerință pentru mine, deoarece o parte din cod este partajată, așa cum s-a menționat;
+- Scrierea propriului meu framework pentru analiza codului C# este mult mai mult de lucru decât chiar scrierea propriului meu motor de șabloane;
+- Nu cred că există opțiuni mai bune pentru analiza codului în .NET. 
+
+### 4.6.3. Elemente de bază
+
+Să deslușim modul în care se integrează generarea de cod în proiectul meu.
+
+Primul lucru care trebuie menționat este că proiectul se bazează foarte mult pe funcțiile și tipurile definite în codul generat.
+Astfel, nu este posibil nici măcar să compilați proiectul fără a rula mai întâi generatorul de cod.
+
+Funcțiile și tipurile sunt generate fie:
+- dintr-un alt limbaj (din fișiere JSON), care utilizez datorită sintaxei mai ușoare sau pentru a permite comunicarea cu alte instrumente;
+- prin inspectarea codului sursă și prin decizia de ce trebuie generat prin analiza acestuia.
+
+În prezent, prima strategie este folosită doar pentru *stats*, care sunt atinse destul de puțin în această lucrare, dar în viitor va fi folosită și pentru *tipuri de entități*. 
+Prima strategie este, într-un fel, mai dificilă decât a doua, deoarece sarcina de a înțelege fișiere JSON și de a crea un fel de model semantic este pe umerii mei de programator.
+
+Pașii pentru generarea de cod din fișiere JSON trebuie să fie evidente:
+1. Programatorul scrie fișiere JSON valide, conform unor reguli, prin care generatorul de cod (metacompilator) să analizeze datelor din interiorul acestora și să le considere ca sursă pentru generatorul de cod; 
+2. Citirea și înțelegerea conținutului fișierelor JSON care urmează să fie *metacompilate*;
+3. Adunarea informații din fișierele JSON analizate și prezentarea lor la un șablon T4;
+4. Generarea codul folosind T4.
+
+A doua strategie este doar puțin diferită:
+1. Programatorul fie își adnotează codul sursă C# în conformitate cu anumite reguli, de exemplu, prin utilizarea atributelor, fie doar scrie cod, pe care generatorul de cod l-ar prelua automat, de exemplu, implementarea lui `IComponent` ar trebui să permită automat generarea de cod;
+2. Utilizarea lui Roslyn pentru a citi, procesa și analiza codul sursă scris de programator;
+3. Colectarea informațiilor din, de exemplu, modelul semantic și prezentarea lor lui T4;
+4. Generarea codului cu ajutorul lui T4.
+
+### 4.6.4. Șabloane
+
+În această secțiune aș dori să împărtășesc câteva sfaturi și descoperiri pe care le-am făcut în timp ce lucram cu șabloanele T4.
+
+Lucrul cu șabloanele este, în mare parte, destul de simplu, iar modul în care acestea funcționează este și el transparent.
+
+Să considerăm un șablon de text, care este un amestec de cod de control și textul care urmează să fie tipărit. Acesta este mai întâi compilat în 2 clase C#:
+- O clasă de bază, care implementează [*interfața duck* necesară pentru generarea codului][52]. Aceasta implică definirea unei metode virtuale sau abstracte `TransformText()`, a metodelor `Write()` și `WriteLine()` pentru afișarea textului și mai niște lucruri;
+- Clasa de afișare propriu-zisă, care moștenește din clasa de bază, care transformă codul de control în cod C# real, iar textul care urmează să fie afișat în apeluri la `Write()` și `WriteLine()`. 
+Acesta inserează tot acest cod de afișare în metoda suprascrisă `TransformText()`.
+Deoarece sunt lipite în scopul clasei de afișare, ele pot accesa orice câmpuri sau proprietăți definite în aceasta.
+Acest lucru este deosebit de util, deoarece clasa generată este parțială, deci este ușor de adăugat mai multe câmpuri sau proprietăți.
+
+De asemenea, este posibil să definiți propria clasă de bază, care să implementeze interfața duck.
+
+Este posibilă împărțirea bucăților de cod T4 comune mai multor șabloane în fișiere txt și includerea lor în șabloane în timpul compilării.
+Am folosit această abordare pentru a insera, de exemplu, o remarcă că codul a fost autogenerat în partea de sus a fiecărui fișier generat, remarca însăși fiind preluată dintr-un [fișier txt cu textul ei][53].
+
+Am avut unele probleme cu indentarea, pe care le-am rezolvat folosind `PushIndent()`, `PopIndent()` și o modificare șmecheră a metodei `Write()`.
+A se vedea [aceast post pe stackoverflow unde am împărtășit soluția mea][54].
+
+Încerc să păstrez logica mea separată de șablonul de text, pentru a păstra șablonul mai simplu.
+Definesc proprietăți, metode sau câmpuri de ajutor pentru componentele mele logice, referințe pe care le includ ca și câmpuri în clasa specială a clasei de afișare.
+A se vedea, de exemplu, [`AllInitPrinter`][55] și [proprietățile definite în una dintre clasele de bază din codul logicii][56].
+
+### 4.6.5. Atribute
+
+Atributele reprezintă facilitatea principală de marcare a unor bucăți de cod ca ele să fie luate în considerare de Roslyn.
+T4 ar trebui apoi să primească aceste informații sub o anumită formă pentru a genera codul necesar.
+
+Pentru o listă completă de atribute, a se vedea [acest fișier sursă][51].
+
+Să ne uităm la câteva exemple.
+
+#### 4.6.5.1. FlagsAttribute
+
+Probabil cel mai ușor de înțeles și cel mai independent atribut este atributul `Flags`.
+Acesta este un atribut personalizat pe care l-am definit pentru a marca un enum pentru care să fie generat codul.
+În special, se consideră că enum-ul marcat definește un set de flaguri.
+
+Iată cum aș marca un enum cu acest atribut:
+```C#
+[Flags]
+enum MyFlags
+{
+    Colored = 1,
+    Tasty   = 1 << 1,
+    Warm    = 1 << 2
+}
+```
+
+Când codul meu Roslyn analizează codul sursă dat, găsește toate enum-urile marcate cu acest atribut și încapsulează simbolul [într-o clasă specială][49], care expune toate informațiile relevante despre simbol șablonului T4.
+
+Șablonul T4 [arată în felul următor][50].
+
+Rulând acest șablon pe baza informațiilor recuperate din codul nostru, motorul de modelare produce următorul cod:
+```C#
+namespace Hopper.Core
+{ 
+    public static class MyFlagsFlagsExtensions
+    {
+        /// <summary>
+        /// Checks whether the given flags intersect with the other flags.
+        /// Returns true if either of the other flags are set on the flags.
+        /// To see if flags contain all of some other flags, use <c>HasFlag()</c> instead. 
+        /// </summary>
+        public static bool HasEitherFlag(this MyFlags flag1, MyFlags flag2)
+        {
+            return (flag1 & flag2) != 0;
+        }
+
+        // mai multe funcții ...
+```
+
+Oricum, ce rost are aceasta?
+
+Ideea este că este mult mai ușor de utilizat funcția `HasEitherFlag()`, decât `(flag1 & flag2) != 0`, însă nu poate fi definită în mod adecvat ca o funcție generică pentru un oarecare enum de flaguri. 
+Prin urmare, ar trebui să definim o astfel de funcție pentru orice enum de flaguri pe care l-ar adăuga în viitor.
+Pentru a păstra calitatea înaltă a codului, ar fi trebuit să scriem manual același comentariu `summary` pentru fiecare funcție de acest tip.
+Cu alte cuvinte, prea mult boilerplate.
+
+Dacă acest cod este generat automat, economisim timpul de a scrie funcții similare, care ar trebui să fie disponibile în mod ideal pentru fiecare enum de flaguri. 
+Dacă dorim ca aceste funcții similare să se schimbe toate deodată pentru a se adapta la noi condiții sau cerințe, trebuie doar să modificăm șablonul T4 și tot codul generat se schimbă automat.
+Credeți-mă, acest lucru economisește mult timp și nervi.
+
+#### 4.6.5.2. AliasAttribute
+
+Acesta este un alt exemplu ușor de înțeles.
+
+Scopul atributului `Alias` sau, în general, scopul definirii de alias-uri pentru anumite *metode* ale componentelor este de a exploata un anumit pattern comun în cod și de a-l înlocui cu un cod mai puțin verbos.
+În special, pattern-ul constă în obținerea unei componente de la o entitate și apelarea imediată a unei metode a acesteia cu anumite argumente, posibil și transmițând însăși entitatea ca argument.
+
+De exemplu, să luăm metoda `Activate()` a comportamentului `Moving`. 
+Aceasta primește un argument de tip `Entity`, care reprezintă actorul care face mișcarea, adică entitatea de la care a fost luată componenta `Moving`, și o direcție. Cod simplificat (corpul funcției a fost omis pentru simplitate):
+```C#
+class Moving { void Activate(Entity actor, IntVector2 direction) {} }
+```
+
+Deci, pentru a activa comportamentul `Moving`, adică, pentru a evoca această metodă corect, ați trebuie să scrieți codul de felul următor:
+```C#
+actor.GetMoving().Activate(actor, IntVector2.Right);
+// Pentru a încerca a se mișca, utilizați versiunea TryGet în loc de Get. Prea verbos, nu vă pare?
+if (actor.TryGetMoving(out var moving)) moving.Activate(actor, IntVector2.Right);
+```
+
+Nu ar fi frusos să puteți face ceva în felul următor?
+```C#
+actor.Move(IntVector2.Right);
+// Aceasta încearcă de a recupere componenta, pe urmă chemând Activate().
+actor.TryMove(IntVector2.Right);
+```
+
+Acesta este un pattern foarte comun, iar codul din urmă este foarte util în practică, eliminând mult boilerplate.
+
+De fapt, eu generez metode ca aceste cu generatorul meu de cod. 
+Le numesc *metode de alias*, deoarece acestea oferă un alias pentru versiunea mai lungă.
+
+Pentru a permite generarea automată a unor astfel de metode alias pentru metoda `Activate()` de mai sus, decorați-o cu atributul `Alias`, astfel:
+```C#
+class Moving 
+{ 
+    [Alias("Move")]    
+    void Activate(Entity actor, IntVector2 direction) {} 
+}
+```
+
+Cele două funcții vor fi generate automat, disponibile ca metode de extensie pentru tipul `Entity`.
+
+### Utilizarea Roslyn
+
+În codul meu, Roslyn este utilizat în principal pentru a extrage datele necesare din codul sursă, prin detectarea claselor care implementează o anumită interfață, extragerea datelor din atributuri aplicate la tipuri, câmpuri și metode.
+Nu folosesc funcțiile de sinteză sintactică ale lui Roslyn, deoarece ele sunt prea verbose, chiar și pentru sarcini simple.
+Șabloanele T4 sunt mult mai ușor de citit și mai simple.
+
+Să analizăm un exemplu, care a fost menționat în secțiunea anterioară: cum sunt extrase informațiile despre metodele *alias* din atributele relevante din codul sursă.
+Trebuie să vă avertizez că codul pe care urmează să îl vedeți nu este refactorizat și include chiar unele locuri cu cod mort, pe care încă nu l-am curățat.
+
+> Numai pentru acele funcții care sunt marcate cu atributul `Alias` trebuie să fie generat cod.
+
+Scanez modelul semantic pentru clasele care implementează `IComponent`, pentru a obține clasele care ar putea defini metode alias. 
+Pentru aceasta, folosesc `SymbolFinder.FindImplementations()`, a se vedea [codul sursă][57];
+
+Apoi găsesc toate metodele care au atributul `Alias`. 
+A se vedea [codul sursă][58]. 
+Aici, încerc să obțin atributul dat și, dacă există, îl transform într-un tip de atribut cunoscut (atributele sunt definite într-un proiect partajat, astfel încât generatorul de cod să poată transforma reprezentarea generică a unui atribut lui Roslyn în acest tip cunoscut).
+Pentru mai multe informații despre transformarea aceasta în tipuri de atribute cunoscute, consultați [această întrebare a mea pe stackoverflow][59].
+
+Așadar, am reușit am găsim simbolurile metodelor cu atributul `Alias`, definite în cadrul claselor care implementează `IComponent`.
+
+> Numele funcției generate trebuie să fie același ca aliasul din atributul `Alias`.
+
+Deoarece am reușit să transformăm datele de atribut descoperite de Roslyn în tipul real de atribut, putem obține numele dorit prin simpla accesare a câmpului (proprietății) `Alias` după nume, deci `aliasAttribute.Alias` ar reprezinta numele alias-ului selectat.
+
+> Având în vedere că o metodă alias este întotdeauna definită pe o componentă și faptul că metodele alias sunt întotdeauna definite ca metode de extensie asupra clasei `Entity`, trebuie să luăm ca prim argument `this Entity actor`. 
+> Metoda marcată poate primi și alte argumente în afară de actor sau poate să nu primească deloc argumentul actor. 
+> Acest lucru înseamnă că metodele noastre generate trebuie să ia și aceste argumente suplimentare. 
+
+Așadar, ar trebui să analizăm semnătura funcției marcate pentru ca funcția noastră generată să aibă argumentele corecte.
+Practic, trebuie să copiem argumentele funcției marcate în funcția generată, cu excepția cazului în care argumentul dat este primul și indică actorul (deoarece este deja primul argument al funcției generate). 
+
+Acest lucru se face [aici][60]. 
+Practic, dacă primul parametru este de tip entitate, returnăm toți parametrii, dacă nu este, returnăm un parametru de tip `Entity`, concatenat cu parametrii funcției și, în cele din urmă, dacă nu există parametri, parametrii vor include doar entitatea.
+
+> Generați codul.
+
+Acum, tot ce a mai rămas de făcut este să generăm codul pentru aceste metode alias. 
+Pentru aceasta, definim un fragment de șablon, [ca cel văzut aici][61]. 
+Șablonul produce un cod puțin mai implicat decât cel arătat în exemplul de mai înainte. 
+Acesta ține cont de tipurile de returnare în versiunea `Try`, returnând rezultatul apelului la metoda alias printr-un parametru `out`. 
+
+Utilizarea șablonului este la fel de simplă ca apelarea metodei `TransformText()` și scrierea rezultatului într-un fișier.
+
+[1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper pagina pe github"
+[2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Documentația pentru Dungeon-Hopper"
+[3]: https://github.com/AntonC9018/hopper.cs "hopper.cs pagina pe github"
+[4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity pagina pe github demo"
+[5]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot pagina pe github demo"
+[6]: <citation_needed> "Lucrarea colegului"
+[7]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Grid.cs#L30 "Constructorul lui GridManager"
+[8]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "Fosta clasă Cell în Lua"
+[9]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Cell.cs#L8 "Implementarea curentă a clasei Cell"
+[10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "Moștenirea listelor în C#"
+[11]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/TransformComponent.cs#L16 "Transform"
+[12]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs "Displaceable"
+[13]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs#L59 "Displaceable: declarațiile chain-urilor"
+[14]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Retouchers/Reorient.cs#L12 "Exemplu de export de atribute"
+[15]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L58 "Exemplu la Sliding"
+[16]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Moving.cs "Moving"
+[17]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Pushable.cs "Pushable"
+[18]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/.Tests/Core_Tests/GridTests.cs#L169-L195 "Bloc directat: explicația în ASCII"
+[19]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/World/Grid/Grid.cs#L189 "Grid.HasBlock()"
+[20]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/Core/World/Grid/Grid.cs#L16-L19 "Trigger Grids"
+[21]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/TestContent/Mechanics/Bouncing/Bouncing.cs#L52 "Exemplu de handler filtrat"
+[22]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/DoubleList.cs "DoubleList"
+[23]: https://github.com/AntonC9018/hopper.cs/tree/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/Chains "Chains"
+[24]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/.Tests/Core_Tests/Chain.cs "Chain Tests"
+[25]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Registry/PriorityAssigner.cs "Distribuitor de priorități"
+[26]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Shared/PriorityRank.cs "Priority Ranks"
+[27]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/Entity.cs "Clasa Entity"
+[28]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/TestContent/EntityTypes/Skeleton.cs "Exemplu de tip de entitate: Skeleton"
+[29]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/EntityFactory.cs "Implementarea lui EntityFactory"
+[30]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs "WorldStateManager"
+[31]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Order.cs "Orders"
+[32]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs#L38 "Loop"
+[33]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Sequence/Sequence.cs "Sequence"
+[34]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Skeleton.cs#L19-L24 "Exemplu simplu de secvență"
+[35]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Knipper.cs#L22-L53 "Knipper: un exemplu mai complicat"
+[36]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Movs/Basic.cs "Algoritmi de mișcare predefiniți"
+[37]: https://github.com/Zakru/opencrypt/issues/1#issue-457013204 "Problema opencrypt a lui Zacru privind mișcarea inamicului"
+[38]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Algos/Enemy.cs "Enemy Algo"
+[39]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Predictions/Predictor.cs "Predictor"
+[40]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Action.cs "Acțiune"
+[41]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L55 "Alunecarea substituția acțiunii"
+[42]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Components/Index.cs "Index"
+[43]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Entity/Entity.cs#L41-L51 "Componentele entității"
+[44]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/Identifier.cs "Identificator"
+[45]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/RuntimeIdentifier.cs "Identificator Runtime"
+[46]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/IdentifierAssigner.cs "Identifier assigner"
+[47]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/StaticRegistry.cs "Static Registry"
+[48]: https://www.wikiwand.com/en/Text_Template_Transformation_Toolkit "T4 wiki"
+[49]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/FlagEnumSymbolWrapper.cs "FlagEnumSymbolWrapper"
+[50]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/FlagsPrinter.tt "FlagsPrinter"
+[51]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Shared/Attributes.cs "Lista de atribute"
+[52]: https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.texttemplating.texttransformation?view=visualstudiosdk-2019 "Documentarea interfaței duck lui T4 "
+[53]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/autogen_notice.txt "Remarca că codul a fost autogenerat"
+[54]: https://stackoverflow.com/questions/67561998/t4-indent-code-included-from-another-file "Corecții la indentarea codului inclus din alte fișiere într-un șablon T4"
+[55]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Printers/AllInitPrinter.cs "AllInitPrinter"
+[56]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L145-L155 "Proprietăți Frontend în clasa de bază"
+[57]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/GenerationEnvironment.cs#L133 "FindAllDirectiComponents"
+[58]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L66-L92 "Obținerea metodelor alias"
+[59]: https://stackoverflow.com/questions/67539903/converting-attributedata-into-a-known-attribute-type-roslyn "Casting AttributeData la un tip de atribut cunoscut"
+[60]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/SymbolExtensions.cs#L124-L141 "ParamsWithActor()"
+[61]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/ComponentEntityExtension.txt#L49 "Metode alias"
