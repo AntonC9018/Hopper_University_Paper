@@ -1,15 +1,15 @@
+- [Lista abrevierilor](#lista-abrevierilor)
 - [Abstract](#abstract)
 - [Introducere](#introducere)
-  - [Design-ul mecanicilor jocului](#design-ul-mecanicilor-jocului)
-  - [Istoria scurtă a dezvoltării](#istoria-scurtă-a-dezvoltării)
-    - [Încerări inițiale](#încerări-inițiale)
-    - [Corona și Lua: etapa 2](#corona-și-lua-etapa-2)
-    - [Rescrierea în C](#rescrierea-în-c)
-    - [Unity și Godot](#unity-și-godot)
-    - [Generarea codului](#generarea-codului)
-      - [Motive pentru generarea codului](#motive-pentru-generarea-codului)
-      - [Instumente în scurt](#instumente-în-scurt)
-      - [Fluxul meu de lucru](#fluxul-meu-de-lucru)
+- [Istoria scurtă a dezvoltării](#istoria-scurtă-a-dezvoltării)
+  - [Încerări inițiale](#încerări-inițiale)
+  - [Corona și Lua: etapa 2](#corona-și-lua-etapa-2)
+  - [Rescrierea în C](#rescrierea-în-c)
+  - [Unity și Godot](#unity-și-godot)
+  - [Generarea codului](#generarea-codului)
+    - [Motive pentru generarea codului](#motive-pentru-generarea-codului)
+    - [Instumente în scurt](#instumente-în-scurt)
+    - [Fluxul meu de lucru](#fluxul-meu-de-lucru)
 - [Prezentarea generală a sistemei](#prezentarea-generală-a-sistemei)
   - [Prezentarea generală a mecanicilor jocului](#prezentarea-generală-a-mecanicilor-jocului)
     - [Tipurile de acțiuni](#tipurile-de-acțiuni)
@@ -21,21 +21,21 @@
   - [Prezentarea generală a design-ului sistemului.](#prezentarea-generală-a-design-ului-sistemului)
     - [Cum să NU scrieți cod](#cum-să-nu-scrieți-cod)
     - [Separarea și event-urile este ideea cheie](#separarea-și-event-urile-este-ideea-cheie)
-    - [O direcție greșită?](#o-direcție-greșită)
-      - [Ideea istoriei](#ideea-istoriei)
-      - [Care este problemă dar?](#care-este-problemă-dar)
-      - [Soluția](#soluția)
-      - [Este oare totul?](#este-oare-totul)
-    - [ECS (Entitate-Component-Sistem)](#ecs-entitate-component-sistem)
-      - [Introducere](#introducere-1)
-      - [De ce nu POO?](#de-ce-nu-poo)
-      - [Compresie](#compresie)
-      - [ECS-ul meu](#ecs-ul-meu)
+  - [O direcție greșită?](#o-direcție-greșită)
+    - [Ideea istoriei](#ideea-istoriei)
+    - [Care este problemă dar?](#care-este-problemă-dar)
+    - [Soluția](#soluția)
+    - [Este oare totul?](#este-oare-totul)
+  - [ECS (Entitate-Component-Sistem)](#ecs-entitate-component-sistem)
+    - [Introducere](#introducere-1)
+    - [De ce nu POO?](#de-ce-nu-poo)
+    - [Compresie](#compresie)
+    - [ECS-ul meu](#ecs-ul-meu)
 - [Subiectele tehnice](#subiectele-tehnice)
   - [Grila](#grila)
     - [Celulile](#celulile)
     - [Componentele responsabile pentru poziția și mișcare](#componentele-responsabile-pentru-poziția-și-mișcare)
-    - [Transform](#transform)
+      - [Transform](#transform)
       - [Displaceable](#displaceable)
       - [Moving](#moving)
       - [Pushable](#pushable)
@@ -93,6 +93,17 @@
     - [Utilizarea Roslyn](#utilizarea-roslyn)
 
 
+# Lista abrevierilor
+
+| Acronim     | Semnificație                                      |
+|-------------|---------------------------------------------------|
+| ECS         | Entity-Component-System                           |
+| Necrodancer | Crypt of the Necrodancer                          |
+| MVC         | Model-View-Controller                             |
+| POO         | Programarea orientată pe obiecte                  |
+| Roslyn      | .NET Compiler Platform (Roslyn este un pseudonim) |
+| T4          | Text Template Transformation Toolkit              |
+| ID          | Identificator                                     |
 
 # Abstract
 
@@ -151,33 +162,44 @@ Scopurile *mele personale* pentru acest proiect erau să construiez o bază, un 
 Nu am ca scop să creez un joc *complet* în a acest proiect, nici să lucrez asupra graficii (desenarea sprite-urilor, crearea animațiilor, iluminației, interfeței de utilizator, etc.).
 Aș dori să accentuez faptul că partea mea în acest proiect este să construiez acea bază, acea interfață de interacțiune cu lumea logică și cu caracterele, instrumentele pentru crearea obiectelor și inamicilor noi etc.
 
-Pe de altă parte, al doilea programator, Cristian Țurcanu, cu care lucram în echipă, a elaborat sistemul de interacțiune cu jucătorul. El a legat sistemul meu cu motorul de joc pentru a prezenta graficii și a înregistra input-ul utilizatorului, comunicând cu sistemul meu. 
+Pe de altă parte, al doilea programator, Cristian Țurcanu, cu care lucram în echipă, a elaborat sistemul de interacțiune cu jucătorul. El a legat sistemul meu cu motorul de joc pentru a prezenta graficii și a înregistra input-ul utilizatorului. 
 
 
-## Design-ul mecanicilor jocului
+**Suportul metodologic și teoretico-științific**
+
+Nu menționez nici o lucrare științifică în lucrarea mea. 
+Nu este o eroare în bibliografie, ci incompetența mea în timpul ce am început să lucrez asupra proiectului de a căuta informații utile referitor la programarea jocurilor video.
+Prin urmare, sursele de metode sunt fie experiența în programare adunată pe parcursul studiilor și implementării proiectelor personale, fie ideile generale de proiectare a arhitecturii sistemelor informatice, absorbate pe parcursul studiilor și rezolvării unor tipuri de probleme, fie pur și simplu experimente ceva reușite. 
+În orice caz, sursele ideilor sunt fie inexistente, fie pierdute, iar uneori și ale noastre originale.
+
+**O descriere foarte scurtă a jocului**
 
 Jocul care am vizat să-l dezvolt împrumută mecanicile sale de bază de la **Crypt of the Necrodancer**.
 
-Necrodancer este un *Dungeon Crawler*, *Roguelike*. 
+Necrodancer este un joc **Dungeon Crawler, Roguelike**. 
 Explorați un donjon generat aleatoriu, combatând inamicii și bosurile în proces.
 Este un joc băzat pe turnuri, adică dvs și inamicii dvs pot să facă o acțiune (mișcare, atacă, aruncarea unei vraji magice, deschiderea unui cufăr, etc.) doar o singură dată în fiecare tur.
 
 Îmi place conceptul de Roguelike în general — faptul că deveniți mai puternici când progresați mai adânc în donjon. 
-Îmi place și să joc jocuri de acest fel. Printre ele: **The Binding of Isaac**, **Into the Breach**, **The Darkest Dungeon**, **Slay the Spire** și **One Step From Eden** sunt cele care mi-au plăcut în special.
+Îmi place și să joc jocuri video de acest fel. Printre ele: **The Binding of Isaac**, **Into the Breach**, **The Darkest Dungeon**, **Slay the Spire** și **One Step From Eden** sunt cele care mi-au plăcut în special.
 
 Faptul care îl distinge pe Necrodancer este o întorsătură inteligentă de mechanici, anume faptul că *puteți face acțiuni doar după ritmul muzicii*.
-Datorită acestui fapt, jocul este clasificat ca un joc *Roguelike Rhythm*.
+Datorită acestui fapt, jocul este clasificat ca un joc **Roguelike Rhythm**.
 
-Faptul că aveți timp limitat excepțional distinge jocul de la celelalte.
+Faptul că aveți timp limitat excepțional distinge jocul de la celelalte jocuri de genul Roguelike.
 Tehnic, jocul este bazăt pe tururi, însă datorită acestei mecanici este și cu mersul repede.
-Cu toate că aveți *ceva* timp să vă calculați acțiunea următoare, este imposibil să luați în considerare totul, cum ați putea face în șah.
+Cu toate că aveți *ceva* timp să vă calculați următoarea acțiune, este imposibil să luați în considerare totul, cum ați putea face în șah.
 
-Încă, este important să prevedeți consecințele acțiunilor dvs și să planificați aproximativ ce se va întâmpla în următoarele rânduri, însă având în vedere faptul că timpul dintre bătăile ritmului pentru a se gândi este atât de limitat, reacția joacă un rol mare tot.
-Acest joc învață să puteți opri la un anumit moment, și luați o acțiune vrednică care mai degrabă nu va fi cea optimă.
+Încă, este important să prevedeți consecințele acțiunilor dvs și să planificați aproximativ ce se va întâmpla în următoarele tururi, însă, ținând cont că timpul dintre bătăile ritmului pentru a se gândi este atât de limitat, reacția tot joacă un rol mare.
+Acest joc învață să puteți opri la un anumit moment să luați o acțiune vrednică care mai degrabă nu va fi cea optimă.
 Această idee este într-un mod similară la ideea șahului cronomerat, unde timpul dvs este o resursă de utilizat competent, deocamdată ticăitul ceasului ar putea să vă agite.  
-Distanța scurtă dintre bătăi uneori se simte, de asemenea, stresantă, dar se simte bine să te apuci uneori de momente atât de intense, în care reușeșți să respingi o hoardă de dușmani, de exemplu cu o vrajă magică bine aruncată sau cu o lovitură de armă abilă.
+Distanța scurtă dintre bătăile uneori se pare, de asemenea, stresantă, dar se simte bine să prinzi unele momente intense, în care reușeșți să respingi o hoardă de dușmani, de exemplu cu o vrajă magică bine aruncată sau cu o lovitură de armă abilă.
 
-## Istoria scurtă a dezvoltării
+**Cuvinte cheie**
+
+Necrodancer, game architecture, ECS, code generation, game modding, Godot, Roslyn, MVC.
+
+# Istoria scurtă a dezvoltării
 
 Am început să lucrez asupra acestui proiect aproape 2 ani în urmă.
 Pe parcursul acestor 2 ani, a fost aruncat și rescris, complet sau parțial, de aproape 5 ori.
@@ -190,7 +212,7 @@ Să scieți un joc, asemănător, nu este liniar.
 Cu toate că am știut de la început conceptul general pe care am vrut să-l urmăresc, și mecanicii de bază deja clare, nu am știut cum să structurez jocul corect, în ceea ce privește codul și design-ul sistemei.
 Deci, trebuiam să încerc mai multe idei pentru a ajunge la acele momente mai insteresante pe care le am astăzi. 
 
-### Încerări inițiale
+## Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
 Permite exportarea pe mobil și pe desktop. A se vedea repertoriul pe github [după acest link][1].
@@ -208,7 +230,7 @@ Ele necesită creativitatea și competența.
 Codul inițial a fost aruncat și rescris de la început în a doua versiune, încă pe Corona.
 
 
-### Corona și Lua: etapa 2
+## Corona și Lua: etapa 2
 
 Lua este un limbaj de programare foarte simplist: nu există tipurile, modulele sau clasele.
 Dynamic method dispatch, încă, poate fi simulat prin metatabelele (moștenirea prototipică).
@@ -236,15 +258,15 @@ Am scris niște articole în limba engleză ce descriu unele mecanici din sistem
 Unele idei documentate aici s-au tradus aproape intact în versiunea nouă a codului.
 
 
-### Rescrierea în C#
+## Rescrierea în C#
 
 În fine, m-am săturat de faptul că Lua nu are tipuri.
 Am decis să rescriu întregul proiect în C#.
 De ce C#?
 Nu-mi păsa ce motor de joc voi utiliza la final, deci m-am concentrat pe partea logică a proiectului, adică dezvoltarea sistemei.
-Am știut că există *Unity* și *Godot* care suportă C# ca limbajul său de scripting.
+Am știut că există **Unity** și **Godot** care suportă C# ca limbajul său de scripting.
 Deci, ideea era să scriu nucleul jocului independent de grafică.
-Acest concept are numele *MVC (Model-View-Controller)* sau *MVVM (Model-View-ViewModel)*.
+Acest concept are numele **MVC (Model-View-Controller)** sau **MVVM (Model-View-ViewModel)**.
 Cu așa sistem, ar fi posibil să creez "scripturi de vizualizare" în orice motor de joc ce suportă C#.
 
 Această idee nu este nimic nou, și de fapt m-am gândit la ea de la început.
@@ -286,7 +308,7 @@ Acestea lucrez într-o măsură, însă prea mult complic codul.
 Pe toate aceste probleme le-am rezolvat în mare parte doar recent, utilizând generarea codului.
 
 
-### Unity și Godot
+## Unity și Godot
 
 Peste niște luni după rescierea proiectului în C#, baza de cod a devenit destul de matură pentru a încerca să fac un *view* pe Unity sau Godot.
 
@@ -304,11 +326,11 @@ Acest mod de a vizualiza ce face programul uneori poate ajuta în identificarea 
 Explicarea fenomenului este că oameni înțeleg input-ul vizual mai intuitiv decât log-urile în consola sau stiva de apeluri; uneori problema este mai aparentă dacă o observați în acțiune.
 
 
-### Generarea codului
+## Generarea codului
 
 Începând cu luna aprilie, am lucrat asupra generării codului pentru a elimina boilerplate-ul și pentru a face procesul de dezvoltare mai puțin strângenitor.
 
-#### Motive pentru generarea codului
+### Motive pentru generarea codului
 
 Generarea codului este esențială, deoarece ea induce experimentarea.
 Când eu văd un pattern care nu poate fi ușor exploatat ușor fără generarea codului, au pot să fac rapid un modul prototip pentru generator de cod care ar exploata ideea.
@@ -321,7 +343,7 @@ Este mai ușor de administrat, deoarece singurul lucru catre trebuie să schimbe
 Este mai ușor de adăugat capacitățile noi, din aceeași cauză.
 Dă documentarea automată. Imaginați-vă păstrarea documentării la zi în toate acele fișiere.
 
-#### Instumente în scurt
+### Instumente în scurt
 
 Utilizez `T4`, scurt pentru `Text Template Transformation Toolkit`, pentru a crea template-uri pentru a genera fișiere sursă adăugătoare.
 Utilizez `Roslyn`, pentru analiza codului sursă.
@@ -333,7 +355,7 @@ Când generatorul de cod este pornit, el șterge toate fișierile generate anter
 Da, această abordare este foarte lentă dar este cu mult mai ușoară de implementat.
 Cea mai lentă parte a procesului este citirea și analiza fișierilor sursă, deci precis ar putea fi optimizată cu un language server.
 
-#### Fluxul meu de lucru
+### Fluxul meu de lucru
 
 Procesul meu de tranformare a docului repetativ în codul generat este aproximativ următorul:
 1. Când scriu cod observ un pattern care poate fi exploatat de către generatorul de cod.
@@ -446,7 +468,7 @@ Mă preocup în mare parte numai de motorul meu, adică cum logic ar funcționa,
 
 Unul din cele mai importante subiecte în dezvoltarea jocurilor video este cum să arătăm frumos ce se face în joc pe ecran, cu animații, particule și sprite-urile corect arătate utilizatorului.
 
-O metodă de a face acest lucru este să ne referim la codul ce controlează *View*-ul, adică ce se vede pe ecran, direct în codul pentru logică (*Model*). De exemplu, cam așa (pseudocod pentru înțelegere, nu-i codul real din joc):
+O metodă de a face acest lucru este să ne referim la codul ce controlează **View**-ul, adică ce se vede pe ecran, direct în codul pentru logică (**Model**). De exemplu, cam așa (pseudocod pentru înțelegere, nu-i codul real din joc):
 
 ```C#
 void Move(IntVector2 direction)
@@ -464,7 +486,7 @@ void Move(IntVector2 direction)
 ```
 
 Însă, așa cod are niște defecte asociate cu el:
-1. Logica jocului dvs este cuplată strâns cu view-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
+1. Logica jocului dvs este cuplată strâns cu View-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
 2. Codul este foarte instabil.
 Imaginați-vă penru un moment că jucătorul după ce s-a mișcat la o poziție nouă, a declanșat o capcană care l-a ucis. Aceasta ar trebuie să decalșe animația de moarte, însă animația inactivității (idle) setată în callback-ul se joacă ??? (is playing). Evident, acest exemplu este prea simplificat, însă deja puteți vedea că setarea callback-urilor în așa mod este ceva inadmisibil. Aveți nevoie de un sistem mai complex pentru a administra aceasta.
 3. Ce dacă jucătorul alunecă în loc de a sări? Atunci, o animație diferită trebuie să fie setată, nu `Animation.Hopping`, ci `Animation.Sliding`. Ați adăuga o verificare în funcția `Move()`? Dar ce dacă alunecarea vine dintr-un mod? Atunci, sistemul dvs nu ar fi putut să aibă cunoștințe despre aceasta. Este clar, că așa strategie simplă nu va lucra aici. 
@@ -550,7 +572,7 @@ Acum, după ce le-am separat, putem rezolva și problemele de întreținere.
 Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet și independent, această problemă tot poate fi rezolvată, cu ceva mai mult chibzuit.
 
 
-### O direcție greșită?
+## O direcție greșită?
 
 Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să exact fac acest lucru.
 Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine până recent.
@@ -559,7 +581,7 @@ Am gândit că view-ul și modelul sunt aceste două sisteme complet independent
 Aceasta poate lucra, însă nu este tare scalabil.
 În loc de această abordare, view-ul trebuie să fie conectat cu modelul într-un set lat de puncte de contact, prin event-uri, unde modelul nu ar cunoaște nimic despre view-ul.
 
-#### Ideea istoriei
+### Ideea istoriei
 
 Inițial, mi-am imaginat modelul și view-ul să fie conectate prin *istoria*.
 Modelul ar împinge actualizările referitor la ce event-uri s-au întâmplat în lume prin această istorie.
@@ -582,7 +604,7 @@ Fiecare mașină de stări este o sită care devine blocată când încercați s
 După ce am trecut istoria prin toate sitele, cea mai complexă blocată sită este selectată și animațiile pentru acea sită sunt ??? (played).
 
 
-#### Care este problemă dar?
+### Care este problemă dar?
 
 Problema vine când aveți nevoie să transmiteți datele împreună cu actualizările.
 
@@ -650,7 +672,7 @@ void SieveThroughHistory(History history)
 ```
 
 
-#### Soluția
+### Soluția
 
 Din fericire, există o modalitate mai bună de a ??? (deal with this).
 
@@ -717,7 +739,7 @@ Trebuia să sufăr prin toate probelemele istoriei explicate mai sus pentru a aj
 
 Deci, am reușit șă separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
 
-#### Este oare totul?
+### Este oare totul?
 
 Mai sunt niște probleme cu așa design.
 
@@ -730,13 +752,13 @@ Am rezolvat-o prin introducerea priorităților.
 Vom discuta ambele pe urmă.
 
 
-### ECS (Entitate-Component-Sistem)
+## ECS (Entitate-Component-Sistem)
 
 S-au spus multe lucruri despre ECS-uri.
 Însă, eu sunt convins că nu puteți să le înțelegeți integral dacă nu redescoperiți această idee singuri.
 Când vedeți o problemă reală și încercați s-o soluționați prin diferite metode, incluzând ECS-ul, iată atunci apare înțelerea profundă.
 
-#### Introducere 
+### Introducere 
 
 ECS permite să privim spațiul programului printr-o perspectivă diferită.
 
@@ -751,7 +773,7 @@ Ele operează pe componentente individuale ale entităților, astfel asigurându
 
 Ideea după ECS-ul este "entitățile flexibile și dinamice".
 
-#### De ce nu POO?
+### De ce nu POO?
 
 Dacă vreodată ați încercat să reprezentați tipurile diferite ale entităților într-un mediu dinamic, știți că aceasta nu va lucra.
 1. Nu puteți utiliza conceptul de moștenire și ierarhiile cum-se-cade.
@@ -794,7 +816,7 @@ Puteți ori să facem cum am descris mai sus, ori să transformați omida în fl
 În acest sens, a două abordare este mai flexibilă.
 
 
-#### Compresie
+### Compresie
 
 O altă idee este să dați fiecării entități întreaga gama tuturor proprietăților și abilităților posibile însă să nu le dați voie să utilizeze majoritatea lor.
 Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să curățați acel flag care indică dacă entitatea poate aplica acea abilitate.
@@ -806,7 +828,7 @@ Nu doar una din ele, ci toate.
 
 Deci, păstrarea componentelor în constrast lumii unde toate entitățile au toate proprietăți posibile, natural aduce la entități *sparse*, în alte cuvinte, la ideea *compresiei*. 
 
-#### ECS-ul meu
+### ECS-ul meu
 
 La moment, perspectiva mea la ECS este ceva specială.
 - Noțiunea *sistemei* este destul de vagă în codul meu.
@@ -895,7 +917,7 @@ Aceste abilități sunt modelate după următoarele componente specializate:
 - `Moving`, dând abilitatea de *a se mișca volunar*,
 - `Pushable`, dând abilitatea de *a fi mișcat involuntar*.
 
-### Transform
+#### Transform
 
 Entitățile care pot fi poziționate în lume trebuie să aibă componenta [`Transform`][11].
 Conține informația despre poziția curentă în lume, orientarea curentă (în ce direcție se uită) și ce nivel entitatea ocupă.
@@ -1007,10 +1029,7 @@ Blocuri mai pot afecta *sistemul de selectare țelelor*, explicată mai târziu.
 
 Proprietatea de a fi direcționat semnifică că entitatea ar ocupa doar o parte a celulii în care ea se află.
 Așa entități direcționate care servesc ca blocuri direcționate sunt numite *bariere*.
-
-Ideea este inspirată de așa blocuri din **Cadence of Hyrule**.
 [Unul din teste][18] explică ideea blocurilor direcționale cu ASCII mai clar decât eu aș putea prin text.
-
 Aceasta introduce mai multă complexitate în procesul de detectare dacă o celulă particulară este blocată.
 
 De obicei, pentru blocuri nedirecționate, pur și simplu trebuie să verificăm doar o celulă pentru a determina dacă celula este blocată sau nu.
