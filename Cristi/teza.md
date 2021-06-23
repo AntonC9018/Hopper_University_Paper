@@ -29,31 +29,29 @@ Direct3D/OpenGL/Vulkan -> XNA (MonoGame) -> Godot -> Unity -> Unreal Engine
 
 Complexity requirements for different kinds of games: Console/ASCII, 2D, 3D
 
-Pe de altă parte, fiecare joc are nevoie de un set __specific__ de componente pentru a rula. Spre exemplu, jocurile ca Cataclysm: Dark Days Ahead și Dwarf Fortress rulează în consolă, în care fiecare caracter desenat este de fapt un element, fie asta o entitate vie, un perete sau pur și simplu spațiu liber. Asemenea proiecte de fapt nu au nevoie de niciun component din suita motoarelor de joc, pentru că sunt formate doar din din simulare internă (model) și consolă (renderer).
+Pe de altă parte, fiecare joc are nevoie de un set __specific__ de componente pentru a rula. Spre exemplu, jocurile ca "Cataclysm: Dark Days Ahead" și "Dwarf Fortress" rulează în consolă, în care fiecare caracter desenat este de fapt un element, fie asta o entitate vie, un perete sau pur și simplu spațiu liber. Asemenea proiecte de fapt nu au nevoie de niciun component din suita motoarelor de joc, pentru că sunt formate doar din din simulare internă (model) și consolă (renderer).
 
 __insert screenshots__
 
-Din acest fapt putem deduce că o suită bogată în instrumente nu e numaidecât cea mai bună alegere __insert more examples__. Spre exemplu, un motor ca Unreal Engine poate fi prea complex și dificil pentru un simplu 2D joc. Deci alegerea trebuie făcută analizând mai mulți factori:
+Din acest fapt putem deduce că o suită bogată în instrumente nu e numaidecât cea mai bună alegere. Spre exemplu, un motor ca Unreal Engine poate fi prea complex și dificil pentru un simplu 2D joc, iar un motor ca CryEngine poate solicita resurse pe care nici cele mai puternice calcula nu le au. Deci alegerea trebuie făcută analizând mai mulți factori:
 
 - Cât de complex planificați să fie jocul? Ce componente vor fi necesare pentru întreg jocul?
 - Cât de mare și cu experiență este grupul vostru de programatori? Care componente le-ați putea dezvolta singuri și invers, care componente mai bine le-ați folosi din alte suite?
-- (opțional) Pentru device-uri cu ce nivel de performanță doriți să creați jocul? (O suită mai avansată poate necesita calculatoare puternice atât pentru dezvoltare, cât și pentru rulare la utilizatorul final).
 - Cât de permisivă este licența suitei? Puteți citi sau modifica codul sursă al acestuia?
 - Care este costul unei copii de suită? 
+- (opțional) Pentru device-uri cu ce nivel de performanță doriți să creați jocul? (O suită mai avansată poate necesita calculatoare puternice atât pentru dezvoltare, cât și pentru rulare la utilizatorul final).
 
-De asemenea, nu excludem și faptul că instrumentele dezvoltate în interiorul studioului și pentru sarcini specifice pot fi mai avantajoase decât instrumentele externe create pentru sarcini generale, avantajul exprimându-se prin efort, timp și bani economisiți. Spre exemplu, dezvoltatorii puzzle-ului "Manifold Garden" au creat un instrument specific pentru a genera arbori corespunzători stilisticei jocului. Ei au putut să folosească instrumentul Speedtree, care se folosește destul de des pentru a genera vegetație, însă acesta este un instrument general care ar fi dificil de folosit pentru a crea arbori în stilistica dată și cu așa flexibilitate, nemaivorbind și de costul pentru produs, deci în cazul dat instrumentul intern oferă mai multe avantaje decât unul extern. Nu excludem și cazul când asemenea instrumente pot nici să nu existe pe piață. Spre exemplu, dezvoltatorii jocului "S.T.A.L.K.E.R. 2: Heart of Chernobyl" au creat un instrument special pentru a genera o dantură unică și irepetabilă pentru fiecare personaj.
-
-
+De asemenea, nu excludem și faptul că instrumentele dezvoltate în interiorul studioului și pentru sarcini specifice pot fi mai avantajoase decât instrumentele externe create pentru sarcini generale, avantajul exprimându-se prin efort, timp și bani economisiți. Spre exemplu, dezvoltatorii puzzle-ului "Manifold Garden" au creat un instrument specific pentru a genera arbori corespunzători stilisticei jocului. Ei au putut să utilizeze instrumentul Speedtree, care se folosește destul de des pentru a genera vegetație, însă acesta este un instrument general care ar fi dificil de folosit pentru a crea arbori în stilistica dată și cu așa flexibilitate, nemaivorbind și de costul pentru produs, deci în cazul dat instrumentul intern oferă mai multe avantaje decât unul extern. Nu excludem și cazul când asemenea instrumente pot nici să nu existe pe piață. Spre exemplu, dezvoltatorii jocului "S.T.A.L.K.E.R. 2: Heart of Chernobyl" au creat un instrument special pentru a genera o dantură unică și irepetabilă pentru fiecare personaj, iar la moment asemenea instrumente nu găsești pe piață.
 
 __insert screenshots__
+
+### Alegerea limbajului de programare
+
+Alegerea unui limbaj de programare poate fi chiar mai importantă decât alegerea unui motor de joc. De limbajul folosit depinde performanța produsului final, viteza și confortul de programare, prezența unor instrumente specifice, etc. Deoarece jocurile video trebuie să ruleze extrem de rapid pe majoritatea calculatoarelor, acestea necesită optimizări extreme, mai ales în cazul proiectelor 3D cu detalizare înaltă ca Cyberpunk 2077 și Resident Evil Village. Din cauza asta în cadrul proiectelor mari și cu programatori experimentați se folosesc limbaje cu control înalt asupra resurselor, ca și C++, Rust și D. Asemenea limbaje permit formarea unor optimizări de nivel jos, însă nu sunt într-atât de intuitive pentru începători și în general sunt mai dificile pentru programare. Pe de altă parte, pentru dezvoltarea proiectelor mici și cu programatori începători se folosesc limbaje cu control mai strâns asupra resurselor, spre exemplu: limbaje cu garbage collector, C#, Java, Lua. Aceste limbaje permit programarea rapidă a unor mecanici și elimină lucrul de alocare și management a memoriei, acest proces fiind efectuat de către garbage collector, însă nu oferă un nivel atât de înalt de acces asupra proceselor interne.
 
 ### Outsorcing-ul
 
 Următoarea tehnică nu e o tehnologie, ci o practică de afaceri deseori folosită în prezent. Outsorcing-ul implică angajarea unei companii externe pentru a presta servicii care tradițional se făceau în interiorul companiei angajatoare de către lucrători. În cadrul industriei jocurilor video, __include source__ outsorcing-ul se folosește deseori pentru crearea unor asset-uri necritice, dar necesare pentru joc (filler) ca modelele hainelor, personajelor secundare, transportului și obiectelor statice din mediu. De asemenea această practică poate compensa lipsa lucrătorilor sau echipamentului dintr-un domeniu specific necesar jocului. Spre exemplu, echipamentul de motion capture este extrem de scump și necesită lucrători antrenați pentru lucru, însă este necesar pentru a crea animații realistice fără a decurge la animarea manuală, astfel se formează studiouri de motion capture care dețin echipamentul și personalul necesar și prestează serviciile studiourilor de jocuri video. 
-
-
-
-
 
 
 
