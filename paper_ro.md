@@ -1,6 +1,5 @@
 - [Abstract](#abstract)
-- [Introduction](#introduction)
-    - [Partea mea în acest job](#partea-mea-în-acest-job)
+- [Introducere](#introducere)
   - [Design-ul mecanicilor jocului](#design-ul-mecanicilor-jocului)
   - [Istoria scurtă a dezvoltării](#istoria-scurtă-a-dezvoltării)
     - [Încerări inițiale](#încerări-inițiale)
@@ -28,7 +27,7 @@
       - [Soluția](#soluția)
       - [Este oare totul?](#este-oare-totul)
     - [ECS (Entitate-Component-Sistem)](#ecs-entitate-component-sistem)
-      - [Introducere](#introducere)
+      - [Introducere](#introducere-1)
       - [De ce nu POO?](#de-ce-nu-poo)
       - [Compresie](#compresie)
       - [ECS-ul meu](#ecs-ul-meu)
@@ -98,47 +97,61 @@
 # Abstract
 
 Cu colegul meu Țurcanu Critian am decis să creăm un joc Roguelike, numit **Hopper**, băzat pe mecanici din *Crypt of the Necrodancer*.
-În prima parte, explic de ce am inițiat acest proiect, prin ce cale de dezvoltare am trecut.
-Următoarele secțiuni sunt mai tehnice. Acolo motivez și ilustrez prin exemple concrete design-ul sistemei, explic cum jocul funcționează intern.
-Prezint cum am evitat boilerplate-ul și duplicarea codului prin generarea codului cu *Roslyn* și *T4*.
+În partea intorductivă explic de ce am inițiat acest proiect. 
+În prima parte teoretică ce urmează, descriu baza experimentală a lucrării, adică prin ce stadii de dezvoltarea a trecut jocul, ce idei am explorat, și ce instrumente am încercat.
+În a doua parte teoretică aduc prezentarea generală a mecanicilor jocului, propun unele idei ce se referă la structura jocului și la soluționarea unelor probleme globale de arhitectura jocului.
+Ultima parte conține informații tehnice: detalii la design-ul sistemei cu exemple abundente din codul sursă, explicații despre funcționarea internă a jocului, prezint cum am evitat boilerplate-ul și duplicarea codului prin generarea codului cu *Roslyn* și *T4*.
 
-# Introduction
+# Introducere
 
-Ideea jocului este inspirată de jocul **Crypt of the Necrodancer** (mai departe voi referi la ea ca simplu *Necrodancer*), care este jocul meu preferat.
+Ideea jocului este inspirată de jocul **Crypt of the Necrodancer** (mai departe voi referi la jocul acesta ca simplu Necrodancer), care este jocul meu preferat. 
+Denumirea **Hopper** provine din faptul că animația mișcării a caracterelor este un salt (*hop*, în limba engleză)
 
-Jocul a fost planificat să fie open-source și băzat pe aceleași mecanici.
 
-Niciodată nu am planificat și nu aștept acest joc să-mi aducă vreun profit material.
-Este desemnat satisfacerii personale, și poate comunității online care sper că îl vor găsi și vor dori să-l dezvolte mai departe.
+**Motivarea proiectului**
 
-**Problemele lui Necrodancer** care m-au intenționat să fac un joc similar sunt următoarele:
-1. Modarea este în esență imposibilă. Sunt acceptate numai modurile care schimb aspectul vizual al jocului. Adăugarea mecanicilor sau a tipurilor de inamici nu este posibilă.
-2. Necrodancer nu este disponibil pe Android. Inițial, am dorit să pot să joc pe dispozitive mobile.
+Am hotărât să încep acest proiect, deoarece există unele probleme cu Necrodancer, jocul după care mă orientez. 
+Aceste probleme sunt următoarele:
+1. Modarea este în esență imposibilă. Sunt posibile numai modurile care schimb aspectul vizual al jocului. Adăugarea mecanicilor sau a tipurilor de inamici nu este posibilă.
+2. Necrodancer nu este disponibil pe Android. Am dorit să pot să rulez acest joc pe dispozitive mobile.
 3. Codul nu este public.
 
-Deci, **scopurile mele pentru proiect** au devenit următoarele:
-1. Să fac o joc cu mecanici asemănători cu cele din Necrodancer.
+
+**Scopurile pentru proiect**
+
+Jocul s-a planificat să fie open-source și băzat pe aceleași mecanici.
+Este desemnat satisfacerii personale, și comunității online care l-ar continua mai departe, cu sau fără ajutorul meu.
+
+Scopurile provin direct din problemele menționate mai sus.
+1. Să dezvolt o joc cu mecanici asemănători cu cele din Necrodancer.
 2. Să dezvolt un sistem informatic scalabil cu mai multe proprietăți și un API ușor de utilizat pentru a ușura dezvoltarea modurilor.
 3. Să public codul pe github cu o licența permisivă și să invit dezvoltători de moduri când API-ul devine destul de matur.
-4. Să-l pot rula pe un dispozitiv mobil cu sistemul de operare Android.
+4. Să pot rula jocul pe dispozitive mobile cu sistemul de operare Android.
 
-**În același timp**:
-1. Să primesc experiență în dezvoltarea jocurilor.
-2. Să primesc experiență în domeniul menținerii proiectelor complexe.
-3. Să primesc experiență în colaborarea și comunicarea cu comunitatea, artiștii și alți dezvoltatori.
-4. Să adaug mai un proiect în lista proiectelor personale.
+Realizarea acestor lucruri ar fi valorată doar de o nișă foarte specifică de jucători și modatori, deci proiectul să nu fie considerat în special inovativ sau actual.
+Scopul proiectului nu este să primim vreun profit material, ci să experimentăm și să învățăm.
 
 
-### Partea mea în acest job
+**Benificiile adăugătoare**
+
+Aparte de satisfacere de programator personală, beneficiile acestui proiect includ faptul că am primi experiență în:
+1. dezvoltarea jocurilor.
+2. domeniul menținerii proiectelor complexe.
+3. în colaborarea și comunicarea cu comunitatea, artiștii și alți dezvoltatori.
+
+În plus, proiectul este destul de mare și complex și ar fi valorat înalt printre alte proiecte personale de către angajatori.
+
+
+**Lucru în echipă**
 
 Eu sunt programator, nu sunt artist sau designer.
 
 Îmi place a programa sisteme complexe și instrumente, însă eu nu am capacitatea de a proiecta jocurile singur, nici nu vreau să fac acest lucru.
-Scopurile mele în acest proiect erau să construiez o bază, un *Core* (nucleul) al jocului, librăria sa de bază, bazându-se pe care alții ar putea adăuga mai multe idei.
-Nu am ca scop să creez un joc *completă* cu acest proiect, nici să lucrez asupra graficii (desenarea sprite-urilor, crearea animațiilor, iluminației, interfeței de utilizator (UI), etc.).
+Scopurile *mele personale* pentru acest proiect erau să construiez o bază, un *Core* (nucleu) al jocului, bazându-se pe care alții ar putea adăuga mai multe idei.
+Nu am ca scop să creez un joc *complet* în a acest proiect, nici să lucrez asupra graficii (desenarea sprite-urilor, crearea animațiilor, iluminației, interfeței de utilizator, etc.).
 Aș dori să accentuez faptul că partea mea în acest proiect este să construiez acea bază, acea interfață de interacțiune cu lumea logică și cu caracterele, instrumentele pentru crearea obiectelor și inamicilor noi etc.
 
-Ca o demonstrare, totuși am creat o versiune minimă a jocului.
+Pe de altă parte, al doilea programator, Cristian Țurcanu, cu care lucram în echipă, a elaborat sistemul de interacțiune cu jucătorul. El a legat sistemul meu cu motorul de joc pentru a prezenta graficii și a înregistra input-ul utilizatorului, comunicând cu sistemul meu. 
 
 
 ## Design-ul mecanicilor jocului
