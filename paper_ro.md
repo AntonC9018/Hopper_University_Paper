@@ -168,7 +168,7 @@ Pe de altă parte, al doilea programator, Cristian Țurcanu, cu care lucram în 
 **Suportul metodologic și teoretico-științific**
 
 Nu menționez nici o lucrare științifică în lucrarea mea. 
-Nu este o eroare în bibliografie, ci incompetența mea în timpul ce am început să lucrez asupra proiectului de a căuta informații utile referitor la programarea jocurilor video.
+Nu este o eroare în bibliografie, ci incompetența mea în timpul realizării lucrării și codului de a căuta informații utile referitor la programarea jocurilor video.
 Prin urmare, sursele de metode sunt fie experiența în programare adunată pe parcursul studiilor și implementării proiectelor personale, fie ideile generale de proiectare a arhitecturii sistemelor informatice, absorbate pe parcursul studiilor și rezolvării unor tipuri de probleme, fie pur și simplu experimente ceva reușite. 
 În orice caz, sursele ideilor sunt fie inexistente, fie pierdute, iar uneori și ale noastre originale.
 
