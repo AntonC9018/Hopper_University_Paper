@@ -1,99 +1,3 @@
-- [Lista abrevierilor](#lista-abrevierilor)
-- [Abstract](#abstract)
-- [Introducere](#introducere)
-- [Istoria scurtă a dezvoltării](#istoria-scurtă-a-dezvoltării)
-  - [Încerări inițiale](#încerări-inițiale)
-  - [Corona și Lua: etapa 2](#corona-și-lua-etapa-2)
-  - [Rescrierea în C](#rescrierea-în-c)
-  - [Unity și Godot](#unity-și-godot)
-  - [Generarea codului](#generarea-codului)
-    - [Motive pentru generarea codului](#motive-pentru-generarea-codului)
-    - [Instumente în scurt](#instumente-în-scurt)
-    - [Fluxul meu de lucru](#fluxul-meu-de-lucru)
-- [Prezentarea generală a sistemei](#prezentarea-generală-a-sistemei)
-  - [Prezentarea generală a mecanicilor jocului](#prezentarea-generală-a-mecanicilor-jocului)
-    - [Tipurile de acțiuni](#tipurile-de-acțiuni)
-    - [Scopul](#scopul)
-    - [Itemii](#itemii)
-    - [Inamicii](#inamicii)
-    - [Limita de timp](#limita-de-timp)
-    - [Mai multe idei](#mai-multe-idei)
-  - [Prezentarea generală a design-ului sistemului.](#prezentarea-generală-a-design-ului-sistemului)
-    - [Cum să NU scrieți cod](#cum-să-nu-scrieți-cod)
-    - [Separarea și event-urile este ideea cheie](#separarea-și-event-urile-este-ideea-cheie)
-  - [O direcție greșită?](#o-direcție-greșită)
-    - [Ideea istoriei](#ideea-istoriei)
-    - [Care este problemă dar?](#care-este-problemă-dar)
-    - [Soluția](#soluția)
-    - [Este oare totul?](#este-oare-totul)
-  - [ECS (Entitate-Component-Sistem)](#ecs-entitate-component-sistem)
-    - [Introducere](#introducere-1)
-    - [De ce nu POO?](#de-ce-nu-poo)
-    - [Compresie](#compresie)
-    - [ECS-ul meu](#ecs-ul-meu)
-- [Subiectele tehnice](#subiectele-tehnice)
-  - [Grila](#grila)
-    - [Celulile](#celulile)
-    - [Componentele responsabile pentru poziție și mișcare](#componentele-responsabile-pentru-poziție-și-mișcare)
-      - [Transform](#transform)
-      - [Displaceable](#displaceable)
-      - [Moving](#moving)
-      - [Pushable](#pushable)
-    - [Bloc](#bloc)
-      - [Entitățile direcționate](#entitățile-direcționate)
-    - [Event-urile de intrare și de ieșire](#event-urile-de-intrare-și-de-ieșire)
-  - [Chain-urile](#chain-urile)
-    - [Resposibility chains](#resposibility-chains)
-    - [Prioritatea](#prioritatea)
-      - [Cum prescriem prioritățile?](#cum-prescriem-prioritățile)
-    - [Tipuri de chain-uri](#tipuri-de-chain-uri)
-  - [Entități și Componente](#entități-și-componente)
-    - [Structura entităților](#structura-entităților)
-    - [Ce componentele necesită pentru a funcționa?](#ce-componentele-necesită-pentru-a-funcționa)
-    - [Tipurile entităților](#tipurile-entităților)
-      - [Procedura în 3 pași](#procedura-în-3-pași)
-      - [Problemele](#problemele)
-    - [Copierea componentelor](#copierea-componentelor)
-      - [Pentru ce să copiem componente?](#pentru-ce-să-copiem-componente)
-      - [Implementarea](#implementarea)
-    - [Fabrica de entități](#fabrica-de-entități)
-    - [Wrapper-uri de entități](#wrapper-uri-de-entități)
-    - [Încarcarea tiputilor de entități din JSON în timpul rulării](#încarcarea-tiputilor-de-entități-din-json-în-timpul-rulării)
-  - [Acționare și bucla de joc](#acționare-și-bucla-de-joc)
-    - [Când și cum are loc acționarea](#când-și-cum-are-loc-acționarea)
-    - [Bucla de joc](#bucla-de-joc)
-    - [Acționare](#acționare)
-    - [IA inamicilor](#ia-inamicilor)
-      - [Sequence](#sequence)
-      - [Movs](#movs)
-      - [Enemy Algo](#enemy-algo)
-    - [Predicții](#predicții)
-    - [Acțiuni](#acțiuni)
-      - [Înlocuirea acțiunilor](#înlocuirea-acțiunilor)
-  - [Registru](#registru)
-    - [Funcția unui registru](#funcția-unui-registru)
-    - [Cazuri de utilizare](#cazuri-de-utilizare)
-      - [Serializare](#serializare)
-      - [Multiplayer](#multiplayer)
-    - [Stocarea și accesare componentelor](#stocarea-și-accesare-componentelor)
-    - [Moduri](#moduri)
-    - [Identificatori](#identificatori)
-    - [Înregistrarea flagurilor](#înregistrarea-flagurilor)
-  - [Generarea codului](#generarea-codului-1)
-    - [T4 (Text Template Transformation Toolkit)](#t4-text-template-transformation-toolkit)
-      - [De ce T4?](#de-ce-t4)
-      - [Un exemplu simplu](#un-exemplu-simplu)
-    - [Roslyn (.NET Compiler Platform)](#roslyn-net-compiler-platform)
-      - [De ce Roslyn?](#de-ce-roslyn)
-    - [Elemente de bază](#elemente-de-bază)
-    - [Șabloane](#șabloane)
-    - [Atribute](#atribute)
-      - [FlagsAttribute](#flagsattribute)
-      - [AliasAttribute](#aliasattribute)
-    - [Utilizarea Roslyn](#utilizarea-roslyn)
-- [Concluziile](#concluziile)
-
-
 # Lista abrevierilor
 
 | Acronim     | Semnificație                                      |
@@ -129,6 +33,7 @@ Denumirea **Hopper** provine din faptul că animația mișcării a caracterelor 
 
 Am hotărât să încep acest proiect, deoarece există unele probleme cu Necrodancer, jocul după care mă orientez. 
 Aceste probleme sunt următoarele:
+
 1. Modarea este în esență imposibilă. Sunt posibile numai modurile care schimb aspectul vizual al jocului. Adăugarea mecanicilor sau a tipurilor de inamici nu este posibilă.
 2. Necrodancer nu este disponibil pe Android. Am dorit să pot să rulez acest joc pe dispozitive mobile.
 3. Codul nu este public.
@@ -140,6 +45,7 @@ Jocul s-a planificat să fie open-source și băzat pe aceleași mecanici.
 Este desemnat satisfacerii personale, și comunității online care l-ar continua mai departe, cu sau fără ajutorul meu.
 
 Scopurile provin direct din problemele menționate mai sus.
+
 1. Să dezvolt o joc cu mecanici asemănători cu cele din Necrodancer.
 2. Să dezvolt un sistem informatic scalabil cu mai multe proprietăți și un API ușor de utilizat pentru a ușura dezvoltarea modurilor.
 3. Să public codul pe github cu o licența permisivă și să invit dezvoltători de moduri când API-ul devine destul de matur.
@@ -152,6 +58,7 @@ Scopul proiectului nu este să primim vreun profit material, ci să experimentă
 **Benificiile adăugătoare**
 
 Aparte de satisfacere de programator personală, beneficiile acestui proiect includ faptul că am primi experiență în:
+
 1. dezvoltarea jocurilor.
 2. domeniul menținerii proiectelor complexe.
 3. în colaborarea și comunicarea cu comunitatea, artiștii și alți dezvoltatori.
@@ -184,7 +91,7 @@ Jocul care am vizat să-l dezvolt împrumută mecanicile sale de bază de la **C
 
 Necrodancer este un joc **Dungeon Crawler, Roguelike**. 
 Explorați un donjon generat aleatoriu, combatând inamicii și bosurile în proces.
-Este un joc băzat pe turnuri, adică dvs și inamicii dvs pot să facă o acțiune (mișcare, atacă, aruncarea unei vraji magice, deschiderea unui cufăr, etc.) doar o singură dată în fiecare tur.
+Este un joc băzat pe turnuri, adică Dumneavoastră și inamicii Dumneavoastră pot să facă o acțiune (mișcare, atacă, aruncarea unei vraji magice, deschiderea unui cufăr, etc.) doar o singură dată în fiecare tur.
 
 Îmi place conceptul de Roguelike în general — faptul că deveniți mai puternici când progresați mai adânc în donjon. 
 Îmi place și să joc jocuri video de acest fel. Printre ele: **The Binding of Isaac**, **Into the Breach**, **The Darkest Dungeon**, **Slay the Spire** și **One Step From Eden** sunt cele care mi-au plăcut în special.
@@ -196,9 +103,9 @@ Faptul că aveți timp limitat excepțional distinge jocul de la celelalte jocur
 Tehnic, jocul este bazăt pe tururi, însă datorită acestei mecanici este și cu mersul repede.
 Cu toate că aveți *ceva* timp să vă calculați următoarea acțiune, este imposibil să luați în considerare totul, cum ați putea face în șah.
 
-Încă, este important să prevedeți consecințele acțiunilor dvs și să planificați aproximativ ce se va întâmpla în următoarele tururi, însă, ținând cont că timpul dintre bătăile ritmului pentru a se gândi este atât de limitat, reacția tot joacă un rol mare.
+Încă, este important să prevedeți consecințele acțiunilor Dumneavoastră și să planificați aproximativ ce se va întâmpla în următoarele tururi, însă, ținând cont că timpul dintre bătăile ritmului pentru a se gândi este atât de limitat, reacția tot joacă un rol mare.
 Acest joc învață să puteți opri la un anumit moment să luați o acțiune vrednică care mai degrabă nu va fi cea optimă.
-Această idee este într-un mod similară la ideea șahului cronomerat, unde timpul dvs este o resursă de utilizat competent, deocamdată ticăitul ceasului ar putea să vă agite.  
+Această idee este într-un mod similară la ideea șahului cronomerat, unde timpul Dumneavoastră este o resursă de utilizat competent, deocamdată ticăitul ceasului ar putea să vă agite.  
 Distanța scurtă dintre bătăile uneori se pare, de asemenea, stresantă, dar se simte bine să prinzi unele momente intense, în care reușeșți să respingi o hoardă de dușmani, de exemplu cu o vrajă magică bine aruncată sau cu o lovitură de armă abilă.
 
 **Cuvinte cheie**
@@ -221,7 +128,7 @@ Deci, trebuiam să încerc mai multe idei pentru a ajunge la acele momente mai i
 ## Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
-Permite exportarea pe mobil și pe desktop. A se vedea repertoriul pe github [după acest link][1].
+Permite exportarea pentru sisteme de operare de dispozitive mobile și pe desktop. A se vedea repertoriul pe github [după acest link][1].
 
 Însă, înțelegerea mea a structurii acestor jocuri, cum ele lucrează pe partea sistemei, era slabă atunci.
 
@@ -259,7 +166,7 @@ Această idee a devenit esențială pentru modul în care eu am reușit să admi
 În acest timp, am relizat că, ca sistemul să fie destul de robust, am nevoie de componente dinamice.
 Mai mult despre ele în secțiunile ce urmează.
 
-Această etapă a proiectului este documentată destul de bine, o valoare esențială, dacă chiar nu aveți tipuri în limbajul dvs.
+Această etapă a proiectului este documentată destul de bine, o valoare esențială, dacă chiar nu aveți tipuri în limbajul Dumneavoastră.
 Am scris niște articole în limba engleză ce descriu unele mecanici din sistem. Le puteți [găsi aici.][2]
 Unele idei documentate aici s-au tradus aproape intact în versiunea nouă a codului.
 
@@ -364,6 +271,7 @@ Cea mai lentă parte a procesului este citirea și analiza fișierilor sursă, d
 ### Fluxul meu de lucru
 
 Procesul meu de tranformare a codului repetativ în cod generat este aproximativ următorul:
+
 1. Când scriu cod observ un pattern care poate fi exploatat de către generatorul de cod.
 2. Dacă pattern-ul nu este destul de clar, aștept până când un pattern asemănător apare într-o altă bucată de cod, până când problema devine destul de clară ca să pot propune o soluție generală.
 3. Încerc să rezolv problema fără a genera codul, cât mai simplu, printr-o abstracție.
@@ -390,6 +298,7 @@ Mai sunt lucruri care au loc după aceasta, însă le vom discuta mai târziu.
 ### Tipurile de acțiuni
 
 Un concept important care trebuie să-l adresez este faptul că jucătorul poate selecta dintre următoarele două tipuri de acțiuni:
+
 1. *Acțiuni-vector* (`directed actions`), governate de către input-uri direcționale (săgețile). Acestea includ atacarea, mișcarea și săparea într-o direcție specificată.
 2. *Acțiuni speciale* (în mare parte `undirected actions`), ca aruncarea unei vraje sau activarea unui item.
 Aceste acțiuni sunt executate prin apasarea unei cheie desemnate, fără a necesita un input direcțional simultan (săgeata).
@@ -490,12 +399,14 @@ void Move(IntVector2 direction)
 ```
 
 Însă, așa cod are niște defecte asociate cu el:
-1. Logica jocului dvs este cuplată strâns cu View-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
+
+1. Logica jocului Dumneavoastră este cuplată strâns cu View-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
 2. Codul este foarte instabil.
 Imaginați-vă penru un moment că jucătorul după ce s-a mișcat la o poziție nouă, a declanșat o capcană care l-a ucis. Aceasta ar trebuie să decalșe animația de moarte, însă animația inactivității (idle) setată în callback-ul este în curs de redare. Evident, acest exemplu este foarte simplificat, însă deja puteți vedea că setarea callback-urilor în așa mod este ceva inadmisibil. Aveți nevoie de un sistem mai complex pentru a administra aceasta.
-3. Ce dacă jucătorul alunecă în loc de a sări? Atunci, o animație diferită trebuie să fie setată, nu `Animation.Hopping`, ci `Animation.Sliding`. Ați adăuga o verificare în funcția `Move()`? Dar ce dacă alunecarea vine dintr-un mod? Atunci, sistemul dvs nu ar fi putut să aibă cunoștințe despre aceasta. Este clar, că așa strategie simplă nu va lucra aici. 
+3. Ce dacă jucătorul alunecă în loc de a sări? Atunci, o animație diferită trebuie să fie setată, nu `Animation.Hopping`, ci `Animation.Sliding`. Ați adăuga o verificare în funcția `Move()`? Dar ce dacă alunecarea vine dintr-un mod? Atunci, sistemul Dumneavoastră nu ar fi putut să aibă cunoștințe despre aceasta. Este clar, că așa strategie simplă nu va lucra aici. 
 
 Deci, defectele identificate sunt:
+
 - cuplarea strânsă;
 - probleme de întreținere;
 - inflexibilitatea.
@@ -636,8 +547,8 @@ Acest fenomen poartă numele "ștergerea tipului".
 
 Stop, oare nu putem utiliza polimorfizmul în loc de `if-else` pentru a apela funcțiile concrete care trebuie să proceseze datele?
 
-Având în vedere faptul că modelul nu știe nimic despre logica view-ului dvs asociată cu actualizările, însă știe ce datele vor fi în update-urile, nu, aceasta nu este posibil.
-Nu puteți da modelului un tip cu acele date pe care el l-ar instanția (ca obiectul să conțină funcțiile polimorfice dvs).
+Având în vedere faptul că modelul nu știe nimic despre logica view-ului Dumneavoastră asociată cu actualizările, însă știe ce datele vor fi în update-urile, nu, aceasta nu este posibil.
+Nu puteți da modelului un tip cu acele date pe care el l-ar instanția (ca obiectul să conțină funcțiile polimorfice Dumneavoastră).
 Adică, *ați putea*, însă nu este tare convenabil si sunt modalități mai simple de a atinge același rezultat.
 
 Ați putea menține un dicționar cu tipurile actualizărilor mapate la handler-uri, ca mai jos.
@@ -778,6 +689,7 @@ Ideea după ECS-ul este "entitățile flexibile și dinamice".
 ### De ce nu POO?
 
 Dacă vreodată ați încercat să reprezentați tipurile diferite ale entităților într-un mediu dinamic, știți că aceasta nu va lucra.
+
 1. Nu puteți utiliza conceptul de moștenire și ierarhiile cum-se-cade.
 2. Tipurile statice sunt prea rigide.
 
@@ -824,7 +736,8 @@ O altă idee este să dați fiecărei entități întreaga gama tuturor propriet
 Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să ștergeți acel flag care indică dacă entitatea poate aplica acea abilitate.
 
 Avem două probleme cu așa abordare:
-1. Cât de multe componente și proprietăți aveți în joc, atât de umflate entitățile dvs devin, atât de mult spațiu ele ocupă.
+
+1. Cât de multe componente și proprietăți aveți în joc, atât de umflate entitățile Dumneavoastră devin, atât de mult spațiu ele ocupă.
 Nu doar una din ele, ci toate de o dată. 
 2. Așa sistem nu poate fi expandat de moduri, ceea ce-i inacceptabil în cazul meu. Unul dintre obiectivele proiectului meu este de a permite modarea.
 
@@ -1005,7 +918,7 @@ Aici încă vedem uzul funcției `DefaultPreset()` care ar seta aceste chain-uri
 
 Acest pattern este răspândit între comportament, dar este cel mai util pentru *prototipare*.
 Strategia unde utilizăm `Check` și `Do` lucrează pentru majoritatea comportamentelor la început, însă eventual deseori realizați că aveți nevoie de mai mult control, de exemplu de chain-urile `Before` sau `After`.
-Atunci veți defini toate pe care le aveți nevoie în comportamentele dvs particulare, lăsând autoactivarea în urmă.
+Atunci veți defini toate pe care le aveți nevoie în comportamentele Dumneavoastră particulare, lăsând autoactivarea în urmă.
 
 De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 
@@ -1037,11 +950,11 @@ Așa entități direcționate care servesc ca blocuri direcționate sunt numite 
 Aceasta introduce mai multă complexitate în procesul de detectare dacă o celulă particulară este blocată.
 
 De obicei, pentru blocuri nedirecționate, pur și simplu trebuie să verificăm doar o celulă pentru a determina dacă celula este blocată sau nu.
-Dacă celula conține o entitate din nivelul de bloc dvs, da, dacă nu conține, nu.
+Dacă celula conține o entitate din nivelul de bloc Dumneavoastră, da, dacă nu conține, nu.
 Cu blocuri direcționate aceasta este mai subtil.
 
-Dacă entitatea din nivelul de bloc dvs este direcționat, trebuie să verificați dacă este la partea corectă a celulei (ce parte ea ocupă este indicată de către orientarea ei).
-Partea corectă a celulei este partea din care caracterul dvs o ar intra.
+Dacă entitatea din nivelul de bloc Dumneavoastră este direcționat, trebuie să verificați dacă este la partea corectă a celulei (ce parte ea ocupă este indicată de către orientarea ei).
+Partea corectă a celulei este partea din care caracterul Dumneavoastră o ar intra.
 Dacă entitatea potențial bloc ar fi pe orice altă parte a celulei, mișcarea nu ar fi blocată. 
 
 Însă nu-i totul! Mai trebuie să verificați dacă celula de pa care caracterul începe mișcare conține un bloc direcțional pe cealaltă parte a celulei de pe care caracterul o ar ieși.
@@ -1059,7 +972,7 @@ Grila mai definește [4 structuri utile][20]:
 Acestea încă nu și-au demonstrat valoarea utilă în cod, însă le-am utilizat pentru a implementa efectele de *alunecare, bouncing, fixare* și în *proiectile*.
 
 Esențial, aceste grile permit să adăugați funcții handler care vor fi executate când orice entitate intră (sau iese de pe) celula.
-Diferența dintre grilele cele normale și filtrate este faptul că în grilele normale, handler-ul dvs *ar fi eliminat după terminarea turului curent*, ceea ce înseamnă că handler-ul va persista numai până la moment când toate entitățile își termină acțiunile.
+Diferența dintre grilele cele normale și filtrate este faptul că în grilele normale, handler-ul Dumneavoastră *ar fi eliminat după terminarea turului curent*, ceea ce înseamnă că handler-ul va persista numai până la moment când toate entitățile își termină acțiunile.
 În constrast, handler-urile adăugate în grila filtrată decid dacă ei trebuie să fie păstrate sau scoase singuri, returnând true sau false. 
 Pentru un exemplu, vedeți [`Leave` handlerul lui bouncing][21].
 
@@ -1162,6 +1075,7 @@ Datorită acestuia, comportamentul sau proprietățile entităților pot fi augm
 ### Ce componentele necesită pentru a funcționa?
 
 Fiecare componentă are 2 tipuri de câmpuri:
+
 1. *Câmpurile injectate*.
 Valorile acestora sunt transmite prin constructor, setate și deseori nu sunt schimbate niciodată.
 Copierea formei inițiale a unei componente ar însemna copierea tuturor valorilor injectate.
@@ -1197,12 +1111,14 @@ Tipurile specifice ale entităților sunt implementate diferit.
 #### Procedura în 3 pași
 
 Deci, mai întâi să înțelegem în ce fel pot fi create tipuri. Posibilitățile:
+
 1. Se rulează funcții pe entități care ar adăuga componente, retoucher-uri și le inițializa în modul corect.
-2. Se creeză o reprezentare intermediară a tipurilor pe urmă folosite pentru a crea instanțe noi. Acest lucru a eșuat pentru mine, deoarece dacă utilizați așa strategie trebuie practic să creați două copii ale logicii dvs.: una pentru entitatea reală și una pentru "fabrică". Cu aceasta, aveți multe probleme de întreținere.
+2. Se creeză o reprezentare intermediară a tipurilor pe urmă folosite pentru a crea instanțe noi. Acest lucru a eșuat pentru mine, deoarece dacă utilizați așa strategie trebuie practic să creați două copii ale logicii Dumneavoastră.: una pentru entitatea reală și una pentru "fabrică". Cu aceasta, aveți multe probleme de întreținere.
 3. Un compromis între cele două metode: să avem o fabrică, care să augmenteze o entitate și la instanțiere să creeze doar copii ale acelei entități. Adică, vom avea funcții care ar configura fabrica, adăugând componentele adecvate și conectând handler-urile prin funcția `Preset()` respectivă.
 Pentru aceasta am optat în implementarea curentă, deoarece strategia este cea mai simplă din aceste trei.
 
 Dacă luăm în considerare lucrurile menționate mai sus necesare pentru ca componentele să fie inițializate corect, ajungem la următoarea procedură de inițializare în 3 pași:
+
 1. Se adaugă toate componentele / comportamentele.
 2. Se execută funcțiile de inițializare (posibil vor fi disponibile mai multe funcții de inițializare pentru un anumit comportament, deoarece acestea ar fi utilizate în loc de subclasare pentru a obține pormorfizmul).
 3. Se mai adaugă handler-urile (retușare).
@@ -1245,6 +1161,7 @@ public static class DerivedType
 #### Problemele
 
 Prezint câteva probleme asociate cu această abordare:
+
 1. Implică boilerplate anevoios.
 Apelarea funcției tipului de bază la *fiecare* din pași, furnizarea corectă a semnăturilor pentru cele trei funcții statice, definirea unui câmp static de tipul `EntityFactory` sunt acele lucruri anevoioase.
 2. Din același motiv, este predispusă la erori.
@@ -1284,6 +1201,7 @@ Cel puțin faptul că acest lucru ar anula posibilitatea de a optimiza copierea 
 #### Implementarea
 
 Pentru a copia orice obiect, aveți câteva opțiuni, dintre care unele au fost deja menționate:
+
 1. Copierea prin reflecție (un fel de serializare automată);
 2. Copierea prin generarea codului (furnizând strategia de copiere implicită pentru majoritatea componentelor);
 3. Copierea manuală.
@@ -1297,6 +1215,7 @@ Copierea manuală este uneori preferate față de generarea codului automată, d
 Deci, generatorul de cod nu va furniza construcorul de copiere, dacă găsește unul specificat de utilizator.
 
 Acum să înțelegem ce ar fi de fapt copiat de fiecare dată:
+
 1. Valorile câmpurilor injectate.
 Acestea sunt copiate direct (prin referință, dacă este un tip de referință, sau făcând o copie shallow, dacă este un tip de valoare).
 1. Chain-urile sunt întotdeauna copiate.
@@ -1416,6 +1335,7 @@ API-ul nu este complet. Noile *chain-uri globale* introduse vor fi utilizate pen
 Sistemul de acționare este destul de complex.
 
 Cele două etape distincte ale acestuia sunt:
+
 1. Calcularea următoarei acțiuni, modelată prin strategia `CalculateAction` (o funcție);
 2. Executarea următoarei acțiuni, modelată prin strategia `ExecuteAction` (de asemenea, doar o funcție).
 
@@ -1439,6 +1359,7 @@ Complexitatea vine atunci când considerăm IA a inamicilor.
 ### IA inamicilor
 
 Există 3 aspecte de aceasta pe care trebuie să le discutăm:
+
 1. Algoritmul de selecție a acțiunii (`Sequence`);
 2. Algoritmul de execuție a acțiunii (`EnemyAlgo`);
 3. Algoritmul de selecție a direcției (`Movs`).
@@ -1508,6 +1429,7 @@ Faptul că pot exista mai mulți jucători îi face pe inamici să caute cel mai
 #### Enemy Algo
 
 Algoritmul de execuție a acțiunilor inamicilor, sau pur și simplu *enemy algo*, a fost conceput pe baza următoarelor cerințe:
+
 1. Acțiunea selectată reușește cel mult o dată;
 2. Direcțiile în care trebuie încercată acțiunea sunt definite de algoritmul movs;
 3. Dacă există o entitate care blochează una dintre acțiuni, entitatea respectivă ar trebui să-și facă mai întâi acțiunea.
@@ -1559,6 +1481,7 @@ Apoi, când vizualizarea dorește de exemplu să deseneze cruci la acele coordon
 
 `Action` din cod reprezintă o acțiune concretă sau o succesiune de acțiuni care pot fi executate de o entitate din joc.
 Am menționat deja că acțiunile pot fi de 2 tipuri principale:
+
 1. *acțiuni direcționate*, care necesită o direcție în care vor fi executate;
 2. *acțiuni nedirecționate*, care nu necesită o direcție.
 
@@ -1619,6 +1542,7 @@ Imaginați-vă că jucătorul a progresat cu jumătate de nivel și apoi a decis
 Când ar porni jocul data viitoare, nu ar mai putea continua de unde s-a oprit ultima dată, dacă starea jocului nu a fost cumva salvată.
 
 Acestea sunt diferitele abordări privind serializarea:
+
 1. Se salvează un bloc de memorie, cu toate referințele și pointeri.
 Desigur, toți pointerii vor trebui să fie relative la, de exemplu începutul blocului de memorie, deoarece dacă sunt absolute, cel mai probabil nu vor indica memoria corectă după deserializare.
 Această abordare este una destul de elegantă, însă problema este că ea are nevoie de un control ne nivel scăzut asupra memoriei.
@@ -1933,12 +1857,14 @@ Funcțiile și tipurile sunt generate fie:
 Prima strategie este, într-un fel, mai dificilă decât a doua, deoarece sarcina de a înțelege fișiere JSON și de a crea un fel de model semantic este pe umerii mei de programator.
 
 Pașii pentru generarea de cod din fișiere JSON trebuie să fie evidente:
+
 1. Programatorul scrie fișiere JSON valide, conform unor reguli, prin care generatorul de cod (metacompilator) să analizeze datelor din interiorul acestora și să le considere ca sursă pentru generatorul de cod; 
 2. Citirea și înțelegerea conținutului fișierelor JSON care urmează să fie *metacompilate*;
 3. Adunarea informații din fișierele JSON analizate și prezentarea lor la un șablon T4;
 4. Generarea codul folosind T4.
 
 A doua strategie este doar puțin diferită:
+
 1. Programatorul fie își adnotează codul sursă C# în conformitate cu anumite reguli, de exemplu, prin utilizarea atributelor, fie doar scrie cod, pe care generatorul de cod l-ar prelua automat, de exemplu, implementarea lui `IComponent` ar trebui să permită automat generarea de cod;
 2. Utilizarea lui Roslyn pentru a citi, procesa și analiza codul sursă scris de programator;
 3. Colectarea informațiilor din, de exemplu, modelul semantic și prezentarea lor lui T4;
