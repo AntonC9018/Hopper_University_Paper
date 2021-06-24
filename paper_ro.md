@@ -1,4 +1,4 @@
-# Lista abrevierilor
+# Lista abrevierilor {.unnumbered}
 
 | Acronim     | Semnificație                                      |
 |-------------|---------------------------------------------------|
@@ -15,7 +15,7 @@
 | MOBA        | Mutiplayer Online Battle Arena                    |
 | GC          | Garbage Collector                                 |
 
-# Abstract
+# Abstract {.unnumbered}
 
 Cu colegul meu Țurcanu Critian am decis să creăm un joc Roguelike, numit **Hopper**, băzat pe mecanici din *Crypt of the Necrodancer*.
 În partea intorductivă explic de ce am inițiat acest proiect. 
@@ -23,7 +23,7 @@ Cu colegul meu Țurcanu Critian am decis să creăm un joc Roguelike, numit **Ho
 În a doua parte teoretică aduc prezentarea generală a mecanicilor jocului, propun unele idei ce se referă la structura jocului și la soluționarea unelor probleme globale de arhitectura jocului.
 Ultima parte conține informații tehnice: detalii la design-ul sistemei cu exemple abundente din codul sursă, explicații despre funcționarea internă a jocului, prezint cum am evitat boilerplate-ul și duplicarea codului prin generarea codului cu *Roslyn* și *T4*.
 
-# Introducere
+# Introducere {.unnumbered}
 
 Ideea jocului este inspirată de jocul **Crypt of the Necrodancer** (mai departe voi referi la jocul acesta ca simplu Necrodancer), care este jocul meu preferat. 
 Denumirea **Hopper** provine din faptul că animația mișcării a caracterelor este un salt (*hop*, în limba engleză)
@@ -128,7 +128,7 @@ Deci, trebuiam să încerc mai multe idei pentru a ajunge la acele momente mai i
 ## Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
-Permite exportarea pentru sisteme de operare de dispozitive mobile și pe desktop. A se vedea repertoriul pe github [după acest link][1].
+Permite exportarea pentru sisteme de operare de dispozitive mobile și pe desktop. A se vedea repertoriul pe github după acest link[@github_dungeon_hopper].
 
 Însă, înțelegerea mea a structurii acestor jocuri, cum ele lucrează pe partea sistemei, era slabă atunci.
 
@@ -2042,7 +2042,7 @@ Acesta ține cont de tipurile de returnare în versiunea `Try`, returnând rezul
 
 Utilizarea șablonului este la fel de simplă ca apelarea metodei `TransformText()` și scrierea rezultatului într-un fișier.
 
-# Concluziile
+# Concluziile  {.unnumbered}
 
 În timpul dezvoltării acestui sistem am înțeles intuitiv multe lucruri legate de dezvoltarea jocurilor și sistemelor complexe în general.
 Am înțeles sensul decuplării componentelor, abstractizării, event-urilor, generării codului și altelor.
@@ -2053,7 +2053,20 @@ Cu părere de rău, nu puteam să găsesc surse bune care să descrie dezvoltare
 
 Am mai multe idei referitor la sistem ce deja am, de exemplu am format deja un plan vag de cum să adaug reprezentarea intermediară a tipurilor de entități pentru a realiza deserializarea din JSON.
 
-[1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper pagina pe github"
+# References {.unnumbered}
+
+---
+csl: http://www.zotero.org/styles/acta-medica-peruana
+references:
+- id: github_dungeon_hopper
+  title: Dungeon-Hopper pagina pe github
+  author:
+  - family: Anton
+    given: Curmanschii
+  URL: 'https://github.com/AntonC9018/Dungeon-Hopper'
+---
+  
+
 [2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Documentația pentru Dungeon-Hopper"
 [3]: https://github.com/AntonC9018/hopper.cs "hopper.cs pagina pe github"
 [4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity pagina pe github demo"

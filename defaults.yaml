@@ -1,0 +1,17 @@
+
+from: markdown
+to: docx
+
+output-file: paper.docx
+input-files: 
+- paper_ro.md
+
+standalone: true
+table-of-contents: true
+toc-depth: 2
+reference-links: true
+reference-location: document
+reference-doc: reference.docx
+number-sections: true
+citeproc: true
+
