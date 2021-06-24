@@ -34,7 +34,7 @@
 - [Subiectele tehnice](#subiectele-tehnice)
   - [Grila](#grila)
     - [Celulile](#celulile)
-    - [Componentele responsabile pentru poziția și mișcare](#componentele-responsabile-pentru-poziția-și-mișcare)
+    - [Componentele responsabile pentru poziție și mișcare](#componentele-responsabile-pentru-poziție-și-mișcare)
       - [Transform](#transform)
       - [Displaceable](#displaceable)
       - [Moving](#moving)
@@ -91,6 +91,7 @@
       - [FlagsAttribute](#flagsattribute)
       - [AliasAttribute](#aliasattribute)
     - [Utilizarea Roslyn](#utilizarea-roslyn)
+- [Concluziile](#concluziile)
 
 
 # Lista abrevierilor
@@ -98,12 +99,17 @@
 | Acronim     | Semnificație                                      |
 |-------------|---------------------------------------------------|
 | ECS         | Entity-Component-System                           |
+| API         | Application Programming Interface                 |
 | Necrodancer | Crypt of the Necrodancer                          |
 | MVC         | Model-View-Controller                             |
 | POO         | Programarea orientată pe obiecte                  |
 | Roslyn      | .NET Compiler Platform (Roslyn este un pseudonim) |
 | T4          | Text Template Transformation Toolkit              |
 | ID          | Identificator                                     |
+| IA          | Inteligența Artificială                           |
+| PVP         | Player-vs-Player                                  |
+| MOBA        | Mutiplayer Online Battle Arena                    |
+| GC          | Garbage Collector                                 |
 
 # Abstract
 
@@ -317,7 +323,7 @@ Demo-ul a prezentat un view care a lucrat cu interfețe și care pe urmă a fost
 Această dată am proiectat un prototip mai robust pentru view, însă oricum unele proprietăți lipseau și nu era plăcut să lucrez cu el.
 Deficiențiele lui au fost adresate în versiunea nouă, în mare parte dezvoltată de către colegul meu, Țurcanu Cristian, care o descrie mai detaliat în [lucrarea sa][6].
 
-Mediul concret al motorului de joc, cum am menționat anterior, nu-mi afectează procesul de lucru într-un mod semnificativ.
+Mediul concret al motorului de joc, cum s-a menționat anterior, nu-mi afectează procesul de lucru într-un mod semnificativ.
 Din această cauză voi omite descrierea motoarelor acestea.
 Însă colegul meu a lucrat mai apropiat cu motorul de joc, deci vă încurajez să vedeți [lucrarea lui][6] pentru mai multe detalii referitor la motoare de joc.
 Partea mea în dezvoltarea a jocului era să derivez un API esențial, ce am făcut independent de oarecare motor de joc.
@@ -332,21 +338,21 @@ Explicarea fenomenului este că oameni înțeleg input-ul vizual mai intuitiv de
 
 ### Motive pentru generarea codului
 
-Generarea codului este esențială, deoarece ea induce experimentarea.
+Generarea codului este esențială, deoarece induce experimentarea.
 Când eu văd un pattern care nu poate fi ușor exploatat ușor fără generarea codului, au pot să fac rapid un modul prototip pentru generator de cod care ar exploata ideea.
 Dacă văd că este util, îl utilizez în continuare.
 Dacă nu, anularea lui poate fi atinsă pur și simplu prin omiterea unui pas în generator de cod.
 Eu nu am avea nevoie să frunzăresc zeci de fișieri sau să retrag un git commit.
 
-Generarea codului previne repetarea codului boilerplate în zeci de fișiere, în același timp furnizând orice cod viitor cu unele capacități implicite ??? (out-of-the-box).
+Generarea codului previne repetarea codului boilerplate în zeci de fișiere, în același timp furnizând orice cod viitor cu unele capacități implicite din start.
 Este mai ușor de administrat, deoarece singurul lucru catre trebuie să schimbe pentru a afecta zeci de clase care au utilizat o capacitate particulară a generatorului de cod este doar regulile după care acel cod este construit.
 Este mai ușor de adăugat capacitățile noi, din aceeași cauză.
 Dă documentarea automată. Imaginați-vă păstrarea documentării la zi în toate acele fișiere.
 
 ### Instumente în scurt
 
-Utilizez `T4`, scurt pentru `Text Template Transformation Toolkit`, pentru a crea template-uri pentru a genera fișiere sursă adăugătoare.
-Utilizez `Roslyn`, pentru analiza codului sursă.
+Utilizez **T4**, scurt pentru **Text Template Transformation Toolkit**, pentru a crea șabloane pentru a genera fișiere sursă adăugătoare.
+Utilizez **Roslyn**, pentru analiza codului sursă.
 Aș marca clasele mele în codului sursă cu atributuri specifice pentru a permite generarea anumitului cod când generatorul este pornit.
 
 Abordarea mea la analiza codului este una simplistă.
@@ -357,9 +363,9 @@ Cea mai lentă parte a procesului este citirea și analiza fișierilor sursă, d
 
 ### Fluxul meu de lucru
 
-Procesul meu de tranformare a docului repetativ în codul generat este aproximativ următorul:
+Procesul meu de tranformare a codului repetativ în cod generat este aproximativ următorul:
 1. Când scriu cod observ un pattern care poate fi exploatat de către generatorul de cod.
-2. Dacă pattern-ul nu este destul de clar, aștept până când un pattern asemănător apare într-o altă bucată de cod, până când problema devine destul de clară pentru a propune o soluție generală.
+2. Dacă pattern-ul nu este destul de clar, aștept până când un pattern asemănător apare într-o altă bucată de cod, până când problema devine destul de clară ca să pot propune o soluție generală.
 3. Încerc să rezolv problema fără a genera codul, cât mai simplu, printr-o abstracție.
 4. Dacă nu pot rezolva astfel, pornesc generarea codului pentru ideea dată.
 
@@ -368,15 +374,15 @@ Procesul meu de tranformare a docului repetativ în codul generat este aproximat
 
 ## Prezentarea generală a mecanicilor jocului
 
-Cum am menționat anterior, mecanicile jocului sunt băzate pe cele din Necrodancer.
+După cum s-a menționat anterior, mecanicile jocului sunt băzate pe cele din Necrodancer.
 
-Jocul are loc într-o grilă 2d a lumii, și este băzată pe rânduri.
-Controlați un caracter poziționat pe o celulă în grilă.
-Fiecare rând, puteți face o acțiune, de exemplu, să vă mișcați într-o direcție ortogonală la o celulă adiacentă, să atacați un inamic pe o celulă adiacentă, să săpați un obstacol sau să faceți o acțiune specială, de exemplu ??? (cast a spell).
-Încă, este posibil să săriți peste o tură, fără a face nimic.
+Jocul are loc într-o grilă de două dimensiuni a lumii, și este băzat pe tururi.
+Controlați un caracter poziționat pe o celulă în acea grilă.
+Fiecare tur, puteți face o acțiune, de exemplu, să vă mișcați într-o direcție ortogonală la o celulă adiacentă, să atacați un inamic pe o celulă adiacentă, să săpați un obstacol sau să faceți o acțiune specială, de exemplu să aruncați o vrajă.
+Încă, este posibil să săriți peste un tur, fără a face nimic.
 
-După ce v-ați luat acțiunea, toți inamicii primesc posibilitatea de a face o acțiune, unu câte unu.
-Ce acțiune va fi selectată depinde de IA a lor (algoritm pentru selectarea următoarei acțiuni) și de fapt orice acțiune poate fi selectată, de la ataca sau mișcare simplă până la ??? (casting a spell).
+După ce v-ați efectuat acțiunea, toți inamicii primesc posibilitatea de a-și face acțiunea, unu câte unu.
+Ce acțiune ar fi selectată depinde de IA a lor (algoritm pentru selectarea următoarei acțiuni) și de fapt orice acțiune poate fi selectată, de la ataca sau mișcare simplă până la aruncarea unei vraje.
 
 Mai sunt lucruri care au loc după aceasta, însă le vom discuta mai târziu.
 
@@ -385,7 +391,7 @@ Mai sunt lucruri care au loc după aceasta, însă le vom discuta mai târziu.
 
 Un concept important care trebuie să-l adresez este faptul că jucătorul poate selecta dintre următoarele două tipuri de acțiuni:
 1. *Acțiuni-vector* (`directed actions`), governate de către input-uri direcționale (săgețile). Acestea includ atacarea, mișcarea și săparea într-o direcție specificată.
-2. *Acțiuni speciale* (în mare parte `undirected actions`), ca ??? (casting a spell) sau activarea unui item.
+2. *Acțiuni speciale* (în mare parte `undirected actions`), ca aruncarea unei vraje sau activarea unui item.
 Aceste acțiuni sunt executate prin apasarea unei cheie desemnate, fără a necesita un input direcțional simultan (săgeata).
 Acele acțiuni speciale care totuși necesită o direcție pentru a lucra corect, ca, de exemplu, aruncarea unei sfere de foc într-o direcție specifică, pot utiliza orientarea curentă a caracterului, sau pot obține direcția într-un alt mod.
 
@@ -408,21 +414,21 @@ Există o cameră finală cu o ușă (sau o trapă, sau o scară) la următorul 
 Când jucătorul învinge un număr de așa niveluri, el confruntă un bos.
 Învingerea bosului ori permite jucătorul să se procede la următorul nivel, sau rezultă într-o victorie generală.
 
-Nivelurile devin progresiv mai complicate. În special, monștri au mai multe puncte de sănătate, apar noi și mai complexi tipuri de monștri, numărul de pericoli, ca ??? (spike) sau iazuri, crește, etc.
+Nivelurile devin progresiv mai complicate. În special, monștri au mai multe puncte de sănătate, apar tipuri de monștri noi și mai complexe, numărul de pericoli, ca țepușe sau bălți de apă, crește, etc.
 În același timp, jucătorul primește itemi când învinge etajul, care dă abilități noi pasive sau active, sporește statuturile.
 Deci, jucătorul tot devine mai puternic, progresând.
 
 ### Itemii
 
-Inventoriul jucătorului are niște sloturi de itemi, fiecare cu un rol asociat, de exemplu, arma, lopata, ??? (spell) sau o parte de armură, ca cizmele sau casca.
+Inventoriul jucătorului are niște sloturi de itemi, fiecare cu un rol asociat, de exemplu, arma, lopata, vraja sau o parte de armură, ca cizmele sau casca.
 Acele sloturi care pot fi activate sunt mapate la un input, adică furnizând acel input ar activa itemul în slotul corespunzător. 
 
 Jucătorul poate ridica itemi dacă pășește pe ele, astfel ele sunt plasate în slotul desemnat lor automat.
-Dacă în acel slot deja este un item, acel item va fi schimbat la cel ridicat și plasat pe podea.
+Dacă în acel slot deja este un item, acel item ar fi schimbat la cel ridicat și plasat pe podea.
 
 Unii itemi pot să nu aibă un slot asociat.
 Așa itemi de obicei sporesc statuturile jucătorului, sau modifică subtil un comportament specific.
-De exemplu, ar putea fi un itemm care daunează toți inamicii în jurul inamicului lovit.
+De exemplu, ar putea fi un item care adaugă efectul pasiv de a dauna toți inamicii în jurul inamicului lovit.
 
 Vom presupune, pentru simplitate, că nu pot exista două exact aceiași itemi ridicate de către jucător.
 
@@ -437,37 +443,35 @@ Acțiunile inamicilor trebuie să fie previzibile pentru jucător pentru a putea
 Ideal nimic aleator sau neprevizibil nu trebuie să întâmple.
 
 Fiecare inamic încă trebuie să aibă o metodă de a-l învinge, un pattern simplu de mișcări care jucătorul poate să urmărească și să câștige mereu.
-Bucuria jocului constă în studierea setului de mișcări al inamicului, ??? (coming up with) pattern-urile și strategiile de a-i învinge, și în evaluarea situației rapid, ??? (coming up with a good action on the fly), în cauza în care inamicii avansează în grupuri.
+Bucuria jocului constă în studierea setului de mișcări al inamicului, găsirea unor pattern-uri și strategii de a-i învinge, și în evaluarea situației rapid, găsind o acțiune bună datorită înțelegerii bune a mecanicilor jocului, în cazul în care inamicii avansează în grupuri.
 
 
 ### Limita de timp
 
-Cum am menționat anterior, cea mai intrigantă idee este faptul că există o limită de timp pentru fiecate acțiune.
-Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu o anumită libertate ??? (with some leeway)). 
+După cum s-a menționat anterior, cea mai intrigantă idee este faptul că există o limită de timp pentru fiecare acțiune.
+Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu anumit spațiu de manevră). 
 
 Această detalie este esențială pentru design-ul jocului.
 Eu aș zice această mecanică este cea mai importantă mecanică din Necrodancer.
-Însă, ea este relativ independentă de alte mecanici ale jocului, ca deplasarea jucătorui în grilă și sistemul de itemi, și ea nu va figura în această lucrare.
-Acestă lucrare concentrează pe întrebările implementării altor părți ale jocului: sistemul de acțiuni, sistemul de grilă, etc. 
+Însă, ea este relativ independentă de celelalte mecanici ale jocului, ca deplasarea jucătorului în grilă și sistemul de itemi, și ea nu va figura în această lucrare.
+Acestă lucrare concentrează pe întrebările implementării altor părți ale jocului. 
 
 
 ### Mai multe idei
 
-Când motorul este completat, va fi ușor să explorăm mai multe idei.
-
+Când motorul este suficient de completat, va fi ușor să explorăm mai multe idei.
 Eu aș dori să încerc să transform jocul acesta într-o PVP arena, sau MOBA, lăsând mecanicii de bază și ideea să facem acțiuni după muzică neschimbate.
 Nu știu cât viabil aceasta ar fi, dar ideea îmi pare destul de intrigantă.
 
 
 ## Prezentarea generală a design-ului sistemului.
 
-Mă preocup în mare parte numai de motorul meu, adică cum logic ar funcționa, cum itemii, acțiunile, intelectul artificial al inamicilor vor fi implementate, cu instrumentele de exemplu pentru generarea codului.
+Mă preocup în mare parte numai de motorul meu, adică cum ar funcționa logica, cum itemii, acțiunile, IA al inamicilor vor fi implementate, cu instrumentele de exemplu pentru generarea codului.
 Încă, sunt interesat să permit să extindem contentul existent prin moduri.
 
 ### Cum să NU scrieți cod
 
 Unul din cele mai importante subiecte în dezvoltarea jocurilor video este cum să arătăm frumos ce se face în joc pe ecran, cu animații, particule și sprite-urile corect arătate utilizatorului.
-
 O metodă de a face acest lucru este să ne referim la codul ce controlează **View**-ul, adică ce se vede pe ecran, direct în codul pentru logică (**Model**). De exemplu, cam așa (pseudocod pentru înțelegere, nu-i codul real din joc):
 
 ```C#
@@ -488,20 +492,20 @@ void Move(IntVector2 direction)
 Însă, așa cod are niște defecte asociate cu el:
 1. Logica jocului dvs este cuplată strâns cu View-ul. Mixați codul care ar putea fi separat, astfel complicând procesul de a-l citi, înțelege și menține.
 2. Codul este foarte instabil.
-Imaginați-vă penru un moment că jucătorul după ce s-a mișcat la o poziție nouă, a declanșat o capcană care l-a ucis. Aceasta ar trebuie să decalșe animația de moarte, însă animația inactivității (idle) setată în callback-ul se joacă ??? (is playing). Evident, acest exemplu este prea simplificat, însă deja puteți vedea că setarea callback-urilor în așa mod este ceva inadmisibil. Aveți nevoie de un sistem mai complex pentru a administra aceasta.
+Imaginați-vă penru un moment că jucătorul după ce s-a mișcat la o poziție nouă, a declanșat o capcană care l-a ucis. Aceasta ar trebuie să decalșe animația de moarte, însă animația inactivității (idle) setată în callback-ul este în curs de redare. Evident, acest exemplu este foarte simplificat, însă deja puteți vedea că setarea callback-urilor în așa mod este ceva inadmisibil. Aveți nevoie de un sistem mai complex pentru a administra aceasta.
 3. Ce dacă jucătorul alunecă în loc de a sări? Atunci, o animație diferită trebuie să fie setată, nu `Animation.Hopping`, ci `Animation.Sliding`. Ați adăuga o verificare în funcția `Move()`? Dar ce dacă alunecarea vine dintr-un mod? Atunci, sistemul dvs nu ar fi putut să aibă cunoștințe despre aceasta. Este clar, că așa strategie simplă nu va lucra aici. 
 
 Deci, defectele identificate sunt:
-1. Cuplarea strânsă.
-2. Probleme de întreținere.
-3. Inflexibilitatea.
+- cuplarea strânsă;
+- probleme de întreținere;
+- inflexibilitatea.
 
 
 ### Separarea și event-urile este ideea cheie
 
 Voi ilustra cum separarea componentelor și event-urile pot rezolva toate problemele constatate mai sus.
-
-Deci, în primul rând vom adresa problema cuplării strânse. Imaginați-vă două funcții, una responsibilă pentru mișcare, alta pentru animații.
+Deci, în primul rând vom adresa problema cuplării strânse. 
+Imaginați-vă două funcții, una responsibilă pentru mișcare, alta pentru animații.
 
 ```C#
 void Move(IntVector2 direction)
@@ -528,7 +532,7 @@ Apelarea lui `AnimateMove()` în `Move()` nu lucrează, deoarece aceasta ar îns
 Scopul nostru era să separăm codul pentru logică de la codul pentru view. Cum să facem acest lucru?
 Event-urile (semnale) la salvare!
 
-Ideea este să definim o coadă de handleri, codul în care să fie executat după ce jucătorul se mișcă.
+Ideea este să definim o coadă de handler-uri, codul în care să fie executat după ce jucătorul se mișcă.
 Această coadă poate fi statică, configurabilă pentru tipuri diferite de entități.
 Încă în pseudocod:
 
@@ -562,7 +566,7 @@ void Setup()
 Acum, funcția `Move()` nu știe nimic despre view.
 Ea doar expediază event-ul fiecare dată când jucătorul se mișcă.
 
-Însă, aceasta nu rezolvă problema cu de exemplu alunecare.
+Însă, aceasta nu rezolvă problema cu, de exemplu, alunecarea.
 Jucătorul nu alunecă implicit.
 Alunecarea este un efect care poate fi aplicat în timpul rulării.
 Dacă am dori să animăm alunecarea corect, ar trebui să schimbăm această coadă în timpul rulării.
@@ -574,10 +578,10 @@ Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet
 
 ## O direcție greșită?
 
-Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să exact fac acest lucru.
-Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine până recent.
-Pur și simplu am gândit despre problema puțin diferit.
-Am gândit că view-ul și modelul sunt aceste două sisteme complet independente, view-ul fiind conectat cu model-ul printr-un pod minuscul.
+Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să fac acest lucru exact.
+Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine.
+Pur și simplu m-am gândit despre problema puțin diferit.
+M-am gândit că view-ul și model-ul sunt aceste două sisteme complet independente, view-ul fiind conectat cu model-ul printr-un pod minuscul.
 Aceasta poate lucra, însă nu este tare scalabil.
 În loc de această abordare, view-ul trebuie să fie conectat cu modelul într-un set lat de puncte de contact, prin event-uri, unde modelul nu ar cunoaște nimic despre view-ul.
 
@@ -585,23 +589,23 @@ Aceasta poate lucra, însă nu este tare scalabil.
 
 Inițial, mi-am imaginat modelul și view-ul să fie conectate prin *istoria*.
 Modelul ar împinge actualizările referitor la ce event-uri s-au întâmplat în lume prin această istorie.
-De exemplu, când jucătorul ar fi atacat, actualizarea `fiind atacat` ar fi salvată pe istorie.
-View-ul și-ar actualiza starea și ar decide ce animații să pornească dupa ce toate event-urile au avut loc.
+De exemplu, când jucătorul ar fi atacat, actualizarea `fiind atacat` ar fi salvată în istorie.
+View-ul și-ar actualiza starea și ar decide ce animații să ruleze după ce toate event-urile au avut loc.
 
 Deci, mi-am imaginat această în așa mod: avem o mulțime de mașini de stări separate în view-ul jucătorului, toate responsabile pentru detectarea event-urilor diferite.
-De exemplu, există o mașină de stări pentru fandare. "Fandare" înseamnă o atacă imediat urmărite de o mișcare.
-Mai este o mașini de stări pentru mișcare care constă din doar actualizarea de mișcare.
+De exemplu, există o mașină de stări pentru fandare. "Fandare" înseamnă o atacă imediat urmărită de o mișcare.
+Mai este o mașină de stări pentru mișcare care constă din doar actualizarea de mișcare.
 
-Deci, după ce s-a procesat încă un tur în model și istoria s-a umplut, view-ul ar primi istoria și ar încerca să pornească toate mașinile de stări pe această istorie.
+Deci, după ce s-a procesat mai un tur în model și istoria s-a umplut, view-ul ar primi istoria și ar încerca să ruleze toate mașinile de stări pe această istorie.
 Deci, după ce jucătorul și a atacat, și a mișcat în același tur, view-ul ar primi istoria cu 2 actualizări: atacul și mișcarea.
 Fiecare din aceste mașini de stări ar fi încercate.
 Fandarea este atac și mișcare, deci această mașină de stări ar fi satisfăcută.
 Mașina de stări care reprezintă mișcare tot ar reuși, deoarece actualizarea de mișcare este prezentă.
-Din aceste două view-ul ar selecta pentru animare una mai complexă, adică, fondarea.
+Din aceste două view-ul ar selecta pentru animare una mai complexă, adică fondarea.
 
 Chiar am avut un termen mai intuitiv pentru această: sitele.
 Fiecare mașină de stări este o sită care devine blocată când încercați să ciuruiți istoria prin ea.
-După ce am trecut istoria prin toate sitele, cea mai complexă blocată sită este selectată și animațiile pentru acea sită sunt ??? (played).
+După ce am trecut istoria prin toate sitele, cea mai complexă blocată sită este selectată și animațiile pentru acea sită sunt redate.
 
 
 ### Care este problemă dar?
@@ -630,14 +634,14 @@ foreach (object update in history)
 Din cauza că gaură prin care încercați să împingeți aceste actualizări de la model la view-ul este atât de îngustă, aveți nevoie să convertați actualizările într-un tip analog lui `object`, astfel pierzând tipul concret al actualizării în proces.
 Acest fenomen poartă numele "ștergerea tipului".
 
-Stop, oare nu putem putem utiliza polimorfizmul în loc de `if-else` pentru a apela funcșiile concrete care trebuie să procesează datele?
+Stop, oare nu putem utiliza polimorfizmul în loc de `if-else` pentru a apela funcțiile concrete care trebuie să proceseze datele?
 
-Având în vedere faptul că modelul nu știe nimic despre logica view-ului dvs asociată cu actualizaările, însă știe ce datele vor fi în update-urile, nu, aceasta nu este posibil.
-Nu puteți da modelului un tip cu acele date pe care el l-ar instanția (ca obiectul să conțină funcțiile pozimorfice dvs).
+Având în vedere faptul că modelul nu știe nimic despre logica view-ului dvs asociată cu actualizările, însă știe ce datele vor fi în update-urile, nu, aceasta nu este posibil.
+Nu puteți da modelului un tip cu acele date pe care el l-ar instanția (ca obiectul să conțină funcțiile polimorfice dvs).
 Adică, *ați putea*, însă nu este tare convenabil si sunt modalități mai simple de a atinge același rezultat.
 
-Ați putea menține un dicționar tipurile actualizărilor mapate la handler-urile, ca mai jos.
-Însă acest cod este rău și nu este plăcut să mențineți așa cod.
+Ați putea menține un dicționar cu tipurile actualizărilor mapate la handler-uri, ca mai jos.
+Însă acest cod este rău și nu este plăcut de menținut.
 
 ```C#
 void HandleAttack(object update)
@@ -674,12 +678,12 @@ void SieveThroughHistory(History history)
 
 ### Soluția
 
-Din fericire, există o modalitate mai bună de a ??? (deal with this).
+Din fericire, există o modalitate mai bună de a rezolva problema.
 
-Ideea este să permitem mai multe puncte de contact între modelul și view-ul.
+Ideea este să permitem mai multe puncte de contact între model-ul și view-ul.
 Astfel, putem sări peste faza istoriei cu totul.
 Modelul nu ar trebui să împingă nici o actualizare în istorie.
-Al doar ar declanșa un event corespunzător cu toate datele cu care la moment lucrează, păstrate într-un context.
+El doar ar declanșa un event corespunzător cu toate datele cu care la moment lucrează, păstrate într-un context.
 Ca un exemplu simplificat (codul nu este real):
 
 ```C#
@@ -742,21 +746,19 @@ Deci, am reușit șă separăm view-ul de la modelul, în același timp având p
 ### Este oare totul?
 
 Mai sunt niște probleme cu așa design.
-
 Una din ele este legată de inconviența unelor lucruri care apar din cauza că design-ul este așa.
 Le-am adresat prin generarea codului.
-
 O altă problemă este legată de ordonarea handler-urilor.
 Am rezolvat-o prin introducerea priorităților.
 
-Vom discuta ambele pe urmă.
+Vom discuta ambele mai târziu.
 
 
 ## ECS (Entitate-Component-Sistem)
 
-S-au spus multe lucruri despre ECS-uri.
+S-au spus multe lucruri despre ECS.
 Însă, eu sunt convins că nu puteți să le înțelegeți integral dacă nu redescoperiți această idee singuri.
-Când vedeți o problemă reală și încercați s-o soluționați prin diferite metode, incluzând ECS-ul, iată atunci apare înțelerea profundă.
+Când vedeți o problemă reală și încercați s-o soluționați prin diferite metode, incluzând ECS, iată atunci apare înțelerea profundă.
 
 ### Introducere 
 
@@ -780,12 +782,12 @@ Dacă vreodată ați încercat să reprezentați tipurile diferite ale entităț
 2. Tipurile statice sunt prea rigide.
 
 Deci, imaginați-vă pentru un moment că aveți clasa `Player`.
-Jucătorul poate face multe lucruri, prin care mișcarea, atacarea și săparea.
+Jucătorul poate face multe lucruri, printre care mișcarea, atacarea și săparea.
 
-Acum, considrați o clasă diferită, `Enemy`.
+Acum, considerați o clasă diferită, `Enemy`.
 Puteți observa că inamicul tot poate să se miște și să atace, dar are o schemă de control diferită: jucătorul este controlat de către input-ul utilizatorului, pe când inamicul de o inteligență artificială.
 
-Deci, probabil veți fi tentați să refactorizați lucrurile comune, anume atacarea și mișcare, într-o clasă de bază.
+Deci, probabil veți fi tentați să refactorizați lucrurile comune, anume atacarea și mișcarea, într-o clasă de bază.
 Clasa `Player` atunci ar moșteni acea clasă de bază adăugând abilitatea de a săpa, pe lângă schemei proprii de input, iar clasa `Enemy` ar adăuga iteligența sa artificială.
 
 Acum apare un tip nou de inamic: el poate să atace, să se miște și să sape, având un IA.
@@ -796,16 +798,16 @@ Nu, deoarece atunci nu putem moșteni IA din clasa `Enemy`.
 Poate `Enemy` trebuie să moștenească `DiggingMovingAttackingBase`?
 Din nou nu, deoarece el nu poate săpa după design.
 
-Deci, chiar cu așa exemplu simplist, ideea tipică lui POO a moștenire nu merge.
-Acum imaginați-vă același scenariu dar amplificat în sutele de ori: sunt sutele de proprietăți și comportamente pe care orice entitate poate să le posede.
+Deci, chiar cu așa exemplu simplist, ideea tipică lui POO a moștenire se destramă.
+Acum imaginați-vă același scenariu dar amplificat în sute de ori: sunt sute de proprietăți și comportamente pe care orice entitate poate să le posede.
 Aceasta ar fi imposibil de modelat printr-o ierarhie.
 
-Altă ideea este faptul că entitățile, dacă sunt modelate ca instanțe de tipuri statice, nu pot să-și schimbe comportamentul în timpul rulării.
-Într-un joc real, jucătorul poate să înceapă fără abilitatea de a săpa, însă, când primește târnăcopul, ar învăța această abilitate nouă.
+O altă idee este faptul că entitățile, dacă sunt modelate ca instanțe de tipuri statice, nu pot să-și schimbe comportamentul în timpul rulării.
+Într-un joc real, jucătorul poate să înceapă fără abilitatea de a săpa, însă, când primește lopata, ar învăța această abilitate nouă.
 Însă, nu puteți modifica clasa `Player` să poată sape.
 S-o modificați de la început nu are sens, deoarece jucătorul a obținut abilitatea *eventual*.
 
-Încă un exemplu: aveți un monstru de două faze, zicem, un fluture furioas care inițial începe ca o omidă inocentă, deci nici nu poate ataca, însă care poate să se transforme într-un fluture, obține abilitatea de a zbura și de a ataca jucătorul.
+Încă un exemplu: aveți un monstru de două faze, zicem, un fluture furios care inițial începe ca o omidă inocentă, deci nici nu poate ataca, însă care poate să se transforme într-un fluture, obținând abilitatea de a zbura și de a ataca jucătorul.
 
 Cu POO există doar un mod de a modela această transformare.
 Ați avea două clase, una pentru starea de omidă, alta pentru starea de fluture.
@@ -818,43 +820,45 @@ Puteți ori să facem cum am descris mai sus, ori să transformați omida în fl
 
 ### Compresie
 
-O altă idee este să dați fiecării entități întreaga gama tuturor proprietăților și abilităților posibile însă să nu le dați voie să utilizeze majoritatea lor.
-Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să curățați acel flag care indică dacă entitatea poate aplica acea abilitate.
+O altă idee este să dați fiecărei entități întreaga gama tuturor proprietăților și abilităților posibile însă să nu le dați voie să utilizeze majoritatea lor.
+Astfel, ar fi ușor să aprindeți unele abilități mai târziu: puteți pur șă simplu să setați sau să ștergeți acel flag care indică dacă entitatea poate aplica acea abilitate.
 
 Avem două probleme cu așa abordare:
 1. Cât de multe componente și proprietăți aveți în joc, atât de umflate entitățile dvs devin, atât de mult spațiu ele ocupă.
-Nu doar una din ele, ci toate. 
-2. Așa sistem nu poate fi expandat de moduri, ceea ce-i inacceptabil în cazul meu. Unul din scopuri al proiectului meu este de a permite modarea.
+Nu doar una din ele, ci toate de o dată. 
+2. Așa sistem nu poate fi expandat de moduri, ceea ce-i inacceptabil în cazul meu. Unul dintre obiectivele proiectului meu este de a permite modarea.
 
-Deci, păstrarea componentelor în constrast lumii unde toate entitățile au toate proprietăți posibile, natural aduce la entități *sparse*, în alte cuvinte, la ideea *compresiei*. 
+Deci, păstrarea componentelor în constrast cu lumea unde toate entitățile au toate proprietățile posibile, natural aduce la entități *rarefiate*, în alte cuvinte, la ideea *compresiei*. 
 
 ### ECS-ul meu
 
 La moment, perspectiva mea la ECS este ceva specială.
 - Noțiunea *sistemei* este destul de vagă în codul meu.
-- Există distincția dintre *componente cu datele* (sau simplu *componente*) și *comportamente*.
-- În codul meu, comportamentele sunt acele care definesc *event-urile* (utilizez *chain-urile*, mai mult ulterior).
+- Există distincția dintre *componentele cu date* (sau simplu *componente*) și *comportamentele*.
+- În codul meu, comportamentele sunt acele componente care definesc *event-uri* (utilizez *chain-uri*, mai mult ulterior).
 Deci, comportamentele în codul meu este o fuziune dintre componente și sisteme.
 Cum am descris anterior, event-urile sunt esențiale pentru a lega view-ul și model-ul.
-- Există conceptul unui tip.
-La moment, tipul este de fapt un template după care entitățile sunt construite la instanțiere.
+- Există conceptul unui tip de entitate.
+La moment, tipul este de fapt un șablon după care entitățile sunt construite la instanțiere.
 Tipurile la moment sunt modelate printr-o entitate (un *subiect*) care este copiată la instanțiere pentru a crea o instanță nouă de acel tip.
 Instanța atunci devine independentă de subiect și poate să se schimbe în timpul rulării în orice mod, fără a-l afecta pe subiect.
 Așadar, tipurile pot fi augmentate cu componente în timpul construcției, la fel ca entitățile în timpul rulării.
 
+> În alte sisteme ECS, după cum am aflat numai recent, un tip de entitate se numește un **arhetip**.
+
 Sunt nelniștit referitor la performanța ECS-ului meu.
 Chestia este, ECS-ul meu este, cum se spune, "fake".
-Un ECS optimizat de obicei focusează pe stocarea diferitelor componente într-un loc central în memorie pentru a putea itera pe ele în sisteme (iterarea secvențială este cu mult mai rapidă).
+Un ECS optimizat de obicei focusează pe stocarea diferitelor componente într-un loc central în memorie pentru a putea itera printre ele în sisteme (iterarea secvențială este mult mai rapidă).
 Administrarea memoriei manuală îmbunătățește performanța, salvând lucru pentru GC (colector de gunoi).
 
-Eu face aceasta în modul "nu-mi pasă", adică, aloc toate componentele pe memorie dinamică cu operatorul `new`.
+Eu fac aceasta în modul "nu-mi pasă", adică, aloc toate componentele în memorie dinamică cu operatorul `new`.
 Aceasta este, de fapt, modul cel așteptat și cel ușor de a face acest lucru în C#, însă nu este performant deloc.
 
 Să faceți un ECS într-un mod corect este o sarcină extrem de complicată pentru C#.
 Structuri și tablouri de structuri este singurul mod în care datele pot fi păstrate direct în memorie dar nu împrăștiate undeva în memorie dinamică.
-C# nu dispune de instrumentele necesare pentru a gestiona memoria manual, care există de exemplu în C#, deoarece nu se așteptă de la programator să facă așa ceva în C#.
+C# nu dispune de instrumentele necesare pentru a gestiona memoria manual, care există de exemplu în C++, deoarece nu se așteptă de la programator să facă așa ceva în C#.
 Am considerat să migrez proiectul în C++, însă C++ tot are problemele sale, de exemplu că modding-ul ar fi mai complicat de implementat, că serializarea este proastă, deci am hotărât să progrezez cu ECS-ul "fake" al meu, în loc de aceasta.
-În viitorul apropiat este posibil că voi migra proiectul pe D care este atrăgător pentru mine în special din cauza facilităților sale de metaprogramare.
+În viitorul apropiat este posibil că voi migra proiectul pe **D** care este atrăgător pentru mine în special din cauza facilităților sale de metaprogramare.
 
 # Subiectele tehnice
 
@@ -863,15 +867,15 @@ Mai specific, explic motivarea lor și cum le-am implementat, cu exemple concret
 
 ## Grila
 
-Cum am stabilit anterior, lumea este reprezintată printr-o grilă de două dimensiuni cu entitățile.
-Întrucât interogările de a afla dacă dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de răspândite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
+După cum s-a stabilit anterior, lumea este reprezintată printr-o grilă de două dimensiuni cu entitățile.
+Întrucât interogările de a afla dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de răspândite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
 Aceasta este de fapt cum am decis să modelez grila ([uitați-vă la costructor][7]).
 
 ### Celulile
 
 Se presupune că fiecare celulă are mai multe nivele, unde entitățile de la diferite nivele au proprietăți ceva diferite.
-De exemplu, în general, ??? (spiked trap) care dăunează jucătorul când acela o calcă, nu poate fi atacată de către jucători sau inamici, dar poate fi exploadată de către bombe.
-Aceasta este deoarece nivelul în celulă unde se află capcana este locat pe nivelul `trap`, pe când jucătorul sau inamicii pot viza doar nivelul `real` prin atacii normali.
+De exemplu, în general, capcana cu țepușe care dăunează jucătorul când acela o calcă, nu poate fi atacată de către jucători sau inamici, dar poate fi exploadată de către bombe.
+Aceasta este capcana este locată pe nivelul `trap` în celula în care se află, pe când jucătorul sau inamicii pot viza doar nivelul `real` cu atacurile normale.
 În orice caz, am modelat astfel ideea.
 
 Înainte de refacere, am avut câte un slot pentru fiecare nivel al celulei, dar aceasta nu era bine, minimum deoarece majoritatea nivelurilor erau vide aproape mereu.
@@ -903,11 +907,11 @@ Poate când progresez profesional, voi înțelege mai bine.
 Încă, un test rapid a indicat că dacă de fapt ne moștenim de la `List` codul merge cu aproape 1.5 ori mai rapid.
 
 Să fie notat, țiglele statice nu sunt considerate ca entități și de aceea nu sunt păstrate în grilă.
-Aceași se aplică la efectele de particule, care nu au influența asupra mecanicilor din joc.
+Același lucru se aplică la efectele de particule, care nu au influența asupra mecanicilor din joc.
 Modelul este responsabil doar pentru chestiile care sunt legate de logica jocului. 
 
 
-### Componentele responsabile pentru poziția și mișcare
+### Componentele responsabile pentru poziție și mișcare
 
 Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimbe poziția în timpul rulării este esențială pentru joc.
 
@@ -921,7 +925,7 @@ Aceste abilități sunt modelate după următoarele componente specializate:
 
 Entitățile care pot fi poziționate în lume trebuie să aibă componenta [`Transform`][11].
 Conține informația despre poziția curentă în lume, orientarea curentă (în ce direcție se uită) și ce nivel entitatea ocupă.
-Fiecare transform mai conține o referență la entitate, pentru a putea accesa entitatea când interogăm grila.
+Fiecare transform mai conține o referință la entitate, pentru a putea accesa entitatea când interogăm grila.
 
 Curent, există conceptul de a fi `directat` care va fi examinată pe urmă.
 Este modelată printr-un `tag` (o componentă fără date), însă recent am adăugat un flag în `Transform` pentru această.
@@ -936,15 +940,15 @@ Ele ar putea fi definite ca metode de extindere, sau ca metode pe `Grid`, deoare
 Aceasta am făcut în primul rând pentru comoditate, deoarece anterior toate transform-urile au avut o referință la lumea în care ele se află.
 Însă, am schimbat acest lucru în mare parte deoarece aproape toate funcțiile într-un mod referă la grilă și mi-a fost anevoios să transmit manual această referință la toate funcțiile.
 
-Când am adaug posibilitatea pentru mai multe lumi de a exista deodată, cumva voi schimba aceast lucru.
+Când voi adaug posibilitatea pentru mai multe lumi de a exista deodată, cumva voi schimba aceast lucru.
 Însă, sper că patch-ul nu va fi unul dificil, având în vedere faptul că codul logicii este de un singur thread, ceea ce înseamnă că am putea să schimb lumea globală când se schimbă lumea curent procesată.
 
-Dacă v-ați uita la cod mai aproape, ați putea să observați că unele câmputi sunt decorate cu atribute.
-Această este legat cu generatorul de cod.
+Dacă v-ați uita la cod mai aproape, ați putea să observați că unele câmpuri sunt decorate cu atribute.
+Aceasta este legat de generatorul de cod.
 În scurt, atributul `Inject` este utilizat pentru a genera un constructor și un constructor de copiere pentru această componentă, care ar solicita o valoare pentru acel câmp ca parametru.
 
 Probabil ați observat și apelările la metodele `Grid.TriggerLeave()` și `Grid.TriggerEnter()`.
-Cum acestea funcționează va fi explicat mai pe urmă.
+Cum acestea funcționează va fi explicat mai târziu.
 
 
 #### Displaceable
@@ -987,7 +991,7 @@ Eu numesc această idee de aplicarea unor detalii mici la algoritmul de deplasar
 
 #### Moving
 
-`Moving` este comportamentul responsibil de deplasarea voluntară.
+`Moving` este comportamentul responsabil de deplasarea voluntară.
 
 Comportamentul `Moving` este un *comportament direcționat activat*, ceea ce implică că el are o funcție `Activate()` care ia o direcție și returnează un boolean, indicând dacă activarea a reușit.
 Așa comportamente pot fi activate de către *sistemul de acționare*.
@@ -1187,7 +1191,7 @@ Aceste trei lucruri, anume instanțierea și adăugare comportamentelor, iniția
 
 ### Tipurile entităților
 
-Prin "tipuri" în acest context nu avem în vedere "subclase", deoarece, cum am menționat anterior, componentele sunt utilizate în loc de moștenire.
+Prin "tipuri" în acest context nu avem în vedere "subclase", deoarece, după cum s-a menționat anterior, componentele sunt utilizate în loc de moștenire.
 Tipurile specifice ale entităților sunt implementate diferit.
 
 #### Procedura în 3 pași
@@ -1272,7 +1276,7 @@ Prin copierea componentelor mă refer la copierea *chain-urilor* și a *câmpuri
 #### Pentru ce să copiem componente?
 
 Acest lucru este esențial pentru inițializarea entităților.
-După cum am menționat, pentru a inițializa o entitate, fabrica corespunzătoare trebuie să cloneze instanța de entitate "subiect" stocată.
+După după cum s-a menționat, pentru a inițializa o entitate, fabrica corespunzătoare trebuie să cloneze instanța de entitate "subiect" stocată.
 
 De ce să nu rulați același set de funcții pe o entitate nouă de fiecare dată când o entitate de acest tip urmează să fie instanțiată în loc de a crea o instanță "subiect" întreagă?
 Cel puțin faptul că acest lucru ar anula posibilitatea de a optimiza copierea chain-urilor pe entitatea nouă să fie *leneșă*, trebuind să fie reconstituită în întregime de fiecare dată când avem nevoie de o nouă instanță, face această idee proastă.
@@ -1307,7 +1311,7 @@ Nu o fac pentru că ar fi greu de implementat și ar lua mult timp, cu beneficii
 
 ### Fabrica de entități
 
-Fabricile de entități, după cum am menționat, conțin o instanță "subiect" și scopul lor este de a crea copii la această instanță la cerere.
+Fabricile de entități, după după cum s-a menționat, conțin o instanță "subiect" și scopul lor este de a crea copii la această instanță la cerere.
 A se vedea [implementarea][29].
 
 Deoarece fabricile pot fi interogate prin ID-ul lor (având un ID de fabrică, este posibil să obțineți fabrica cu acel ID), trebuie să le atribuim aceste ID-uri și să le stocăm în registru.
@@ -1363,7 +1367,7 @@ Deci, aceasta este cu siguranță o problemă care merită rezolvată în cele d
 
 ### Încarcarea tiputilor de entități din JSON în timpul rulării
 
-După cum am menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
+După după cum s-a menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
 
 Generatorul de cod ar metacompila aceste fișiere JSON cu descrieri ale tipurilor de entități în clase reale C# statice, care ar produce pe urmă fabrici de entități funcționale atunci când sunt rulate.
 Dar ar trebui, de asemenea, să fie posibilă încărcarea tipurilor de entități direct din JSON în timpul rulării, transformându-l imediat într-o fabrică de entități funcțională.
@@ -1572,7 +1576,7 @@ Acțiunile au fost implementate în cod în stil POO: avem o interfață pentru 
 
 De asemenea, am definit mai multe funcții ajutătoare pentru instanțierea rapidă a acțiunii dorite fără prea mult boilerplate.
 
-După cum am menționat, acțiunile pot conține, de asemenea, o funcție de predicție.
+După după cum s-a menționat, acțiunile pot conține, de asemenea, o funcție de predicție.
 În acest caz, ar trebui să implementeze interfața `IDirectedPredictable` sau `IUndirectedPredictable`.
 
 
@@ -2111,6 +2115,17 @@ Pentru aceasta, definim un fragment de șablon, [ca cel văzut aici][61].
 Acesta ține cont de tipurile de returnare în versiunea `Try`, returnând rezultatul apelului la metoda alias printr-un parametru `out`. 
 
 Utilizarea șablonului este la fel de simplă ca apelarea metodei `TransformText()` și scrierea rezultatului într-un fișier.
+
+# Concluziile
+
+În timpul dezvoltării acestui sistem am înțeles intuitiv multe lucruri legate de dezvoltarea jocurilor și sistemelor complexe în general.
+Am înțeles sensul decuplării componentelor, abstractizării, event-urilor, generării codului și altelor.
+Toate aceste tehnici aduc la o bază de cod mai ușor de întreținut, mai scalabilă și mai ușor de raționalizată.
+Am primit experiența în documentarea sistemei proprii, prin acestă lucrare și prin altă documentare pe care am scris-o pentru proiect.
+
+Cu părere de rău, nu puteam să găsesc surse bune care să descrie dezvoltarea de așa sisteme complexe până recent, însă în continuare voi consulta cârțile și lucrările științifice scrise de profesioniste cu o experiență imensă în programarea jocurilor, pentru a minimiza experimentarea inutilă și a maximiza productivitatea, ca proiectele mele să fie mai gestionabile din start.
+
+Am mai multe idei referitor la sistem ce deja am, de exemplu am format deja un plan vag de cum să adaug reprezentarea intermediară a tipurilor de entități pentru a realiza deserializarea din JSON.
 
 [1]: https://github.com/AntonC9018/Dungeon-Hopper "Dungeon-Hopper pagina pe github"
 [2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Documentația pentru Dungeon-Hopper"
