@@ -1,1 +1,0 @@
-a = "component(?!(e|ă|a))"

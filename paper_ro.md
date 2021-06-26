@@ -14,6 +14,7 @@
 | PVP         | Player-vs-Player                                  |
 | MOBA        | Mutiplayer Online Battle Arena                    |
 | GC          | Garbage Collector                                 |
+| IP          | Internet Protocol                                 |
 
 # Abstract {.unnumbered}
 
@@ -46,9 +47,9 @@ Este desemnat satisfacerii personale, și comunității online care l-ar continu
 
 Scopurile provin direct din problemele menționate mai sus.
 
-1. Să dezvolt o joc cu mecanici asemănători cu cele din Necrodancer.
+1. Să dezvolt un joc cu mecanici asemănători cu cele din Necrodancer.
 2. Să dezvolt un sistem informatic scalabil cu mai multe proprietăți și un API ușor de utilizat pentru a ușura dezvoltarea modurilor.
-3. Să public codul pe github cu o licența permisivă și să invit dezvoltători de moduri când API-ul devine destul de matur.
+3. Să public codul pe github cu o licență permisivă și să invit dezvoltători de moduri când API-ul devine destul de matur.
 4. Să pot rula jocul pe dispozitive mobile cu sistemul de operare Android.
 
 Realizarea acestor lucruri ar fi valorată doar de o nișă foarte specifică de jucători și modatori, deci proiectul să nu fie considerat în special inovativ sau actual.
@@ -128,7 +129,7 @@ Deci, trebuiam să încerc mai multe idei pentru a ajunge la acele momente mai i
 ## Încerări inițiale
 
 Inițial, încercam să programez jocul în motorul de joc *Corona*, în limbajul de programare *Lua*.
-Permite exportarea pentru sisteme de operare de dispozitive mobile și pe desktop. A se vedea repertoriul pe github după acest link[@github_dungeon_hopper].
+Permite exportarea pentru sisteme de operare de dispozitive mobile și pe desktop [@github_dungeon_hopper].
 
 Însă, înțelegerea mea a structurii acestor jocuri, cum ele lucrează pe partea sistemei, era slabă atunci.
 
@@ -145,10 +146,7 @@ Codul inițial a fost aruncat și rescris de la început în a doua versiune, î
 
 ## Corona și Lua: etapa 2
 
-Lua este un limbaj de programare foarte simplist: nu există tipurile, modulele sau clasele.
-Dynamic method dispatch, încă, poate fi simulat prin metatabelele (moștenirea prototipică).
-Încă, nu există tablouri: și tablouri și dicționari sunt reprezentate prin așa numite tabele (perechile cheiea-valoare).
-
+Lua este un limbaj de programare foarte simplist: nu există tipurile, modulele sau clasele, cu toate că există un fel de metaprogramare prin moștenirea prototipică.
 Cea mai mare problemă cu Lua este lipsa tipurilor și, ca rezultat, lipsa analizei statice.
 Combatați bug-urile proaste, ca o eroare runtime din cauza unei greșeli în numele variabilei, în fiecare zi. 
 Aceste bug-uri sunt dificil de observat.
@@ -164,10 +162,10 @@ Chain-urile vor fi exemplificate mai bine în partea tehnică ce urmează.
 Această idee a devenit esențială pentru modul în care eu am reușit să administrez mișcarea, atacarea, primirea daunei, etc.
 
 În acest timp, am relizat că, ca sistemul să fie destul de robust, am nevoie de componente dinamice.
-Mai mult despre ele în secțiunile ce urmează.
+Mai mult despre ele mai târziu.
 
 Această etapă a proiectului este documentată destul de bine, o valoare esențială, dacă chiar nu aveți tipuri în limbajul Dumneavoastră.
-Am scris niște articole în limba engleză ce descriu unele mecanici din sistem. Le puteți [găsi aici.][2]
+Am scris niște articole în limba engleză ce descriu unele mecanici din sistem [@dungeon_hopper_docs].
 Unele idei documentate aici s-au tradus aproape intact în versiunea nouă a codului.
 
 
@@ -175,15 +173,17 @@ Unele idei documentate aici s-au tradus aproape intact în versiunea nouă a cod
 
 În fine, m-am săturat de faptul că Lua nu are tipuri.
 Am decis să rescriu întregul proiect în C#.
-De ce C#?
-Nu-mi păsa ce motor de joc voi utiliza la final, deci m-am concentrat pe partea logică a proiectului, adică dezvoltarea sistemei.
-Am știut că există **Unity** și **Godot** care suportă C# ca limbajul său de scripting.
-Deci, ideea era să scriu nucleul jocului independent de grafică.
+
+**De ce C#?**
+
+Nu-mi păsa ce motor de joc voi utiliza la final, deci m-am concentrat pe partea logică a proiectului.
+Ideea era să scriu nucleul jocului independent de grafică.
 Acest concept are numele **MVC (Model-View-Controller)** sau **MVVM (Model-View-ViewModel)**.
+Am știut că există **Unity** și **Godot** care suportă C# ca limbajul său de scripting.
 Cu așa sistem, ar fi posibil să creez "scripturi de vizualizare" în orice motor de joc ce suportă C#.
 
 Această idee nu este nimic nou, și de fapt m-am gândit la ea de la început.
-Însă, înainte de a începe a utiliza C#, ideea referitor la modul în care comunicare dintre ele trebuia să fie organizată era vagă în mintea mea.
+Însă, înainte de a începe a utiliza C#, ideea referitor la modul în care comunicarea dintre ele trebuia să fie organizată era vagă în mintea mea.
 Înainte de tranziția această de la Lua, eu nici nu am încercat să creez un sistem destul de robust pentru a putea dirija acest proces.
 Am programat doar un prototip simplu pentru testare și am lăsat așa.
 
@@ -197,7 +197,7 @@ Codul a devenit mai robust, dar nu destul de robust.
 
 Am avut o mulțime de probleme de întreținere care au încetinit programarea și au făcut-o anevoioasă.
 Pe scurt, am folosit fabrici pentru a construi tipurile mele de entități, precum și builder-uri pentru chain-urile lor inițiale.
-Problema este că, dacă creați și utilizați fabricile manual, aveți acest cuplaj strâns dintre fabrica și tipul de entititate pe care îl produce.
+Problema este că, dacă creați și utilizați fabrici manual, aveți acest cuplaj strâns dintre fabrica și tipul de entititate pe care îl produce.
 Deci, când schimbam entitatea, trebuia să mă întorc și să schimb și fabrica.
 Când schimba modul în care funcționează chain-urile, trebuia să mă întorc și să văd dacă builder-ul funcționează corect. 
 
@@ -223,16 +223,16 @@ Pe toate aceste probleme le-am rezolvat în mare parte doar recent, utilizând g
 
 ## Unity și Godot
 
-Peste niște luni după rescierea proiectului în C#, baza de cod a devenit destul de matură pentru a încerca să fac un *view* pe Unity sau Godot.
+Peste niște luni după rescierea proiectului în C#, baza de cod a devenit destul de matură pentru a încerca să fac un view pe Unity sau Godot.
 
-Inițial, am făcut un demo mic pe [Unity][4].
-Demo-ul a prezentat un view care a lucrat cu interfețe și care pe urmă a fost reutilizat pentru același [demo în Godot][5] (nu este veriunea curentă).
+Inițial, am făcut un demo mic pe Unity [@unity_demo].
+Demo-ul a prezentat un view care a lucrat cu interfețe și care pe urmă a fost reutilizat pentru același demo în Godot [@godot_demo] (nu este veriunea curentă).
 Această dată am proiectat un prototip mai robust pentru view, însă oricum unele proprietăți lipseau și nu era plăcut să lucrez cu el.
-Deficiențiele lui au fost adresate în versiunea nouă, în mare parte dezvoltată de către colegul meu, Țurcanu Cristian, care o descrie mai detaliat în [lucrarea sa][6].
+Deficiențiele lui au fost adresate în versiunea nouă, în mare parte dezvoltată de către colegul meu, Țurcanu Cristian, care o descrie mai detaliat în lucrarea sa [@cristi_work].
 
 Mediul concret al motorului de joc, cum s-a menționat anterior, nu-mi afectează procesul de lucru într-un mod semnificativ.
 Din această cauză voi omite descrierea motoarelor acestea.
-Însă colegul meu a lucrat mai apropiat cu motorul de joc, deci vă încurajez să vedeți [lucrarea lui][6] pentru mai multe detalii referitor la motoare de joc.
+Însă colegul meu a lucrat mai apropiat cu motorul de joc, deci vă încurajez să vedeți [@cristi_work] pentru mai multe detalii referitor la motoare de joc.
 Partea mea în dezvoltarea a jocului era să derivez un API esențial, ce am făcut independent de oarecare motor de joc.
 Pentru mine, motorul de joc numai mi-a oferit o modalitate de a vizualiza ce face codul meu.
 Acest mod de a vizualiza ce face programul uneori poate ajuta în identificarea și înțelegerea unor bug-uri.
@@ -278,7 +278,7 @@ Procesul meu de tranformare a codului repetativ în cod generat este aproximativ
 4. Dacă nu pot rezolva astfel, pornesc generarea codului pentru ideea dată.
 
 
-# Prezentarea generală a sistemei
+# Prezentarea generală a sistemului
 
 ## Prezentarea generală a mecanicilor jocului
 
@@ -321,7 +321,7 @@ Jucătorul se confruntă cu problema de a completa un nivel generat aleator.
 Nivelurile consistă dintr-un set de cameri conectate, fiecare cameră conținând inamici.
 Există o cameră finală cu o ușă (sau o trapă, sau o scară) la următorul nivel.
 Când jucătorul învinge un număr de așa niveluri, el confruntă un bos.
-Învingerea bosului ori permite jucătorul să se procede la următorul nivel, sau rezultă într-o victorie generală.
+Învingerea bosului ori permite jucătorul să se procede la următorul nivel, ori rezultă într-o victorie generală.
 
 Nivelurile devin progresiv mai complicate. În special, monștri au mai multe puncte de sănătate, apar tipuri de monștri noi și mai complexe, numărul de pericoli, ca țepușe sau bălți de apă, crește, etc.
 În același timp, jucătorul primește itemi când învinge etajul, care dă abilități noi pasive sau active, sporește statuturile.
@@ -349,16 +349,16 @@ Ei selectează acțiuni după o strategie ușor de înțeles pentru jucător.
 De exemplu, un inamic simplu ar putea să aibă următoarea strategie: a sări peste o acțiune, după ce a ataca sau a se mișca în direcția jucătorului.
 
 Acțiunile inamicilor trebuie să fie previzibile pentru jucător pentru a putea evalua repede o situație dată și a fi sigur în ce acțiune el va lua.
-Ideal nimic aleator sau neprevizibil nu trebuie să întâmple.
+Ideal, nimic aleator sau neprevizibil nu trebuie să întâmple.
 
-Fiecare inamic încă trebuie să aibă o metodă de a-l învinge, un pattern simplu de mișcări care jucătorul poate să urmărească și să câștige mereu.
+Fiecare inamic încă trebuie să aibă o metodă de a-l învinge, un pattern simplu de mișcări care jucătorul poate să urmărească pentru a câștiga mereu.
 Bucuria jocului constă în studierea setului de mișcări al inamicului, găsirea unor pattern-uri și strategii de a-i învinge, și în evaluarea situației rapid, găsind o acțiune bună datorită înțelegerii bune a mecanicilor jocului, în cazul în care inamicii avansează în grupuri.
 
 
 ### Limita de timp
 
 După cum s-a menționat anterior, cea mai intrigantă idee este faptul că există o limită de timp pentru fiecare acțiune.
-Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu anumit spațiu de manevră). 
+Mai specific, acțiunile trebuie să fie selectate după ritmul muzicii (cu un anumit spațiu de manevră). 
 
 Această detalie este esențială pentru design-ul jocului.
 Eu aș zice această mecanică este cea mai importantă mecanică din Necrodancer.
@@ -487,12 +487,12 @@ Acum, după ce le-am separat, putem rezolva și problemele de întreținere.
 Deoarece partea lui view va fi îmbunătățită și va devine un sistem complet și independent, această problemă tot poate fi rezolvată, cu ceva mai mult chibzuit.
 
 
-## O direcție greșită?
+## Podul îngust
 
 Deci, ideea mea inițială era că modelul va fi separat de la view-ul, dar nu am știut cum să fac acest lucru exact.
 Am știut despre event-uri și le-am utilizat, însă realizarea că ele pot fi utilizate pentru comunicarea dintre view-ul și model-ul atunci încă nu a venit la mine.
 Pur și simplu m-am gândit despre problema puțin diferit.
-M-am gândit că view-ul și model-ul sunt aceste două sisteme complet independente, view-ul fiind conectat cu model-ul printr-un pod minuscul.
+M-am gândit că view-ul și model-ul sunt aceste două sisteme complet independente, view-ul fiind conectat cu model-ul printr-un pod îngust.
 Aceasta poate lucra, însă nu este tare scalabil.
 În loc de această abordare, view-ul trebuie să fie conectat cu modelul într-un set lat de puncte de contact, prin event-uri, unde modelul nu ar cunoaște nimic despre view-ul.
 
@@ -530,19 +530,19 @@ Aceasta aduce la `if-else` urâte pentru a determina tipul corect.
 ```C#
 foreach (object update in history)
 {
-   if (update is AttackingUpdate attackingUpdate)
-   {
-       // facem ceva cu datele din `attackingUpdate`
-       // ...
-   }
-   else if (update is MovingEvent movingEvent)
-   {
-       // ați înțeles ideea
-   }
+    if (update is AttackingUpdate attackingUpdate)
+    {
+        // facem ceva cu datele din `attackingUpdate`
+        // ...
+    }
+    else if (update is MovingEvent movingEvent)
+    {
+        // ați înțeles ideea
+    }
 }
 ```
 
-Din cauza că gaură prin care încercați să împingeți aceste actualizări de la model la view-ul este atât de îngustă, aveți nevoie să convertați actualizările într-un tip analog lui `object`, astfel pierzând tipul concret al actualizării în proces.
+Din cauza că gaura prin care încercați să împingeți aceste actualizări de la model la view-ul este atât de îngustă, aveți nevoie să convertați actualizările într-un tip analog lui `object`, astfel pierzând tipul concret al actualizării în proces.
 Acest fenomen poartă numele "ștergerea tipului".
 
 Stop, oare nu putem utiliza polimorfizmul în loc de `if-else` pentru a apela funcțiile concrete care trebuie să proceseze datele?
@@ -652,7 +652,7 @@ class PlayerView
 Această idee poate vă pare evidentă după ce am ilustrat-o, însă pentru mine ea nu era evidentă până recent.
 Trebuia să sufăr prin toate probelemele istoriei explicate mai sus pentru a ajunge la această revelație.
 
-Deci, am reușit șă separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
+Deci, am reușit să separăm view-ul de la modelul, în același timp având posibilitate de a transmite datele de la model la view fără ștergerea tipurilor și chiar să evităm ca model să cunoască despre existența view-ului, datorită unui astfel de design.
 
 ### Este oare totul?
 
@@ -775,41 +775,41 @@ Am considerat să migrez proiectul în C++, însă C++ tot are problemele sale, 
 
 # Subiectele tehnice
 
-În această secțiune, prezint unele elemente din joc.
+În aceast compartiment, prezint unele elemente din joc.
 Mai specific, explic motivarea lor și cum le-am implementat, cu exemple concrete din codul sursă.
 
 ## Grila
 
 După cum s-a stabilit anterior, lumea este reprezintată printr-o grilă de două dimensiuni cu entitățile.
-Întrucât interogările de a afla dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de răspândite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
-Aceasta este de fapt cum am decis să modelez grila ([uitați-vă la costructor][7]).
+Întrucât interogările de a afla dacă o entitate se află într-o celulă specifică, dacă există un bloc pe o celulă specifică sunt atât de obișnuite, am beneficia dacă am păstra entitățile (mai explicit, *transform-urile* lor) în coordonatele curente, într-un tablou de două dimensiuni.
+Aceasta este de fapt cum am decis să modelez grila ([uitați-vă la costructor][ANEXA_grila_1]).
 
-### Celulile
+### Celulele
 
-Se presupune că fiecare celulă are mai multe nivele, unde entitățile de la diferite nivele au proprietăți ceva diferite.
+Se presupune că fiecare celulă are mai multe niveluri, unde entitățile de la diferite niveluri au proprietăți ceva diferite.
 De exemplu, în general, capcana cu țepușe care dăunează jucătorul când acela o calcă, nu poate fi atacată de către jucători sau inamici, dar poate fi exploadată de către bombe.
-Aceasta este capcana este locată pe nivelul `trap` în celula în care se află, pe când jucătorul sau inamicii pot viza doar nivelul `real` cu atacurile normale.
+Această capcană este locată pe nivelul `trap` în celula în care se află, pe când jucătorul sau inamicii pot viza doar nivelul `real` cu atacurile normale.
 În orice caz, am modelat astfel ideea.
 
 Înainte de refacere, am avut câte un slot pentru fiecare nivel al celulei, dar aceasta nu era bine, minimum deoarece majoritatea nivelurilor erau vide aproape mereu.
-A se vede, de exemplu, [clasa celulei din codul precedent, în lua][8].
+A se vede, de exemplu, [clasa celulei din codul precedent, în lua][ANEXA_celula_old_1].
 
-Acest design a avut un minus: poate fi doar o entitate la fiecare nivel în fiecare moment al timpului.
-Aceasta face unele lucruri, de exemplu entități care trec prin alți entități, dificil sau imposibil de implementat sau de considerat.
+Acest design a avut un minus: poate fi doar o entitate la oricare nivel în oricare moment al timpului.
+Aceasta face unele lucruri, de exemplu entități care trec prin alte entități, dificil sau imposibil de implementat sau de considerat.
 
 Am relizat că pot păstra entitățile într-o listă, și itera prin această listă, pentru a lua o entitate din nivelul care mă interesează.
-Căutarea lineară ar fi de fapt acceptabilă în acel scenariu, deoarece celulele de obicei nu am mai mult decât 1-2 entități.
+Căutarea liniară ar fi de fapt acceptabilă în acel scenariu, deoarece celulele de obicei nu am mai mult decât 1-2 entități.
 Cazurile unde ele conțină mai multe entități sunt rare și pot fi neglijate.
 
 Încă un beneficiu de așa abordare este faptul că o entitate poate să-și schimbe nivelul în care ea se află în timpul rulării, fără a actualiza unde ea este păstrată în celulă.
 
 Implementarea curentă a celulii implică moștenirea de la `List<Transform>`.
-[A se vedea implementarea curentă.][9]
-Eu personal nu văd nimic rău în așa abordare, cu toate că [unii spun multe lucruri răi despre aceasta.][10]
-Oamenii deseori ridic tema *compoziție peste moștenire*, cum compoziția este mai flexibilă, însă consider că aici un avem un caz de așa ceva.
+[A se vedea implementarea curentă.][ANEXA_celula_new_1]
+Eu personal nu văd nimic rău în așa abordare, cu toate că unii spun multe lucruri răi despre aceasta.[@stackoverflow_inheriting_from_list]
+Oamenii deseori ridic tema *compoziție peste moștenire*, cum compoziția este mai flexibilă, însă consider că aici nu avem un caz de așa ceva.
 Aici mai mult este vorba despre evitarea boilerplate-ului prin faptul că nu scrieți implementarea pentru interfața `IList<Transform>`, prin înaintarea tuturor metodelor la un membru privat de tip `List<Transform>`.
-În același timp această abordare poate aduce la erori deoarece utilizatorului îi permitem mai multe lucruri de decât el trebuie să fie conștient. 
-De exemplu, dacă castăm celulă în listă, ceea ce putem face în acest caz, putem folosi metoda `Add()` furnizată de către clasa listei, decât de clasa celulei, care mai conțină unele asserturi pentru debug.
+În același timp această abordare poate aduce la erori deoarece îi permitem utilizatorului mai multe lucruri decât el trebuie să fie conștient. 
+De exemplu, dacă castăm o celulă într-o listă, ceea ce putem face în acest caz, putem folosi metoda `Add()` furnizată de către clasa listei, decât de clasa celulei, care mai conține unele asserturi pentru debug.
 
 Mie personal nu-mi pasă ce zic oameni la această temă.
 Eu voi face ceea ce îmi pare admisibil mie.
@@ -821,7 +821,7 @@ Poate când progresez profesional, voi înțelege mai bine.
 
 Să fie notat, țiglele statice nu sunt considerate ca entități și de aceea nu sunt păstrate în grilă.
 Același lucru se aplică la efectele de particule, care nu au influența asupra mecanicilor din joc.
-Modelul este responsabil doar pentru chestiile care sunt legate de logica jocului. 
+Modelul este responsabil doar pentru lucrurile care sunt legate de logica jocului. 
 
 
 ### Componentele responsabile pentru poziție și mișcare
@@ -831,29 +831,29 @@ Evident, abilitatea de a ocupa o poziție în lume și de a putea să-și schimb
 Aceste abilități sunt modelate după următoarele componente specializate:
 - `Transform`, dând o *poziție în lume*,
 - `Displaceable`, dând abilitatea de *a-și schimba poziția în lume*,
-- `Moving`, dând abilitatea de *a se mișca volunar*,
+- `Moving`, dând abilitatea de *a se mișca voluntar*,
 - `Pushable`, dând abilitatea de *a fi mișcat involuntar*.
 
 #### Transform
 
-Entitățile care pot fi poziționate în lume trebuie să aibă componenta [`Transform`][11].
+Entitățile care pot fi poziționate în lume trebuie să aibă componenta [`Transform`][ANEXA_transform_1].
 Conține informația despre poziția curentă în lume, orientarea curentă (în ce direcție se uită) și ce nivel entitatea ocupă.
-Fiecare transform mai conține o referință la entitate, pentru a putea accesa entitatea când interogăm grila.
+Fiecare transform mai conține o referință la entitatea, pentru a o putea accesa când interogăm grila.
 
-Curent, există conceptul de a fi `directat` care va fi examinată pe urmă.
-Este modelată printr-un `tag` (o componentă fără date), însă recent am adăugat un flag în `Transform` pentru această.
+Curent, există conceptul de a fi `directat` care va fi examinat mai târziu.
+Era modelat printr-un `tag` (o componentă fără date), însă recent am adăugat un flag în `Transform` pentru această.
 Astfel am putea introduce mai multe flaguri.
 
 `Transform` mai conține metode ajutătoare pentru interacțiunea cu grila.
 Această componentă este cuplată cu grila.
-Aceste metode sunt definite ca metode instanțe pentru transform simplu pentru comoditate.
+Aceste metode sunt definite ca metode-instanțe pe `Transform` simplu pentru comoditate.
 Ele ar putea fi definite ca metode de extindere, sau ca metode pe `Grid`, deoarece majoritatea lor are analoguri pe `Grid`.
 
 `Transform` curent lucrează cu grila globală, adică, presupune că există *doar o lume în același timp*.
 Aceasta am făcut în primul rând pentru comoditate, deoarece anterior toate transform-urile au avut o referință la lumea în care ele se află.
-Însă, am schimbat acest lucru în mare parte deoarece aproape toate funcțiile într-un mod referă la grilă și mi-a fost anevoios să transmit manual această referință la toate funcțiile.
+Însă, am schimbat acest lucru în mare parte deoarece aproape toate funcțiile într-un mod se referă la grilă și mi-a fost anevoios să transmit manual această referință la toate funcțiile.
 
-Când voi adaug posibilitatea pentru mai multe lumi de a exista deodată, cumva voi schimba aceast lucru.
+Când voi adauga posibilitatea pentru mai multe lumi de a exista deodată, cumva voi schimba aceast lucru.
 Însă, sper că patch-ul nu va fi unul dificil, având în vedere faptul că codul logicii este de un singur thread, ceea ce înseamnă că am putea să schimb lumea globală când se schimbă lumea curent procesată.
 
 Dacă v-ați uita la cod mai aproape, ați putea să observați că unele câmpuri sunt decorate cu atribute.
@@ -872,39 +872,39 @@ Teleportarea la o poziție nouă nu este considerată ca o deplasare.
 Acest comportament permite deplasarea dacă celula unde entitatea se mișcă nu este blocată.
 Informația ce nivel să fie considerat ca nivelul de blocare este stocat ca un câmp injectat în acest comportament deci poate fi schimbată în timpul rulării pentru o entitate particulară, dacă necesită.
 
-`Displaceable` este un *comportament* care poate fi adăugat la o entitate pentru a-i da posibilitate de a se deplasa. [Codul sursă][12].
+`Displaceable` este un *comportament* care poate fi adăugat la o entitate pentru a-i da posibilitate de a se deplasa. [Codul sursă][ANEXA_displaceable].
 În această clasă puteți vede aproximativ modul în care comportamentele sunt implementate.
-[Aici][13] definim niște chain-uri (ca atare event-uri).
+[Aici][ANEXA_displaceable, line 59] definim niște chain-uri (ca atare event-uri).
 Generator de cod reacționează la ele, inițializându-le într-un constructor generat automat, și le copiază în constructorul de copiere generat automat.
 
 Dacă codul extern dorește să adauge handler-uri la aceste chain-uri pe o instanță de entitate (sau pe un tip de entitate, deoarece fabricele sunt modelate print-o instanță de entitate-subiect), ar utiliza atributul `Export`.
-Aplicând acest atribut ar autogenera codul pentru alocarea unui număr de prioritate unic pentru acel handler și, opțional, ar genera un învelitor care ar putea fi utilizat pentru a ușura procesul de obținere a chain-ului necesar de pe entitate și de conectare a acelui handler.
+Aplicând acest atribut ar autogenera codul pentru alocarea unui număr de prioritate unic pentru acel handler și, opțional, ar genera un wrapper care ar putea fi utilizat pentru a ușura procesul de obținere a chain-ului necesar de pe entitate și de conectare a acelui handler.
 
-[Aici][14] avem un exemplu de așa atribute utilizate pentru a expune o funcție handler la generator de cod.
+[Aici][ANEXA_displaceable_export_example] avem un exemplu de așa atribute utilizate pentru a expune o funcție handler la generator de cod.
 
 Diferența dintre chain-urile în comportamentul `Displaceable` este că ele sunt executate în momente diferite ale procesului de deplasare:
-- `Check` se face înainte de deplasare, verificând dacă deplasarea trebuie să fie încercată cu totul.
-Dacă am chain-ul de verificare până la capăt fără stopare, acțiunea de deplasare se consideră reuțită, cu toate că entitatea ar putea să nu se miște în proces. Acesta este by design.
-- `BeforeRemove` reprezintă al doilea verificare pentru a verifica dacă deplasarea trebuie să fie aplicată.
+- `Check` se face înainte de deplasare, verificând dacă deplasarea trebuie să fie încercată de tot.
+Dacă am traversat chain-ul de verificare până la capăt fără stopare, acțiunea de deplasare se consideră reușită, cu toate că entitatea ar putea să nu se miște în proces. Aceasta este by design.
+- `BeforeRemove` verifică dacă deplasarea trebuie să fie aplicată.
   Diferența dintre aceste două chain-uri este că, dacă `BeforeRemove` ar eșua, adică, un handler ar opri propagarea contextului la restul handler-urilor, mișcarea s-ar fi considerată reușită, cu toate că nu ar fi executată în așa caz.
-  Diferența există în mare parte pentru sistemul de acționare, explicată mai pe urmă.
+  Diferența există în mare parte pentru sistemul de acționare, explicat mai târziu.
   Însă ideea cheie este că chain-urile `Check` sunt utilizate pentru a verifica *dacă o acțiune trebuie să fie încercată*.
-  Dacă deplasarea eșuează la `Check`, de exemplu *atacarea va fi încercată*, însă dacă eșuează mai pe urmă la `BeforeRemove`, acțiunea de mișcare va reuși și *nici o acțiune după mișcare nu ar fi încercată*.
-- `BeforeReset` este traversată imediat după ce entitatea a fost eliminat din grilă, dar înainte de a fi *resetată* în grilă.
-  Cum ați putea observa, este traversată direct, fără verificare propagării, deci toate handler-urile se execută garantat după ce `_BeforeResetChain.Pass(ctx);` este apelat.
+  Dacă deplasarea ar eșua la `Check`, de exemplu *atacarea ar fi încercată*, însă dacă ar eșua mai pe urmă la `BeforeRemove`, acțiunea de mișcare ar reuși și *nici o acțiune după acțiunea de mișcare nu ar fi încercată*.
+- `BeforeReset` este traversată imediat după ce entitatea a fost eliminată din grilă, dar înainte de a fi *resetată* în grilă.
+  Cum ați putea observa, este traversată direct, fără a verifica propagarea, deci toate handler-urile se execută garantat după ce `_BeforeResetChain.Pass(ctx);` este apelată.
 - `After` este traversată după ce entitatea a fost resetată în grilă.
 
 Atât de multe chain-uri sunt necesare pentru a putea să schimbe comportamentul de deplasare într-un mod foarte specific.
-De exemplu, funcția particulară după [acest link][14] face așa că când entitatea se deplasează, orientarea lui ar fi schimbată în acea direcție.
-Însă v-ați putea imagina ideile foarte complicate implementate datorită acestor chain-uri.
-De exemplu, [*alunecarea* utilizează chain-ul `After`][15] pentru a opri alunecarea când entitatea se ciocnește cu peretele sau plece de pe o suprafață alunecoasă.
+De exemplu, funcția particulară după [acest link][ANEXA_displaceable_export_example] face așa că când entitatea se deplasează, orientarea ei ar fi schimbată în acea direcție.
+Însă v-ați putea imagina ceva foarte complicat implementat datorită acestor chain-uri.
+De exemplu, [*alunecarea* utilizează chain-ul `After`][ANEXA_displaceable_sliding_example] pentru a opri alunecarea când entitatea se ciocnește cu peretele sau plece de pe o suprafață alunecoasă.
 
 Eu numesc această idee de aplicarea unor detalii mici la algoritmul de deplasare, *retouching*, ca adăugarea unor detalii sau efecte în Photoshop.
 
 
 #### Moving
 
-`Moving` este comportamentul responsabil de deplasarea voluntară.
+`Moving` este comportamentul responsabil pentru deplasarea voluntară.
 
 Comportamentul `Moving` este un *comportament direcționat activat*, ceea ce implică că el are o funcție `Activate()` care ia o direcție și returnează un boolean, indicând dacă activarea a reușit.
 Așa comportamente pot fi activate de către *sistemul de acționare*.
@@ -916,13 +916,13 @@ Scopul lui `Check` ar fi să verificăm dacă trebuie să traversăm chain-ul `D
 Chain-ul `Do` ar conține handler-urile care fac ceea ce ține de mișcare în acest caz.
 Aici încă vedem uzul funcției `DefaultPreset()` care ar seta aceste chain-uri inițial, aplicând handler-urile necesare.
 
-Acest pattern este răspândit între comportament, dar este cel mai util pentru *prototipare*.
+Acest pattern este răspândit între comportamente, dar este cel mai util pentru *prototipare*.
 Strategia unde utilizăm `Check` și `Do` lucrează pentru majoritatea comportamentelor la început, însă eventual deseori realizați că aveți nevoie de mai mult control, de exemplu de chain-urile `Before` sau `After`.
-Atunci veți defini toate pe care le aveți nevoie în comportamentele Dumneavoastră particulare, lăsând autoactivarea în urmă.
+Atunci ați defini toate pe care le aveți nevoie în comportamentele Dumneavoastră particulare, lăsând autoactivarea în urmă.
 
 De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 
-[A se vedea codul sursă.][16]
+[A se vedea codul sursă.][ANEXA_moving]
 
 
 #### Pushable
@@ -931,7 +931,7 @@ De exemplu, `Displaceable` a fost inițial un comportament autoactivat.
 
 Codul lui `Pushable` la moment nu este matur, deci nu pot explica mult aici.
 
-[A se vedea codul sursă.][17]
+[A se vedea codul sursă.][ANEXA_pushable]
 
 
 ### Bloc
@@ -939,47 +939,47 @@ Codul lui `Pushable` la moment nu este matur, deci nu pot explica mult aici.
 Ideea că o entitate nu poate să se miște la o celulă este conceptualizată spunând că acea celulă este *blocată* de o altă entitate.
 Tipic, această entitate ar fi ori de la nivelul *real*, ori de la nivelul *wall*.
 
-Cum am notat anterior, blocarea mișcării este implementată în `Displaceable`.
-Blocuri mai pot afecta *sistemul de selectare țelelor*, explicată mai târziu.
+După cum s-a notat anterior, blocarea mișcării este implementată în `Displaceable`.
+Blocuri mai pot afecta *sistemul de selectare țelelor*, cu părere de rău neexplicată în această lucrare.
 
 #### Entitățile direcționate
 
 Proprietatea de a fi direcționat semnifică că entitatea ar ocupa doar o parte a celulii în care ea se află.
 Așa entități direcționate care servesc ca blocuri direcționate sunt numite *bariere*.
-[Unul din teste][18] explică ideea blocurilor direcționale cu ASCII mai clar decât eu aș putea prin text.
+[Unul din teste][ANEXA_blocks_test] explică ideea blocurilor direcționale cu ASCII mai clar decât eu aș putea prin text.
 Aceasta introduce mai multă complexitate în procesul de detectare dacă o celulă particulară este blocată.
 
 De obicei, pentru blocuri nedirecționate, pur și simplu trebuie să verificăm doar o celulă pentru a determina dacă celula este blocată sau nu.
 Dacă celula conține o entitate din nivelul de bloc Dumneavoastră, da, dacă nu conține, nu.
 Cu blocuri direcționate aceasta este mai subtil.
 
-Dacă entitatea din nivelul de bloc Dumneavoastră este direcționat, trebuie să verificați dacă este la partea corectă a celulei (ce parte ea ocupă este indicată de către orientarea ei).
-Partea corectă a celulei este partea din care caracterul Dumneavoastră o ar intra.
+Dacă entitatea din nivelul de bloc Dumneavoastră este direcționată, trebuie să verificați dacă este la partea corectă a celulei (ce parte ea ocupă este indicată de către orientarea ei).
+Partea corectă a celulei este partea din care caracterul Dumneavoastră o intră.
 Dacă entitatea potențial bloc ar fi pe orice altă parte a celulei, mișcarea nu ar fi blocată. 
 
-Însă nu-i totul! Mai trebuie să verificați dacă celula de pa care caracterul începe mișcare conține un bloc direcțional pe cealaltă parte a celulei de pe care caracterul o ar ieși.
+Însă nu-i totul! Mai trebuie să verificați dacă celula de pe care caracterul începe mișcarea conține un bloc direcțional pe cealaltă parte a celulei, de pe care caracterul o iese.
 
-Am implementat toate acestea în [funcția `HasBlock()`][19] din `Grid`.
+Am implementat toate acestea în [funcția `HasBlock()`][ANEXA_has_block] din `Grid`.
 Deoarece trebuie să știem din ca parte caracterul ar ieși, luăm ca input direcția pe lângă coordonatelor celulei de interes.
 
 
 ### Event-urile de intrare și de ieșire
 
-Grila mai definește [4 structuri utile][20]:
+Grila definește [4 structuri utile][ANEXA_grids_2]:
 - `TriggerGrids` normală de `Enter` și `Leave`;
 - `TriggerGrids` filtrată de `Enter` și `Leave`;
 
 Acestea încă nu și-au demonstrat valoarea utilă în cod, însă le-am utilizat pentru a implementa efectele de *alunecare, bouncing, fixare* și în *proiectile*.
 
 Esențial, aceste grile permit să adăugați funcții handler care vor fi executate când orice entitate intră (sau iese de pe) celula.
-Diferența dintre grilele cele normale și filtrate este faptul că în grilele normale, handler-ul Dumneavoastră *ar fi eliminat după terminarea turului curent*, ceea ce înseamnă că handler-ul va persista numai până la moment când toate entitățile își termină acțiunile.
+Diferența dintre grilele normale și cele filtrate este faptul că în grilele normale handler-ul Dumneavoastră *ar fi eliminat după terminarea turului curent*, ceea ce înseamnă că handler-ul va persista numai până la moment când toate entitățile își termină acțiunile.
 În constrast, handler-urile adăugate în grila filtrată decid dacă ei trebuie să fie păstrate sau scoase singuri, returnând true sau false. 
-Pentru un exemplu, vedeți [`Leave` handlerul lui bouncing][21].
+Pentru un exemplu, vedeți [handler-ul `Leave` lui bouncing][ANEXA_filtered_handler_example].
 
 Remarc că acest API încă nu este complet și am putea să decid să-l schimb în viitor.
 Pur și simplu am explorat ideea care mi-a părut utilă.
 
-De exemplu, [acest handler][21] captează entitatea ca primul argument.
+De exemplu, [acest handler][ANEXA_filtered_handler_example] captează entitatea ca primul argument.
 Captarea (crearea closure-ilor) ideal am s-o schimb la un lookup pe id al entității pentru a permite entităților să fie "garbage collected" imediat.
 Însă, să fac acest lucru manual ar fi anevoios.
 Eu aș putea să utilizez iarăși generatorul de cod pentru acest scop în viitor.
@@ -988,7 +988,7 @@ Eu aș putea să utilizez iarăși generatorul de cod pentru acest scop în viit
 ## Chain-urile
 
 În secțiunile precedente am apăsat ușor ideea de *chain-uri*.
-Acestă secțiune dă o descriere mai detaliată despre ce ele sunt.
+Acest compartiment dă o descriere mai detaliată despre ce ele sunt.
 
 ### Resposibility chains
 
@@ -1001,10 +1001,10 @@ Sensul apelării acestor handleri este de a primi un oarecare rezultat sau de a 
 După ce unul din handler-uri au reușit să-și aplică efectul sau să-și calcula rezultatul, propagarea se termină, adică nici un handler ce urmează nu ar fi executat.
 
 În cazul chain-urilor *din codul meu*, ideea *"reușirii de a-și aplica efectul"* este mai generală.
-Oare propagarea trebuie să fie oprită este verificat prin evaluarea proprietății `Propagate` a contextului, care poate or incapsula un câmp boolean ori să utilizeze o funcție pentru a calcula valoarea în dependența de valorile altor câmpuri din context.
+Oare propagarea trebuie să fie oprită este verificat prin evaluarea proprietății `Propagate` a contextului, care poate ori incapsula un câmp boolean ori utiliza o funcție pentru a calcula valoarea în dependența de valorile altor câmpuri din context.
 Încă, un chain poate fi *trecut fără a verifica propagarea*, adică trecut până la capăt independent de valoare lui `Propagate`.
 
-A se vedea [testele pentru chain-urile][24].
+A se vedea [testele pentru chain-urile][ANEXA_chains_tests].
 
 ### Prioritatea
 
@@ -1030,8 +1030,8 @@ Curent, utilizez un arbore binar balansat (`SortedSet` în C#).
 
 Prioritatea este prescrisă în funcția de inițializare generată automat, utilizând registrul pentru a genera numere de prioritate.
 
-Am făcut o clasă specială pentru acest lucru, [priority assigner][25], care mapează *rangurile de prioritate* la *numere de prioritate*.
-[Rangurile de prioritate][26] sunt următoarele: lowest, low, medium, high și highest și sunt definite într-un enum.
+Am făcut o clasă specială pentru acest lucru, [priority assigner][ANEXA_priority_assigner], care mapează *rangurile de prioritate* la *numere de prioritate*.
+[Rangurile de prioritate][ANEXA_priority_ranks] sunt următoarele: lowest, low, medium, high și highest și sunt definite într-un enum.
 Posibil am adăuga mai multe ranguri în viitor, însă pentru moment este suficient.
 
 Când marcați un handler pentru export, puteți specifica un rang de prioritate.
@@ -1044,8 +1044,8 @@ Deci, am adăugat `LinearChain` care este un chain fără priorități, elemente
 Mai am definit `SelfFilteringChain` care utilizează un bufer dublu pentru a se filtra în timpul traversării, inserând elemenetele care trebuie să le pastrăm în al doilea bufer, pe urma schimbând buferele cu locuri.
 Am văzut deja un exemplu de utilizare în `TriggerGrids`.
 
-A se vedea [implementarea lui `DoubleList`][22].
-A se vedea [implementarea differitelor tipuri de chain-uri][23].
+A se vedea [implementarea lui `DoubleList`][ANEXA_double_list].
+A se vedea [implementarea differitelor tipuri de chain-uri][ANEXA_chain_types].
 
 
 ## Entități și Componente
@@ -1065,10 +1065,10 @@ Deci, ar fi echitabil să le numim simplu *containere pentru componente*.
 Adițional, entitățile mele încă își stochează *id-ul tipului*, pentru a simplifica interacțiunea cu view-ul.
 Acest id al tipului este utilizat pentru sistemul itemilor (însă probabil voi schimba aceasta).
 
-[A se vedea codul sursă][27].
+[A se vedea codul sursă][ANEXA_entity].
 
-Cum puteți observa, clasa `Entity` este `sealed`, semnuficând că ea nu poate fi moștenită.
-Cum am discutat deja în [prezentarea generală a sistemului](#324-ecs-entity-component-system), unicul mecanism utilizat pentru a atinge diversitatea proprietăților și a comportamentelor entităților este *folosirea componentelor*.
+După cum puteți observa, clasa `Entity` este `sealed`, semnificând că ea nu poate fi moștenită.
+După cum am discutat deja în [prezentarea generală a sistemului](#ecs-entitate-component-sistem) unicul mecanism utilizat pentru a atinge diversitatea proprietăților și a comportamentelor entităților este *folosirea componentelor*.
 Datorită acestuia, comportamentul sau proprietățile entităților pot fi augmentate prin aplicarea noilor componente sau prin eliminarea celor existente.
 
 
@@ -1077,21 +1077,21 @@ Datorită acestuia, comportamentul sau proprietățile entităților pot fi augm
 Fiecare componentă are 2 tipuri de câmpuri:
 
 1. *Câmpurile injectate*.
-Valorile acestora sunt transmite prin constructor, setate și deseori nu sunt schimbate niciodată.
+Valorile acestora sunt transmise prin constructor, setate și deseori nu sunt schimbate niciodată.
 Copierea formei inițiale a unei componente ar însemna copierea tuturor valorilor injectate.
 De exemplu, nivelul entității este un câmp injectat pe componenta `Transform`.
-2. *Alte câmăuri*.
-Acestea sunt necesare pentru a cuprinde *starea runtime* a componentei.
+2. *Alte câmpuri*.
+Acestea sunt necesare pentru a cuprinde *starea runtime* a unei componente.
 De exemplu, flagurile pe comportamentul `Acting` indică dacă entitatea deja a făcut o actțiune în acest tur.
 Poziția și orientarea curentă pe `Transform`.
 
-Deci, cum am stabilit, pentru a funcționa cum-se-cade, componentele trebuie să fie furnizate cu valorile pentru toate câmpurile injectate când componenta este instanciat.
+Deci, cum am stabilit, pentru a funcționa cum-se-cade, componentele trebuie să fie furnizate cu valorile pentru toate câmpurile injectate când componenta este instanțiată.
 
 Comportamentele definesc mai un tip de câmp, anume *chain-urile*.
 Chain-urile reprezintă mecanismul care permite să atingem *polimorfizmul*.
 
-Al doilea punct important este faptul că comportamentele pot schimba comportamentul general a unei entități într-un mod.
-Acesta implică adăugarea funcțiilor handler pe chain-urile sale proprii sau pe cele definite de alte comportamente, deja prezente pe acea entitate.
+Al doilea punct important este faptul că comportamentele pot schimba comportamentul general a unei entități într-un mod specific.
+Aceasta implică adăugarea funcțiilor handler pe chain-urile sale proprii sau pe cele definite de alte comportamente, deja prezente pe acea entitate.
 
 De exemplu, `Acting` trebuie să-și reseteze flagurile când turul se termină.
 Pentru a atinge aceasta, adaugă un *handler de resetare* pe chain-ul de ticare a comportamentului `Ticking`.
@@ -1100,10 +1100,10 @@ Al treilea lucru sunt *retoucher-urile*.
 Retoucher-urile sunt handler-urile care sunt adăugate separat pe chain-uri specifice a unui comportament specific.
 Le-am menționat când am dat prezentarea generală a sistemului.
 
-Aceste trei lucruri, anume instanțierea și adăugare comportamentelor, inițializarea handler-urilor comportamentelor și retușare definesc modul în care entitățile sunt fabricate.
+Aceste trei lucruri, anume instanțierea și adăugarea comportamentelor, inițializarea handler-urilor comportamentelor și retușarea definesc modul în care entitățile sunt fabricate.
 
 
-### Tipurile entităților
+### Tipuri de entități
 
 Prin "tipuri" în acest context nu avem în vedere "subclase", deoarece, după cum s-a menționat anterior, componentele sunt utilizate în loc de moștenire.
 Tipurile specifice ale entităților sunt implementate diferit.
@@ -1125,7 +1125,7 @@ Dacă luăm în considerare lucrurile menționate mai sus necesare pentru ca com
 
 Așadar, ideea mea a fost să definesc tipurile de entități ca clase statice cu 3 funcții statice, câte o funcție pentru fiecare pas, care ar augmenta subiectul fabricii pentru a construi inițial entitatea unui tip dat.
 
-Iată [un exemplu de astfel de clasă statică][28].
+Iată [un exemplu de astfel de clasă statică][ANEXA_entity_type_example].
 Acest exemplu ilustrează, de asemenea, modul în care se realizează un fel de moștenire a tipurilor: trebuie doar să apelați aceste 3 funcții ale tipului pe care doriți să-l moșteniți la pașii corespunzători, înainte de a le apela pe cele proprii.
 
 Iată un exemplu al sintaxei pentru moștenire.
@@ -1211,15 +1211,15 @@ Deoarece toate componentele sunt cunoscute static în prealabil, nu avem nevoie 
 Codul meu folosește pe larg copierea prin generarea codului, oferind constructori de copiere autogenerate și funcții de copiere, care, la rândul lor, folosesc acești constructori.
 Mai multe detalii despre generarea codului mai târziu.
 
-Copierea manuală este uneori preferate față de generarea codului automată, deoarece, pentru unele componente, strategia de creare a unei copii ar putea fi prea complexă.
-Deci, generatorul de cod nu va furniza construcorul de copiere, dacă găsește unul specificat de utilizator.
+Copierea manuală este uneori preferată față de generarea codului automată, deoarece, pentru unele componente, strategia de creare a unei copii ar putea fi prea complexă.
+Deci, generatorul de cod nu va furniza constructorul de copiere, dacă găsește unul specificat de utilizator.
 
 Acum să înțelegem ce ar fi de fapt copiat de fiecare dată:
 
 1. Valorile câmpurilor injectate.
 Acestea sunt copiate direct (prin referință, dacă este un tip de referință, sau făcând o copie shallow, dacă este un tip de valoare).
 1. Chain-urile sunt întotdeauna copiate.
-Deoarece nu permit nici un closure pentru handler-uri, adică funcțiile nu sunt permise să capteze de exemplu componente, sarcina de copiere a acestora este banală, și anume, se copiează doar structura de date subiacentă.
+Deoarece nu permit nici un closure pentru handler-uri, adică funcțiile nu sunt permise să capteze de exemplu unele componente, sarcina de copiere a acestora este banală, și anume, se copiază doar structura de date subiacentă.
 Aceasta poate fi, de asemenea, îmbunătățit în viitor utilizând un set sortat imuabil, astfel încât să fie copiat numai atunci când se schimbă handler-urile obiectului nou.
 
 Faptul că valorile câmpurilor runtime nu trebuie să fie copiate duce la o altă idee interesantă.
@@ -1231,7 +1231,7 @@ Nu o fac pentru că ar fi greu de implementat și ar lua mult timp, cu beneficii
 ### Fabrica de entități
 
 Fabricile de entități, după după cum s-a menționat, conțin o instanță "subiect" și scopul lor este de a crea copii la această instanță la cerere.
-A se vedea [implementarea][29].
+A se vedea [implementarea][ANEXA_entity_factory].
 
 Deoarece fabricile pot fi interogate prin ID-ul lor (având un ID de fabrică, este posibil să obțineți fabrica cu acel ID), trebuie să le atribuim aceste ID-uri și să le stocăm în registru.
 Voi prezenta mai multe teorii despre registru și identificatori mai târziu.
@@ -1240,7 +1240,7 @@ Voi prezenta mai multe teorii despre registru și identificatori mai târziu.
 
 O altă idee ipotetică neimplementată interesantă este de a crea wrapper-uri asupra unor tipuri de entități specifice.
 
-În prezent, generatorul de cod creează unele metode de extensie pentru clasa `Entitate` pentru recuperarea unei anumite componente dintr-o entitate.
+În prezent, generatorul de cod creează unele metode de extensie pentru clasa `Entitate` pentru obținerea unei anumite componente dintr-o entitate.
 Deci, având orice entitate, chiar dacă acesta nu are componenta `X`, puteți executa `entity.GetX()` sau `entity.TryGetX()`.
 Acest lucru este rău atunci când vă așteptați la o entitate de un anumit tip, deoarece toate metodele irelevante, adică metodele care recuperează componente care nu ar exista niciodată pe acea entitate, ar crea dezordine printre metodele relevante.
 Acest lucru face explorarea API-ului prin Intellisense considerabil mai dificilă și este predispusă la erori.
@@ -1272,12 +1272,12 @@ public void HypotheticalUsage()
 }
 ```
 
-Metodele `GetY()` și `GetZ()` nu vor aglomera imaginea, când știm că entitatea este de tipul entității `A`.
+Metodele `GetY()` și `GetZ()` nu vor aglomera ecranul, când știm că entitatea este de tipul entității `A`.
 Dacă, dintr-un anumit motiv, am decis că dorim să obținem `Y` de la entitate, putem face simplu `wrapped.entity.GetY();` sau chiar să accesăm orice alte metode de extensie care au fost definite pentru entitate.
 
-Deci, ar fi un wrapper *moale*, mai degrabă decât unul dur, ca atunci când moștenești o clasă.
+Deci, ar fi un wrapper *moale*, mai degrabă decât unul dur, ca atunci când moșteniți o clasă.
 
-Odată ce avem un mod de a stoca o reprezentare intermediară a tipului de entitate, adică ce componente vor fi prezente pe ea după ce fabrica entității a fost instanțiată, sarcina de a genera aceste clase de wrapper devine relativ trivială.
+Odată ce avem un mod de a stoca o reprezentare intermediară a tipului de entitate, adică ce componente vor fi prezente pe ea după ce fabrica entității o instanțiază, sarcina de a genera aceste clase de wrapper devine relativ trivială.
 
 Totuși, această reprezentare intermediară este, de asemenea, o idee ipotetică la moment.
 Trebuie prea mult lucru pentru a implementa ideea în timp.
@@ -1286,9 +1286,9 @@ Deci, aceasta este cu siguranță o problemă care merită rezolvată în cele d
 
 ### Încarcarea tiputilor de entități din JSON în timpul rulării
 
-După după cum s-a menționat, definirea tipurilor de entități în JSON încă nu am implementat-o, dar este o îmbunătățire planificată.
+După cum s-a menționat, încă nu am implementat definirea tipurilor de entități în JSON, dar este o îmbunătățire planificată.
 
-Generatorul de cod ar metacompila aceste fișiere JSON cu descrieri ale tipurilor de entități în clase reale C# statice, care ar produce pe urmă fabrici de entități funcționale atunci când sunt rulate.
+Generatorul de cod ar metacompila aceste fișiere JSON cu descrieri ale tipurilor de entități în clase reale C# statice, care ar produce fabrici de entități funcționale atunci când sunt rulate.
 Dar ar trebui, de asemenea, să fie posibilă încărcarea tipurilor de entități direct din JSON în timpul rulării, transformându-l imediat într-o fabrică de entități funcțională.
 
 Pentru a nu redefini aceeași logică atât în generatorul de fabrică runtime de entități, cât și în metacompilator, poate fi utilizată o logică partajată care ar analiza fișierele JSON și ar genera o reprezentare intermediară a tipurilor de entități.
@@ -1304,14 +1304,14 @@ Tipurile de entități runtime se pot dovedi utile în prototiparea tipurilor no
 ### Când și cum are loc acționarea
 
 În prezent, atât *sistemul de acționare*, cât și *tick-area entităților* sunt dirijate direct de lume.
-Numesc subsistemul lumii responsabil pentru acționare și tick-area, "WorldStateManager" (un nume temporar).
-A se vedea [codul sursă][30].
+Numesc subsistemul lumii responsabil pentru acționare și tick-area, `WorldStateManager` (un nume temporar).
+A se vedea [codul sursă][ANEXA_world_state_manager].
 
 Acest sistem funcționează ținând evidența la toate comportamentele de acționare `Acting` și de tick-are `Ticking` prezente la un oarecare moment în joc.
 Comportamentele de acționare sunt stocate într-o matrice multidimensională, după *ordinea* lor.
 Ordinea specifică când ar fi apelat comportamentul de acțiune dat, printre altele.
-Deci, entitățile cu ordinea inferioară vor fi activate mai întâi și apoi vor fi cele cu ordinea inferioară.
-În prezent [există 4 ordine][31], ale căror comportamente actuale sunt activate unul după altul.
+Deci, entitățile cu ordinea inferioară vor fi activate mai întâi.
+În prezent [există 4 ordine][ANEXA_orders_enum], ale căror comportamente actuale sunt activate unul după altul.
 
 Lucrurile se fac în acest mod pentru a modela ceea ce trebuie să se întâmple în joc.
 Și anume, acțiunile inamicilor sunt executate după acțiunile jucătorului, după ce rândul se duce la obiectele din mediu înconjurător.
@@ -1325,7 +1325,7 @@ Ce se întâmplă exact când este activat comportamentul de acționare al unei 
 
 *Bucla de joc* reprezintă secvența de pași care se întâmplă în timpul unei ture.
 Ea include activarea tuturor comportamentelor de acțiune în ordine, urmată de activarea tuturor comportamentelor de tick-are.
-A se vedea [codul][32].
+A se vedea [codul][ANEXA_bucla_de_joc].
 
 API-ul nu este complet. Noile *chain-uri globale* introduse vor fi utilizate pentru a implementa semnale pentru momentul în care se începe și se termină bucla de joc.
 *Chain-urile globale* vor fi discutate mai târziu.
@@ -1373,9 +1373,9 @@ Pașii în sine sunt fără stare, definind pur și simplu regulile de tranziți
 
 De fiecare dată când acțiunea trebuie calculată, secvența returnează acțiunea asociată cu pasul curent.
 Când acțiunea respectivă a fost executată, pasul curent din secvență este ajustat în dependența de rezultatul acțiunii.
-A se vedea [codul sursă pentru `Sequence`][33].
+A se vedea [codul sursă pentru `Sequence`][ANEXA_sequence].
 
-Iată [un exemplu simplu aș unei secvențe][34]. Să trecem peste el.
+Iată [un exemplu simplu aș unei secvențe][ANEXA_sequence_example]. Să trecem peste el.
 
 Deci, această secvență reprezintă IA a unui schelet simplu (zombi).
 Ideea este ca inamicul să se miște sau să atace jucătorul în fiecare tur.
@@ -1391,14 +1391,14 @@ Al doilea pas din secvență reprezintă acțiunea "a nu face nimic".
 
 Când al doilea pas se termină, secvența trece la primul pas și se repetă.
 
-Iată [un exemplu mai implicat][35].
+Iată [un exemplu mai implicat][ANEXA_knipper_example_sequence].
 
 
 #### Movs
 
 Numesc algoritmul pentru selectarea unei direcții pentru acțiune un algoritm `Movs`.
 
-În acest [exemplu de bază al unei secvențe][34] a fost utilizat algoritmul `Basic`.
+În acest [exemplu de bază al unei secvențe][ANEXA_sequence_example] a fost utilizat algoritmul `Basic`.
 Acest algoritm returnează direcțiile care v-ar apropia de jucător.
 De exemplu, dacă jucătorul ar fi direct în sus de inamic, doar direcția în sus ar fi returnată de algoritm.
 Însă, dacă jucătorul ar fi sus și în stânga inamicului, direcțiile în sus și în stânga ar fi returnate.
@@ -1409,9 +1409,9 @@ Folosesc matematica pentru a afla ce direcții să returnez.
 În primul rând, observăm că singurele direcții plauzibile returnate de algoritm coincid cu proiecțiile vectorului diferenței dintre poziția jucătorului și poziția inamicului pe axele x și y.
 Dacă una dintre proiecții este zero, adică există o singură direcție plauzibilă care ne apropie de jucător (în exemplul de mai sus această direcție era în sus), returnăm cealaltă proiecție non-zero, ceea ce este, de fapt, acea direcţie plauzibilă.
 În caz contrar, returnăm mai întâi acea proiecție, care este mai aproape aliniată cu orientarea curentă a inamicului, după ce returnăm și cealaltă.
-Factorul de "aliniere" poate fi definit matematic ca produsul scalar între vectorul de orientare și vectorul proiectat dat. A se vedea funcția `Basic` din [codul sursă][36].
+Factorul de "aliniere" poate fi definit matematic ca produsul scalar între vectorul de orientare și vectorul proiectat dat. A se vedea funcția `Basic` din [codul sursă][ANEXA_basic_movs].
 
-Există mai mulți algoritmi `Movs` predefiniți. A se vedea [codul sursă][36].
+Există mai mulți algoritmi `Movs` predefiniți. A se vedea [codul sursă][ANEXA_basic_movs].
 
 Algoritmii de mișcare nu sunt complete din cauza existenței *facțiunilor*.
 În prezent, presupun că facțiunea vizată este facțiunea jucătorului, adică orice entitate care folosește funcțiile movs se presupune că vizează jucătorul.
@@ -1446,10 +1446,9 @@ Dacă o acțiune reușește, algoritmul de execuție a acțiunilor se oprește.
 
 Acum, ce se întâmplă dacă o acțiune eșuează deoarece un alt inamic a împiedicat-o să reușească?
 Oare acțiunea inamicul în final rămâne neexecutată, chiar dacă ar fi fost posibilă?
-(A se vedea o [descriere a acestei probleme][37] pe opencript lui Zakru, un proiect similar cu al meu, dar care a fost abandonat).
+(A se vedea o descriere a acestei probleme [@opencrypt_order_issue] pe opencrypt lui Zakru, un proiect similar cu al meu, dar care a fost abandonat).
 
 Soluția mea la această problemă este de a face acea entitate să acționeze, dacă nu a făcut-o deja.
-Deci, atunci când decidem că de exemplu un alt incamic ne blochează calea, facem acel inamic să acționeze.
 După ce a acționat, ne încercăm din nou acțiunea.
 
 Problema asociată acestei abordări este că inamicul pe care îl impunem să acționeze ar putea aștepta el însuși un alt inamic să acționeze în același timp. 
@@ -1462,9 +1461,9 @@ Dacă fie acest flag, fie flagul care indică faptul că acționarea se face cur
 
 Cealaltă problemă, una mai mare, este cum să ne dăm seama ce entitate ne blochează acțiunea.
 Pentru acum, am optat pentru o abordare euristică simplă: entitatea în direcția curent încercată este solicitată să acționeze.
-În general, însă, această entitate nu ar fi cea care ne-ar împiedica să ne acționăm.
+În general, însă, această entitate nu ar fi acea care ne-ar împiedica să acționăm.
 
-A se vedea [implementarea curentă][38].
+A se vedea [implementarea curentă][ANEXA_enemy_algo].
 
 
 ### Predicții 
@@ -1473,9 +1472,9 @@ Predicțiile sunt necesare pentru a indica jucătorului acele celule din lume ca
 Acest sistem nu este încă cu totul complet în cod.
 
 L-am implementat în așa fel că orice acțiune poate avea o funcție de predicție asociată, care ar returna astfel de poziții.
-Apoi, când vizualizarea dorește de exemplu să deseneze cruci la acele coordonate, ar itera prin toate entitățile, făcându-le să-și calculeze următoarea acțiune și apoi să utilizeze funcțiile de predicție ale acțiunilor calculate pentru a obține celulele periculoase pentru jucător. A se vedea [codul sursă][39].
+Apoi, când vizualizarea dorește de exemplu să deseneze cruci la acele coordonate, ar itera prin toate entitățile, făcându-le să-și calculeze următoarea acțiune și apoi să utilizeze funcțiile de predicție ale acțiunilor calculate pentru a obține celulele periculoase pentru jucător. A se vedea [codul sursă][ANEXA_predictions].
 
-În prezent, API-ul nu este suficient de lustruit, dar funcționează deja cu atacuri și explozii.
+În prezent, API-ul nu este suficient de lustruit, dar deja funcționează cu atacuri și explozii.
 
 ### Acțiuni
 
@@ -1485,7 +1484,7 @@ Am menționat deja că acțiunile pot fi de 2 tipuri principale:
 1. *acțiuni direcționate*, care necesită o direcție în care vor fi executate;
 2. *acțiuni nedirecționate*, care nu necesită o direcție.
 
-A se vedea [codul sursă][40].
+A se vedea [codul sursă][ANEXA_action].
 
 Înainte ca acțiunea să fie executată, îi se asociază o direcție după ce ea este stocată ca `CompiledAction`.
 Atunci când este compilată o acțiune direcționată sau o acțiune nedirecționată, devine posibilă executarea acesteia direct, fără a furniza o direcție.
@@ -1499,7 +1498,7 @@ Acțiunile au fost implementate în cod în stil POO: avem o interfață pentru 
 
 De asemenea, am definit mai multe funcții ajutătoare pentru instanțierea rapidă a acțiunii dorite fără prea mult boilerplate.
 
-După după cum s-a menționat, acțiunile pot conține, de asemenea, o funcție de predicție.
+După cum s-a menționat, acțiunile pot conține, de asemenea, o funcție de predicție.
 În acest caz, ar trebui să implementeze interfața `IDirectedPredictable` sau `IUndirectedPredictable`.
 
 
@@ -1508,7 +1507,7 @@ După după cum s-a menționat, acțiunile pot conține, de asemenea, o funcție
 Este posibil ca o entitate să facă o altă acțiune în locul celei alese.
 De exemplu, atunci când o entitate alunecă, ea nu ar trebui să poată face acțiuni direcționate.
 Acest lucru se realizează prin înlocuirea acțiunii selectate de jucător prin mișcarea în direcția de alunecare și efectuarea acțiunii inițiale a jucătorului numai dacă alunecarea eșuează.
-A se vedea [codul sursă][41].
+A se vedea [codul sursă][ANEXA_sliding_action_substitution].
 
 Poate modul în care am realizat această funcționalitate nu este corect. 
 Poate am trebui s-o înlocuiesc prin ajustarea acțiunii atunci când ea este calculată, deoarece dacă lăsăm așa cum este acum, predicțiile ar devine uneori incorecte.
@@ -1532,7 +1531,7 @@ Conținutul poate fi orice lucru care necesită un identificator, cum ar fi tipu
 Registrul poate fi, de asemenea, utilizat pentru a atribui *identificatori de runtime*, care sunt utilizați pentru a identifica *instanțe*, cum ar fi entitățile.
 O mapare este, de asemenea, furnizată de la un identificator cunoscut al instanței de entitate cu acel identificator.
 
-### Cazuri de utilizare
+### Cazurile de utilizare
 
 #### Serializare
 
@@ -1571,12 +1570,12 @@ Cu această abordare, puteți permite chiar și utilizarea closure-urilor (desig
 
 De fapt, acesta este motivul pentru care closure-urile în handler-uri nu sunt permise.
 Cum ați serializa un handler definit în timpul rulării?
-Deoarece în C# nu se permite instanțierea unui closure de un tip anonim corect, ar trebui să definiți tipuri de închidere specifice dacă doriți ca acestea să fie serializate, ceea ce ar fi anevoios (prea multe clase, sintaxa ar fi prea detaliată).
+Deoarece în C# nu se permite instanțierea unui closure de un tip anonim corect, ar trebui să definiți tipuri de închidere specifice dacă doriți ca acestea să fie serializate, ceea ce ar fi anevoios (prea multe clase, sintaxa ar fi prea verbose).
 Mai mult, amestecarea tipurilor de closure specifice, definite de utilizator ca clase, și cele anonime este complicată.
 Acesta este, de fapt, un neajuns al C#, deoarece nu este greu de implementat, cel puțin conceptual.
 Oricum, este așa cum este.
 
-Deci, în codul meu, spun că codul care dorește să utilizeze închideri peste obiecte runtime (cum ar fi entități) ca handler la evenimente (chain-uri), trebuie să le atașeze fie în constructor (fie într-o funcție de inițializare), fie să le facă temporare, deoarece aceste handler-uri nu ar fi serializate.
+Deci, în codul meu, spun că codul care dorește să utilizeze închideri peste obiecte runtime (cum ar fi entități) ca handler la evenimente (chain-uri), trebuie să le atașeze fie în constructor (fie într-o funcție de inițializare), fie să le facă temporare, atunci nu ar fi serializate.
 
 Același sistem poate fi aplicat la oricare conținut static, cum ar fi tipurile de entități.
 
@@ -1609,7 +1608,7 @@ De fapt, am folosit-o la început.
 Astfel, am optat pentru *indici* (în alte sisteme, acestea se mai numesc și *referințe*).
 În opinia mea, indicii sunt o idee bună. 
 Ei încapsulează atât tipul obiectului asociat identificatorului, cât și identificatorul în sine.
-A se vedea [codul sursă][42].
+A se vedea [codul sursă][ANEXA_components].
 
 Acest lucru este util, deoarece permite rezolvarea automată a genericilor, ceea ce ajută la evitarea cast-urilor explicite și, prin urmare, a erorilor din cod.
 
@@ -1687,7 +1686,7 @@ PlainComponent plain     = entity.GetComponent(PlainComponent.Index);
 SpecialComponent special = entity.GetComponent(SpecialComponent.Index); // Evocă metoda supraîncărcată.
 ```
 
-Implementarea reală este destul de similară, a se vedea [codul sursă relevant][43].
+Implementarea reală este destul de similară, a se vedea [codul sursă relevant][ANEXA_entity_components].
 
 Există o problemă aparentă cu această abordare: fiecare componentă ar conține boilerplate-ul acelui câmp de index static și fiecare componentă ar trebui să primească un identificator din partea registrului. 
 Am reușit să rezolv această problemă prin generărarea codului.
@@ -1736,15 +1735,15 @@ Acest lucru este facilitat de generatorul de cod, care creează automat o astfel
 
 Un identificator este, în esență, un număr unic.
 Pentru orice conținut definit de moduri (inclusiv modul `Core`), am decis să folosesc unul care să conțină un număr întreg pe 32 de biți care să indice numărul modului și un număr întreg pe 32 de biți care să indice numărul secvențial al tipului dat.
-A se vedea [`Indentifier` în codul sursă][44].
+A se vedea [`Indentifier` în codul sursă][ANEXA_id].
 
 Identificatorul *runtime* este utilizat pentru identificarea *instanțelor* entităților. În codul actual am optat pentru un singur număr întreg pe 32 de biți, dar acesta poate fi modificat. 
-A se vedea [`RuntimeIdentifier` în codul sursă][45].
+A se vedea [`RuntimeIdentifier` în codul sursă][ANEXA_runtime_id].
 
 Registrul atribuie identificatorii în mod secvențial.
 Modurile, de asemenea, primesc identificatori secvențiali, deși ar fi benefic ca ele să-și specifice prin hardcode numărul lor de mod. 
-Iată [cel mai simplu identificator][46], fără mapare. 
-Iată un [subregistru pentru orice categorie specifică de tipuri, cu mapare][47].
+Iată [cel mai simplu identificator][ANEXA_id_assigner], fără mapare. 
+Iată un [subregistru pentru orice categorie specifică de tipuri, cu mapare][ANEXA_static_registry].
 
 În prezent, codul de registru nu l-am perfecționat.
 Nu există nicio modalitate de a defini categorii personalizate de tipuri, ceea ce va fi cu siguranță util în viitor.
@@ -1779,9 +1778,7 @@ Cele două instrumente principale pe care le folosesc pentru generarea de cod su
 
 T4 este utilizat de dezvoltatori ca parte a unei aplicații sau a unui cadru de instrumente pentru a automatiza crearea de fișiere text cu o varietate de parametri. Aceste fișiere text pot fi, în cele din urmă, orice format de text, cum ar fi codul (de exemplu, C#), XML, HTML sau XAML.
 
-T4 utilizează un format de șablon personalizat care poate conține cod .NET și șiruri literale în el, acesta fiind analizat de instrumentul de linie de comandă T4 în cod .NET, compilat și executat. Rezultatul codului executat este fișierul text generat de șablon. T4 poate fi, de asemenea, rulat complet în cadrul aplicațiilor .NET prin utilizarea clasei `TextTransformation`, ceea ce elimină necesitatea ca utilizatorul final să aibă instalat Visual Studio. 
-
-[Sursa: wiki][48].
+T4 utilizează un format de șablon personalizat care poate conține cod .NET și șiruri literale în el, acesta fiind analizat de instrumentul de linie de comandă T4 în cod .NET, compilat și executat. Rezultatul codului executat este fișierul text generat de șablon. T4 poate fi, de asemenea, rulat complet în cadrul aplicațiilor .NET prin utilizarea clasei `TextTransformation`, ceea ce elimină necesitatea ca utilizatorul final să aibă instalat Visual Studio [@t4_wiki]. 
 
 #### De ce T4?
 
@@ -1877,7 +1874,7 @@ A doua strategie este doar puțin diferită:
 Lucrul cu șabloanele este, în mare parte, destul de simplu, iar modul în care acestea funcționează este și el transparent.
 
 Să considerăm un șablon de text, care este un amestec de cod de control și textul care urmează să fie tipărit. Acesta este mai întâi compilat în 2 clase C#:
-- O clasă de bază, care implementează [*interfața duck* necesară pentru generarea codului][52]. Aceasta implică definirea unei metode virtuale sau abstracte `TransformText()`, a metodelor `Write()` și `WriteLine()` pentru afișarea textului și mai niște lucruri;
+- O clasă de bază, care implementează *interfața duck* necesară pentru generarea codului [@t4_mic_docs]. Aceasta implică definirea unei metode virtuale sau abstracte `TransformText()`, a metodelor `Write()` și `WriteLine()` pentru afișarea textului și mai niște lucruri;
 - Clasa de afișare propriu-zisă, care moștenește din clasa de bază, care transformă codul de control în cod C# real, iar textul care urmează să fie afișat în apeluri la `Write()` și `WriteLine()`. 
 Acesta inserează tot acest cod de afișare în metoda suprascrisă `TransformText()`.
 Deoarece sunt lipite în scopul clasei de afișare, ele pot accesa orice câmpuri sau proprietăți definite în aceasta.
@@ -1889,7 +1886,7 @@ Este posibilă împărțirea bucăților de cod T4 comune mai multor șabloane �
 Am folosit această abordare pentru a insera, de exemplu, o remarcă că codul a fost autogenerat în partea de sus a fiecărui fișier generat, remarca însăși fiind preluată dintr-un [fișier txt cu textul ei][53].
 
 Am avut unele probleme cu indentarea, pe care le-am rezolvat folosind `PushIndent()`, `PopIndent()` și o modificare șmecheră a metodei `Write()`.
-A se vedea [aceast post pe stackoverflow unde am împărtășit soluția mea][54].
+A se vedea aceast post pe stackoverflow unde am împărtășit soluția mea [@stackoverflow_t4_indentation].
 
 Încerc să păstrez logica mea separată de șablonul de text, pentru a păstra șablonul mai simplu.
 Definesc proprietăți, metode sau câmpuri de ajutor pentru componentele mele logice, referințe pe care le includ ca și câmpuri în clasa specială a clasei de afișare.
@@ -2015,7 +2012,7 @@ Pentru aceasta, folosesc `SymbolFinder.FindImplementations()`, a se vedea [codul
 Apoi găsesc toate metodele care au atributul `Alias`. 
 A se vedea [codul sursă][58]. 
 Aici, încerc să obțin atributul dat și, dacă există, îl transform într-un tip de atribut cunoscut (atributele sunt definite într-un proiect partajat, astfel încât generatorul de cod să poată transforma reprezentarea generică a unui atribut lui Roslyn în acest tip cunoscut).
-Pentru mai multe informații despre transformarea aceasta în tipuri de atribute cunoscute, consultați [această întrebare a mea pe stackoverflow][59].
+Pentru mai multe informații despre transformarea aceasta în tipuri de atribute cunoscute, consultați această întrebare a mea pe stackoverflow [@stackoverflow_roslyn_attribute_casts].
 
 Așadar, am reușit am găsim simbolurile metodelor cu atributul `Alias`, definite în cadrul claselor care implementează `IComponent`.
 
@@ -2053,77 +2050,110 @@ Cu părere de rău, nu puteam să găsesc surse bune care să descrie dezvoltare
 
 Am mai multe idei referitor la sistem ce deja am, de exemplu am format deja un plan vag de cum să adaug reprezentarea intermediară a tipurilor de entități pentru a realiza deserializarea din JSON.
 
-# References {.unnumbered}
+# Bibliografie {.unnumbered}
 
 ---
-csl: http://www.zotero.org/styles/acta-medica-peruana
+csl: acta-medica-peruana.csl
+lang: ro
 references:
 - id: github_dungeon_hopper
-  title: Dungeon-Hopper pagina pe github
-  author:
-  - family: Anton
-    given: Curmanschii
+  title: 'Dungeon-Hopper pagina pe github'
   URL: 'https://github.com/AntonC9018/Dungeon-Hopper'
+- id: dungeon_hopper_docs
+  title: 'Documentația pentru Dungeon-Hopper'
+  URL: 'https://antonc9018.github.io/Dungeon-Hopper-Docs/'
+- id: hopper_github
+  title: 'hopper.cs pagina pe github'
+  URL: 'https://github.com/AntonC9018/hopper.cs'
+- id: unity_demo
+  title: 'Hopper: Unity pagina pe github demo'
+  URL: 'https://github.com/AntonC9018/hopper-unity'
+- id: godot_demo
+  title: 'Hopper: Godot pagina pe github demo'
+  URL: 'https://github.com/AntonC9018/hopper-godot'
+- id: cristi_work
+  title: 'Lucrarea lui Țurcanu Cristian'
+- id: stackoverflow_inheriting_from_list
+  title: 'Moștenirea listelor în C#'
+  URL: 'https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt'
+- id: opencrypt_order_issue
+  title: 'Problema opencrypt a lui Zacru privind mișcarea inamicului'
+  URL: 'https://github.com/Zakru/opencrypt/issues/1#issue-457013204'
+- id: t4_wiki
+  title: 'T4 wiki'
+  URL: 'https://www.wikiwand.com/en/Text_Template_Transformation_Toolkit'
+- id: t4_mic_docs
+  title: 'Documentarea interfaței duck lui T4'
+  URL: 'https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.texttemplating.texttransformation?view=visualstudiosdk-2019'
+- id: stackoverflow_t4_indentation
+  title: 'Corecții la indentarea codului inclus din alte fișiere într-un șablon T4'
+  URL: 'https://stackoverflow.com/questions/67561998/t4-indent-code-included-from-another-file'
+- id: stackoverflow_roslyn_attribute_casts
+  title: 'Castarea lui AttributeData la un tip de atribut cunoscut'
+  URL: 'https://stackoverflow.com/questions/67539903/converting-attributedata-into-a-known-attribute-type-roslyn'
 ---
   
 
-[2]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Documentația pentru Dungeon-Hopper"
-[3]: https://github.com/AntonC9018/hopper.cs "hopper.cs pagina pe github"
-[4]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity pagina pe github demo"
-[5]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot pagina pe github demo"
-[6]: <citation_needed> "Lucrarea colegului"
-[7]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Grid.cs#L30 "Constructorul lui GridManager"
-[8]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "Fosta clasă Cell în Lua"
-[9]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Cell.cs#L8 "Implementarea curentă a clasei Cell"
-[10]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "Moștenirea listelor în C#"
-[11]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/TransformComponent.cs#L16 "Transform"
-[12]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs "Displaceable"
-[13]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs#L59 "Displaceable: declarațiile chain-urilor"
-[14]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Retouchers/Reorient.cs#L12 "Exemplu de export de atribute"
-[15]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L58 "Exemplu la Sliding"
-[16]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Moving.cs "Moving"
-[17]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Pushable.cs "Pushable"
-[18]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/.Tests/Core_Tests/GridTests.cs#L169-L195 "Bloc directat: explicația în ASCII"
-[19]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/World/Grid/Grid.cs#L189 "Grid.HasBlock()"
-[20]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/Core/World/Grid/Grid.cs#L16-L19 "Trigger Grids"
-[21]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/TestContent/Mechanics/Bouncing/Bouncing.cs#L52 "Exemplu de handler filtrat"
-[22]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/DoubleList.cs "DoubleList"
-[23]: https://github.com/AntonC9018/hopper.cs/tree/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/Chains "Chains"
-[24]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/.Tests/Core_Tests/Chain.cs "Chain Tests"
-[25]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Registry/PriorityAssigner.cs "Distribuitor de priorități"
-[26]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Shared/PriorityRank.cs "Priority Ranks"
-[27]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/Entity.cs "Clasa Entity"
-[28]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/TestContent/EntityTypes/Skeleton.cs "Exemplu de tip de entitate: Skeleton"
-[29]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/EntityFactory.cs "Implementarea lui EntityFactory"
-[30]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs "WorldStateManager"
-[31]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Order.cs "Orders"
-[32]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs#L38 "Loop"
-[33]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Sequence/Sequence.cs "Sequence"
-[34]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Skeleton.cs#L19-L24 "Exemplu simplu de secvență"
-[35]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Knipper.cs#L22-L53 "Knipper: un exemplu mai complicat"
-[36]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Movs/Basic.cs "Algoritmi de mișcare predefiniți"
-[37]: https://github.com/Zakru/opencrypt/issues/1#issue-457013204 "Problema opencrypt a lui Zacru privind mișcarea inamicului"
-[38]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Algos/Enemy.cs "Enemy Algo"
-[39]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Predictions/Predictor.cs "Predictor"
-[40]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Action.cs "Acțiune"
-[41]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L55 "Alunecarea substituția acțiunii"
-[42]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Components/Index.cs "Index"
-[43]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Entity/Entity.cs#L41-L51 "Componentele entității"
-[44]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/Identifier.cs "Identificator"
-[45]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/RuntimeIdentifier.cs "Identificator Runtime"
-[46]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/IdentifierAssigner.cs "Identifier assigner"
-[47]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/StaticRegistry.cs "Static Registry"
-[48]: https://www.wikiwand.com/en/Text_Template_Transformation_Toolkit "T4 wiki"
+<!-- [@dungeon_hopper_docs]: https://antonc9018.github.io/Dungeon-Hopper-Docs/ "Documentația pentru Dungeon-Hopper"
+[@hopper_github]: https://github.com/AntonC9018/hopper.cs "hopper.cs pagina pe github"
+[@unity_demo]: https://github.com/AntonC9018/hopper-unity "Hopper: Unity pagina pe github demo"
+[@godot_demo]: https://github.com/AntonC9018/hopper-godot "Hopper: Godot pagina pe github demo"
+[@cristi_work]: <citation_needed> "Lucrarea colegului"
+[@stackoverflow_inheriting_from_list]: https://stackoverflow.com/questions/21692193/why-not-inherit-from-listt "Moștenirea listelor în C#"
+[@opencrypt_order_issue]: https://github.com/Zakru/opencrypt/issues/1#issue-457013204 "Problema opencrypt a lui Zacru privind mișcarea inamicului"
+[@t4_wiki]: https://www.wikiwand.com/en/Text_Template_Transformation_Toolkit "T4 wiki"
+[@t4_mic_docs]: https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.texttemplating.texttransformation?view=visualstudiosdk-2019 "Documentarea interfaței duck lui T4"
+[@stackoverflow_t4_indentation]: https://stackoverflow.com/questions/67561998/t4-indent-code-included-from-another-file "Corecții la indentarea codului inclus din alte fișiere într-un șablon T4"
+[@stackoverflow_roslyn_attribute_casts]: https://stackoverflow.com/questions/67539903/converting-attributedata-into-a-known-attribute-type-roslyn "Castarea lui AttributeData la un tip de atribut cunoscut" -->
+
+
+
+[ANEXA_grila_1]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Grid.cs "Constructorul lui GridManager"
+[ANEXA_celula_old_1]: https://github.com/AntonC9018/Dungeon-Hopper/blob/master/world/cell.lua#L19 "Fosta clasă Cell în Lua"
+[ANEXA_celula_new_1]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/Cell.cs#L8 "Implementarea curentă a clasei Cell"
+[ANEXA_transform_1]: https://github.com/AntonC9018/hopper.cs/blob/5b3156f38a03867272357085813409e9076cfc6d/Core/World/Grid/TransformComponent.cs#L16 "Transform"
+[ANEXA_displaceable]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs "Displaceable"
+[ANEXA_displaceable, line 59]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/Components/Basic/Displaceable.cs#L59 "Displaceable: declarațiile chain-urilor"
+[ANEXA_displaceable_export_example]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Retouchers/Reorient.cs#L12 "Exemplu de export de atribute"
+[ANEXA_displaceable_sliding_example]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L58 "Exemplu la Sliding"
+[ANEXA_moving]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Moving.cs "Moving"
+[ANEXA_pushable]: https://github.com/AntonC9018/hopper.cs/blob/0bcc623cb17d56f765b402860cd0e62e31885ad2/Core/Components/Basic/Pushable.cs "Pushable"
+[ANEXA_blocks_test]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/.Tests/Core_Tests/GridTests.cs#L169-L195 "Bloc directat: explicația în ASCII"
+[ANEXA_has_block]: https://github.com/AntonC9018/hopper.cs/blob/25612ec4438f39f8b590c3a7426c5f0b6a8dea78/Core/World/Grid/Grid.cs#L176-L210 "Grid.HasBlock()"
+[ANEXA_grids_2]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/Core/World/Grid/Grid.cs#L16-L19 "Trigger Grids"
+[ANEXA_filtered_handler_example]: https://github.com/AntonC9018/hopper.cs/blob/408ae5fb9ec73fa3426648442d122c57f623a6ef/TestContent/Mechanics/Bouncing/Bouncing.cs#L52 "Exemplu de handler filtrat"
+[ANEXA_double_list]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/DoubleList.cs "DoubleList"
+[ANEXA_chain_types]: https://github.com/AntonC9018/hopper.cs/tree/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Utils/Chains "Chains"
+[ANEXA_chains_tests]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/.Tests/Core_Tests/Chain.cs "Chain Tests"
+[ANEXA_priority_assigner]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Registry/PriorityAssigner.cs "Distribuitor de priorități"
+[ANEXA_priority_ranks]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Shared/PriorityRank.cs "Priority Ranks"
+[ANEXA_entity]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/Entity.cs "Clasa Entity"
+[ANEXA_entity_type_example]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/TestContent/EntityTypes/Skeleton.cs "Exemplu de tip de entitate: Skeleton"
+[ANEXA_entity_factory]: https://github.com/AntonC9018/hopper.cs/blob/86ca8afdfc40c3de04548f9d66e4738d8b86f9c6/Core/Entity/EntityFactory.cs "Implementarea lui EntityFactory"
+[ANEXA_world_state_manager]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs "WorldStateManager"
+[ANEXA_orders_enum]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Order.cs "Orders"
+[ANEXA_bucla_de_joc]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/World/WorldStateManager.cs#L38 "Loop"
+[ANEXA_sequence]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Sequence/Sequence.cs "Sequence"
+[ANEXA_sequence_example]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Skeleton.cs#L19-L24 "Exemplu simplu de secvență"
+[ANEXA_knipper_example_sequence]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/EntityTypes/Knipper.cs#L22-L53 "Knipper: un exemplu mai complicat"
+[ANEXA_basic_movs]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Movs/Basic.cs "Algoritmi de mișcare predefiniți"
+[ANEXA_enemy_algo]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Algos/Enemy.cs "Enemy Algo"
+[ANEXA_predictions]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Predictions/Predictor.cs "Predictor"
+[ANEXA_action]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Acting/Action.cs "Acțiune"
+[ANEXA_sliding_action_substitution]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/TestContent/Modifiers/Sliding/SlidingEntityModifier.cs#L55 "Alunecarea substituția acțiunii"
+[ANEXA_components]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Components/Index.cs "Index"
+[ANEXA_entity_components]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Entity/Entity.cs#L41-L51 "Componentele entității"
+[ANEXA_id]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/Identifier.cs "Identificator"
+[ANEXA_runtime_id]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/RuntimeIdentifier.cs "Identificator Runtime"
+[ANEXA_id_assigner]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/IdentifierAssigner.cs "Identifier assigner"
+[ANEXA_static_registry]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Core/Registry/StaticRegistry.cs "Static Registry"
 [49]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/FlagEnumSymbolWrapper.cs "FlagEnumSymbolWrapper"
 [50]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/FlagsPrinter.tt "FlagsPrinter"
 [51]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Shared/Attributes.cs "Lista de atribute"
-[52]: https://docs.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.texttemplating.texttransformation?view=visualstudiosdk-2019 "Documentarea interfaței duck lui T4 "
 [53]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/autogen_notice.txt "Remarca că codul a fost autogenerat"
-[54]: https://stackoverflow.com/questions/67561998/t4-indent-code-included-from-another-file "Corecții la indentarea codului inclus din alte fișiere într-un șablon T4"
 [55]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Printers/AllInitPrinter.cs "AllInitPrinter"
 [56]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L145-L155 "Proprietăți Frontend în clasa de bază"
 [57]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/GenerationEnvironment.cs#L133 "FindAllDirectiComponents"
 [58]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Components/TypeSymbolWrapperBase.cs#L66-L92 "Obținerea metodelor alias"
-[59]: https://stackoverflow.com/questions/67539903/converting-attributedata-into-a-known-attribute-type-roslyn "Casting AttributeData la un tip de atribut cunoscut"
 [60]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Logic/Shared/SymbolExtensions.cs#L124-L141 "ParamsWithActor()"
 [61]: https://github.com/AntonC9018/hopper.cs/blob/6bed84a0603d0f1f782ab8f243d2df1adb36f286/Meta/Templates/Snippets/ComponentEntityExtension.txt#L49 "Metode alias"

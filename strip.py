@@ -1,13 +1,13 @@
-input_name = 'paper.md'
-output_name = 'paper_stripped.txt'
+input_name = 'paper_ro.md'
+output_name = 'paper_ro_stripped.md'
 
 file = open(input_name, 'r')
 output = open(output_name, 'w')
 
 line = file.readline()
 
-while line.find('<!-- /TOC -->') == -1:
-    line = file.readline()
+while line:
+     
 
 within_block = False
 
