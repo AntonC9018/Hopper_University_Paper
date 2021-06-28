@@ -6,6 +6,9 @@ output-file: paper.docx
 input-files: 
 - paper_ro.md
 
+filters:
+- pagebreaks.lua
+
 standalone: true
 table-of-contents: true
 toc-depth: 2
@@ -14,4 +17,6 @@ reference-location: document
 reference-doc: reference.docx
 number-sections: true
 citeproc: true
+variables:
+  documentclass: memoir
 
